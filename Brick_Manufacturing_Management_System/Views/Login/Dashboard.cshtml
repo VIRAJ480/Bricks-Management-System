@@ -1,0 +1,441 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
+    var username = Context.Session.GetString("Username") ?? "Admin";
+    var today = DateOnly.FromDateTime(DateTime.Today);
+}
+
+@section Styles {
+    <style>
+        .welcome-banner {
+            background: linear-gradient(135deg, rgba(224,123,57,.18) 0%, rgba(224,123,57,.06) 100%);
+            border: 1px solid rgba(224,123,57,.22);
+            border-radius: 14px;
+            padding: 22px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-banner::before {
+            content: '🧱';
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 80px;
+            opacity: .06;
+            pointer-events: none;
+        }
+        .wb-left h2 { font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:var(--text-pri); letter-spacing:1px; }
+        .wb-left h2 span { color:var(--accent); }
+        .wb-left p { font-size:13px; color:var(--text-sec); margin-top:3px; }
+        .wb-chips { display:flex; gap:10px; flex-wrap:wrap; }
+        .wb-chip { display:flex; align-items:center; gap:6px; background:rgba(224,123,57,.09); border:1px solid rgba(224,123,57,.18); border-radius:20px; padding:5px 13px; font-size:12px; color:var(--text-sec); }
+        .wb-chip strong { color:var(--text-pri); }
+
+        .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:14px; margin-bottom:26px; }
+        .sc { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 18px 14px; position:relative; overflow:hidden; cursor:pointer; transition:transform .2s,box-shadow .2s; animation:fadeUp .4s both; }
+        .sc:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,.4); }
+        .sc::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--sc-color,var(--accent)); }
+        .sc-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; background:rgba(224,123,57,.1); }
+        .sc-val { font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:700; color:var(--text-pri); line-height:1; }
+        .sc-lbl { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-sec); margin-top:4px; }
+        .sc-link { display:inline-flex; align-items:center; gap:4px; margin-top:10px; font-size:11px; font-weight:600; color:var(--sc-color,var(--accent)); text-decoration:none; opacity:.7; transition:opacity .2s; }
+        .sc-link:hover { opacity:1; }
+        .c1{--sc-color:#e07b39} .c1 .sc-icon{background:rgba(224,123,57,.12)}
+        .c2{--sc-color:#f5c542} .c2 .sc-icon{background:rgba(245,197,66,.1)}
+        .c3{--sc-color:#22d3a4} .c3 .sc-icon{background:rgba(34,211,164,.1)}
+        .c4{--sc-color:#60a5fa} .c4 .sc-icon{background:rgba(96,165,250,.1)}
+        .c5{--sc-color:#a78bfa} .c5 .sc-icon{background:rgba(167,139,250,.1)}
+        .c6{--sc-color:#f472b6} .c6 .sc-icon{background:rgba(244,114,182,.1)}
+        .c7{--sc-color:#fb923c} .c7 .sc-icon{background:rgba(251,146,60,.1)}
+        .c8{--sc-color:#34d399} .c8 .sc-icon{background:rgba(52,211,153,.1)}
+        .c10 .sc-icon{background:rgba(255,0,0,.1)}
+
+        .sec-hdr { display:flex; align-items:center; justify-content:space-between; margin:26px 0 12px; }
+        .sec-hdr h3 { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; letter-spacing:1.5px; color:var(--text-pri); display:flex; align-items:center; gap:8px; }
+        .sec-hdr h3 span { color:var(--accent); font-size:16px; }
+        .sec-hdr a { font-size:12px; color:var(--accent); text-decoration:none; font-weight:600; }
+        .sec-hdr a:hover { text-decoration:underline; }
+
+        .panel { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+        .dtbl { width:100%; border-collapse:collapse; font-size:13px; }
+        .dtbl thead tr { background:rgba(224,123,57,.06); }
+        .dtbl th { padding:11px 14px; text-align:left; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-sec); font-weight:700; border-bottom:1px solid var(--border); }
+        .dtbl td { padding:11px 14px; border-bottom:1px solid var(--border); color:var(--text-pri); vertical-align:middle; }
+        .dtbl tbody tr:last-child td { border-bottom:none; }
+        .dtbl tbody tr:hover td { background:rgba(224,123,57,.04); }
+
+        .bdg { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+        .bdg-paid    { background:rgba(34,211,164,.14); color:#22d3a4; }
+        .bdg-pending { background:rgba(245,197,66,.14); color:#f5c542; }
+        .bdg-unpaid  { background:rgba(248,81,73,.14);  color:#f85149; }
+        .bdg-active  { background:rgba(34,211,164,.14); color:#22d3a4; }
+
+        .av { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#e07b39,#7c3510); display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
+        .name-cell { display:flex; align-items:center; gap:9px; }
+
+        .qlist { display:flex; flex-direction:column; }
+        .qlist-item { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid var(--border); transition:background .15s; }
+        .qlist-item:last-child { border-bottom:none; }
+        .qlist-item:hover { background:rgba(224,123,57,.04); }
+        .qlist-left { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-pri); }
+        .qlist-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:rgba(224,123,57,.1); }
+        .qlist-sub { font-size:11px; color:var(--text-sec); margin-top:2px; }
+
+        .two-col   { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+        .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
+        @@media(max-width:1100px){ .three-col{grid-template-columns:1fr 1fr;} }
+        @@media(max-width:900px) { .two-col,.three-col{grid-template-columns:1fr;} }
+
+        .alert-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); transition:background .15s; }
+        .alert-item:last-child { border-bottom:none; }
+        .alert-item:hover { background:rgba(248,81,73,.04); }
+        .alert-days { width:42px; text-align:center; flex-shrink:0; font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#f85149; line-height:1; }
+        .alert-days .dl { font-family:'Nunito',sans-serif; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--text-sec); }
+        .alert-info .an { font-size:13px; font-weight:600; color:var(--text-pri); }
+        .alert-info .am { font-size:11px; color:var(--text-sec); margin-top:2px; }
+
+        @@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .sc:nth-child(1){animation-delay:.04s} .sc:nth-child(2){animation-delay:.08s}
+        .sc:nth-child(3){animation-delay:.12s} .sc:nth-child(4){animation-delay:.16s}
+        .sc:nth-child(5){animation-delay:.20s} .sc:nth-child(6){animation-delay:.24s}
+        .sc:nth-child(7){animation-delay:.28s} .sc:nth-child(8){animation-delay:.32s}
+    </style>
+}
+
+<!-- WELCOME BANNER -->
+<div class="welcome-banner">
+    <div class="wb-left">
+        <h2>Hello, <span>@username</span> 👋</h2>
+        <p data-i18n="dash.overview">Here's your Brick Factory overview</p>
+    </div>
+    <div class="wb-chips">
+        <div class="wb-chip">🕐 <strong>@DateTime.Now.ToString("hh:mm tt")</strong></div>
+        <div class="wb-chip">🏭 <strong style="color:#22d3a4;" data-i18n="dash.factoryActive">Factory Active</strong></div>
+    </div>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+    <div class="sc c1">
+        <div class="sc-icon">🏪</div>
+        <div class="sc-val">@ViewBag.VendorCount</div>
+        <div class="sc-lbl" data-i18n="dash.vendors">Vendors</div>
+        <a class="sc-link" href="/Vendor/Index" data-i18n="dash.manage">Manage →</a>
+    </div>
+    <div class="sc c2">
+        <div class="sc-icon">📦</div>
+        <div class="sc-val">@ViewBag.MaterialCount</div>
+        <div class="sc-lbl" data-i18n="dash.materialTypes">Material Types</div>
+        <a class="sc-link" href="/Material/Index" data-i18n="dash.viewAll">View All →</a>
+    </div>
+    <div class="sc c3">
+        <div class="sc-icon">👷</div>
+        <div class="sc-val">@ViewBag.LabourCount</div>
+        <div class="sc-lbl" data-i18n="dash.activeLabour">Active Labour</div>
+        <a class="sc-link" href="/LabourMaster/Index" data-i18n="dash.viewAll">View All →</a>
+    </div>
+@*     <div class="sc c4">
+        <div class="sc-icon">🏭</div>
+        <div class="sc-val">@(((decimal)ViewBag.BricksToday).ToString("N0"))</div>
+        <div class="sc-lbl" data-i18n="dash.bricksToday">Bricks Today</div>
+        <a class="sc-link" href="/BrickProduction/Index" data-i18n="dash.production">Production →</a>
+    </div> *@
+    <div class="sc c5">
+        <div class="sc-icon">👥</div>
+        <div class="sc-val">@ViewBag.CustomerCount</div>
+        <div class="sc-lbl" data-i18n="dash.customers">Customers</div>
+        <a class="sc-link" href="/CustomerMaster/Index" data-i18n="dash.viewAll">View All →</a>
+    </div>
+    <div class="sc c7">
+        <div class="sc-icon">💰</div>
+        <div class="sc-val">@ViewBag.LabourLedgerCount</div>
+        <div class="sc-lbl" data-i18n="dash.LabourLedgerReport">Labour Ledger Report</div>
+        <a class="sc-link" href="/LabourLedgerReport/Index" data-i18n="dash.report">Report →</a>
+    </div>
+    <div class="sc c8">
+        <div class="sc-icon">🕒</div>
+        <div class="sc-val">₹@(((decimal)ViewBag.PendingPayments).ToString("N0"))</div>
+        <div class="sc-lbl" data-i18n="dash.pendingPayments"> Customer Pending Payments</div>
+        <a class="sc-link" href="/PendingPaymentReport/Index" data-i18n="dash.review">Review →</a>
+    </div>
+    <div class="sc c8">
+        <div class="sc-icon">🕒</div>
+        <div class="sc-val">₹@(((decimal)ViewBag.VendorPendingPayments).ToString("N0"))</div>
+        <div class="sc-lbl" data-i18n="dash.VendorPendingPaymentReport"> Vendor Pending Payments</div>
+        <a class="sc-link" href="/VendorPendingPaymentReport/Index" data-i18n="dash.review">Review →</a>
+    </div>
+    <div class="sc c10">
+        <div class="sc-icon">💸</div>
+        <div class="sc-val">₹@(((decimal)ViewBag.AdvanceBalance).ToString("N0"))</div>
+        <div class="sc-lbl" data-i18n="dash.AdvanceDeduction">Advance Deduction</div>
+        <a class="sc-link" href="/AdvanceDeduction/Index" data-i18n="dash.review">Review →</a>
+    </div>
+    <div class="sc c2">
+        <div class="sc-icon">🧱</div>
+        <div class="sc-val">@ViewBag.Breadbricks</div>
+        <div class="sc-lbl" data-i18n="dash.Breadbricks">Bread bricks</div>
+        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
+    </div>
+    <div class="sc c2">
+        <div class="sc-icon">🧱</div>
+        <div class="sc-val">@ViewBag.Solidbricks</div>
+        <div class="sc-lbl" data-i18n="dash.Solidbricks">Solid bricks</div>
+        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
+    </div>
+</div>
+
+<!-- ROW 1: Recent Sales + Recent Purchases -->
+<div class="two-col">
+
+    <!-- Recent Brick Sales -->
+    <div>
+        <div class="sec-hdr">
+            <h3><span>🧱</span> <span data-i18n="dash.recentSales">Recent Brick Sales</span></h3>
+            <a href="/BrickSales/Index" data-i18n="dash.viewAll">View All →</a>
+        </div>
+        <div class="panel">
+            <table class="dtbl">
+                <thead>
+                    <tr>
+                        <th data-i18n="dash.col.customer">Customer</th>
+                        <th data-i18n="dash.col.bricksQty">Bricks (Qty)</th>
+                        <th data-i18n="dash.col.rate">Rate</th>
+                        <th data-i18n="dash.col.amount">Amount</th>
+                        <th data-i18n="dash.col.status">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in (IEnumerable<dynamic>)ViewBag.RecentSales)
+                    {
+                        string cname = (string)(s.CustomerName ?? "—");
+                        var initials = string.Join("", cname.Split(' ').Take(2).Select(w => w.Length > 0 ? w[0].ToString() : "")).ToUpper();
+                        decimal pending = (decimal)(s.PendingAmount ?? 0);
+                        decimal paid    = (decimal)(s.PaidAmount ?? 0);
+                        string sc = pending == 0 ? "bdg-paid" : (paid > 0 ? "bdg-pending" : "bdg-unpaid");
+                        string st = pending == 0 ? "Paid"     : (paid > 0 ? "Partial"     : "Pending");
+                        string ac = pending == 0 ? "#22d3a4"  : (paid > 0 ? "#f5c542"     : "#f85149");
+                        <tr>
+                            <td><div class="name-cell"><div class="av">@initials</div> @cname</div></td>
+                            <td>@(((int)(s.Quantity ?? 0)).ToString("N0"))</td>
+                            <td>₹@(((decimal)(s.Rate ?? 0)).ToString("N2"))</td>
+                            <td style="color:@ac;font-weight:700;">₹@(((decimal)(s.TotalAmount ?? 0)).ToString("N2"))</td>
+                            <td><span class="bdg @sc">@st</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Material Purchases -->
+    <div>
+        <div class="sec-hdr">
+            <h3><span>🛒</span> <span data-i18n="dash.recentPurchases">Recent Material Purchases</span></h3>
+            <a href="/MaterialPurchase/Index" data-i18n="dash.viewAll">View All →</a>
+        </div>
+        <div class="panel">
+            <table class="dtbl">
+                <thead>
+                    <tr>
+                        <th data-i18n="dash.col.vendor">Vendor</th>
+                        <th data-i18n="dash.col.material">Material</th>
+                        <th data-i18n="dash.col.qty">Qty</th>
+                        <th data-i18n="dash.col.amount">Amount</th>
+                        <th data-i18n="dash.col.status">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in (IEnumerable<dynamic>)ViewBag.RecentPurchases)
+                    {
+                        string vname = (string)(p.VendorName ?? "—");
+                        var vi = string.Join("", vname.Split(' ').Take(2).Select(w => w.Length > 0 ? w[0].ToString() : "")).ToUpper();
+                        decimal ppend = (decimal)(p.PendingAmount ?? 0);
+                        decimal ppaid = (decimal)(p.PaidAmount ?? 0);
+                        string ps = ppend == 0 ? "bdg-paid" : (ppaid > 0 ? "bdg-pending" : "bdg-unpaid");
+                        string pt = ppend == 0 ? "Paid"     : (ppaid > 0 ? "Partial"     : "Due");
+                        <tr>
+                            <td><div class="name-cell"><div class="av">@vi</div> @vname</div></td>
+                            <td>@((string)(p.MaterialName ?? "—"))</td>
+                            <td>@(((decimal)(p.Quantity ?? 0)).ToString("N0"))</td>
+                            <td style="color:#e07b39;font-weight:700;">₹@(((decimal)(p.TotalAmount ?? 0)).ToString("N2"))</td>
+                            <td><span class="bdg @ps">@pt</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ROW 2: Labour + Production + Pending Dues -->
+<div class="three-col" style="margin-top:22px;">
+
+    <!-- Labour Overview + Advance Summary -->
+    <div>
+        <div class="sec-hdr">
+            <h3><span>👷</span> <span data-i18n="dash.labourOverview">Labour Overview</span></h3>
+            <a href="/LabourMaster/Index" data-i18n="common.all">All →</a>
+        </div>
+        <div class="panel">
+            <div class="qlist">
+                @foreach (var l in (IEnumerable<dynamic>)ViewBag.RecentLabour)
+                {
+                    string lname = (string)(l.LabourName ?? "—");
+                    var li = string.Join("", lname.Split(' ').Take(2).Select(w => w.Length > 0 ? w[0].ToString() : "")).ToUpper();
+                    DateOnly? jd = (DateOnly?)l.JoiningDate;
+                    int yrs = jd.HasValue ? (int)((DateTime.Today - jd.Value.ToDateTime(TimeOnly.MinValue)).TotalDays / 365) : 0;
+                    <div class="qlist-item">
+                        <div class="qlist-left">
+                            <div class="av" style="border-radius:8px;">@li</div>
+                            <div>
+                                <div>@lname</div>
+                                <div class="qlist-sub">₹@(((decimal)(l.DailyWage ?? 0)).ToString("N0"))/day · @yrs yr@(yrs != 1 ? "s" : "")</div>
+                            </div>
+                        </div>
+                        <span class="bdg bdg-active" data-i18n="dash.badge.active">Active</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="sec-hdr" style="margin-top:18px;">
+            <h3><span>💰</span> <span data-i18n="dash.advanceSummary">Advance Summary</span></h3>
+            <a href="/LabourAdvance/Index" data-i18n="common.details">Details →</a>
+        </div>
+        <div class="panel">
+            <div class="qlist">
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(248,81,73,.1);">💸</div>
+                        <div><div data-i18n="dash.totalAdvances">Total Advances Given</div><div class="qlist-sub" data-i18n="dash.thisMonth">This month</div></div>
+                    </div>
+                    <strong style="color:#f85149;">₹@(((decimal)ViewBag.TotalAdvancesThisMonth).ToString("N0"))</strong>
+                </div>
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(34,211,164,.1);">✅</div>
+                        <div><div data-i18n="dash.deductionsDone">Deductions Done</div><div class="qlist-sub" data-i18n="dash.recovered">Recovered</div></div>
+                    </div>
+                    <strong style="color:#22d3a4;">₹@(((decimal)ViewBag.TotalDeductionsThisMonth).ToString("N0"))</strong>
+                </div>
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(245,197,66,.1);">⏳</div>
+                        <div><div data-i18n="dash.outstanding">Outstanding Balance</div><div class="qlist-sub" data-i18n="dash.pendingRecovery">Pending recovery</div></div>
+                    </div>
+                    <strong style="color:#f5c542;">₹@(((decimal)ViewBag.OutstandingAdvance).ToString("N0"))</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Production + Salary -->
+    <div>
+        <div class="sec-hdr">
+            <h3><span>🏭</span> <span data-i18n="dash.productionWeek">Production (Recent)</span></h3>
+            <a href="/BrickProduction/Index" data-i18n="common.all">All →</a>
+        </div>
+        <div class="panel">
+            <table class="dtbl">
+                <thead>
+                    <tr>
+                        <th data-i18n="dash.col.date">Date</th>
+                        <th data-i18n="dash.col.rawBricks">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prod in (IEnumerable<dynamic>)ViewBag.RecentProduction)
+                    {
+                        DateOnly prodDate = (DateOnly)prod.Date;
+                        string dateLabel = prodDate == today ? "Today"
+                                         : prodDate == today.AddDays(-1) ? "Yesterday"
+                                         : prodDate.ToString("dd MMM yyyy");
+                        <tr>
+                            <td>@dateLabel</td>
+                            <td style="color:#e07b39;font-weight:700;">@(((int)(prod.Quantity ?? 0)).ToString("N0"))</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="sec-hdr" style="margin-top:18px;">
+            <h3><span>💳</span> <span data-i18n="dash.salaryStatus">Salary Status</span></h3>
+            <a href="/SalaryPayment/Index" data-i18n="common.details">Details →</a>
+        </div>
+        <div class="panel">
+            <div class="qlist">
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(34,211,164,.1);">✅</div>
+                        <div>
+                            <div data-i18n="dash.salaryPaid">Salary Paid</div>
+                            <div class="qlist-sub">@ViewBag.SalaryPaidCount workers this month</div>
+                        </div>
+                    </div>
+                    <span class="bdg bdg-paid" data-i18n="dash.badge.done">Done</span>
+                </div>
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(245,197,66,.1);">⏳</div>
+                        <div>
+                            <div data-i18n="dash.pendingSalary">Pending Salary</div>
+                            <div class="qlist-sub">@ViewBag.SalaryPendingCount workers this month</div>
+                        </div>
+                    </div>
+                    <span class="bdg bdg-pending" data-i18n="common.pending">Pending</span>
+                </div>
+                <div class="qlist-item">
+                    <div class="qlist-left">
+                        <div class="qlist-icon" style="background:rgba(224,123,57,.1);">💸</div>
+                        <div><div data-i18n="dash.totalPaidOut">Total Paid Out</div><div class="qlist-sub" data-i18n="dash.thisMonth">This month</div></div>
+                    </div>
+                    <strong style="color:#e07b39;">₹@(((decimal)ViewBag.TotalSalaryPaidOut).ToString("N0"))</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Customer Dues -->
+    <div>
+        <div class="sec-hdr">
+            <h3><span>⚠️</span> <span data-i18n="dash.pendingDues">Pending Customer Dues</span></h3>
+            <a href="/PendingPaymentReport/Index" data-i18n="common.all">All →</a>
+        </div>
+        <div class="panel">
+            <div class="qlist">
+                @{
+                    var dues = (IEnumerable<Brick_Manufacturing_Management_System.Models.PendingPaymentsVM>)ViewBag.PendingDues;
+                }
+                @if (!dues.Any())
+                {
+                    <div style="text-align:center;padding:28px;color:var(--text-sec);font-size:13px;">
+                        🎉 No outstanding dues!
+                    </div>
+                }
+                else
+                {
+                    @foreach (var d in dues)
+                    {
+                        string badgeClass = d.PaymentStatus == "Partial" ? "bdg-pending" : "bdg-unpaid";
+                        <div class="alert-item">
+                            <div class="alert-info" style="flex:1;">
+                                <div class="an">@d.CustomerName</div>
+                                <div class="am">Total ₹@d.FinalAmount.ToString("N0") · Due ₹@d.RemainingAmount.ToString("N0")</div>
+                            </div>
+                            <span class="bdg @badgeClass" style="margin-left:auto;">@d.PaymentStatus</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+</div>

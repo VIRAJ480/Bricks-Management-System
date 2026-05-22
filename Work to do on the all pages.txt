@@ -1,0 +1,9 @@
+Work to do on the all pages:
+
+1. set the zoom at 100% and then work on some page the  pagination is not applied so apply it..-done
+2. Print Option on the Labour Ledger Report..-
+3.Material Report:
+  Material report with coal ,sand and how many vendors and total at the end or and material per amount -DONE
+  
+4. Joytrling bricks suppliers	-DONE
+5. Total bread vita ani total thokala vita on dashboard

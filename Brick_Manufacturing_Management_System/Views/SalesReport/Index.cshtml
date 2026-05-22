@@ -1,0 +1,576 @@
+﻿@model Brick_Manufacturing_Management_System.Models.SalesReportVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Sales Report";
+}
+
+@section Styles {
+    <style>
+
+        /* ══ PAGE WRAPPER ══ */
+        .sr-page {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            padding-bottom: 32px;
+        }
+
+        .sr-hint {
+            font-size: 11px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0 0 2px;
+        }
+
+        /* ══ FILTER CARD ══ */
+        .sr-filter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sr-filter-hdr {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sr-filter-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.15);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .sr-filter-hdr h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        .sr-filter-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .sr-filter-body {
+            padding: 18px 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .sr-fg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+            .sr-fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                color: var(--text-sec);
+                text-transform: uppercase;
+            }
+
+            .sr-fg input[type="date"] {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 10px 14px;
+                font-size: 13px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                width: 100%;
+                -webkit-appearance: none;
+                appearance: none;
+                color-scheme: dark;
+            }
+
+                .sr-fg input[type="date"]:focus {
+                    border-color: var(--accent);
+                    background: rgba(224,123,57,.04);
+                }
+
+        .btn-generate {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 22px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: background .2s, transform .15s;
+            white-space: nowrap;
+            height: 42px;
+        }
+
+            .btn-generate:hover {
+                background: #c96a28;
+            }
+
+            .btn-generate:active {
+                transform: scale(.97);
+            }
+
+        /* ══ KPI GRID ══ */
+        .sr-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+            .kpi-icon.orange {
+                background: rgba(224,123,57,.15);
+            }
+
+            .kpi-icon.teal {
+                background: rgba(34,211,164,.13);
+            }
+
+        .kpi-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-sec);
+        }
+
+        .kpi-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-top: 2px;
+        }
+
+            .kpi-value.orange {
+                color: #e07b39;
+            }
+
+            .kpi-value.teal {
+                color: #22d3a4;
+            }
+
+        .kpi-sub {
+            font-size: 10px;
+            color: var(--text-sec);
+            margin-top: 1px;
+        }
+
+        /* ══ REPORT SUMMARY CARD ══ */
+        .sr-report-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sr-report-hdr {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sr-report-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sr-report-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .sr-report-hdr h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            margin: 0;
+        }
+
+        .sr-report-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .btn-print {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            background: transparent;
+            color: #22d3a4;
+            border: 1px solid rgba(34,211,164,.35);
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+            .btn-print:hover {
+                background: rgba(34,211,164,.12);
+            }
+
+        /* Meta rows */
+        .sr-meta-grid {
+            padding: 4px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sr-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+            .sr-meta-row:last-child {
+                border-bottom: none;
+            }
+
+        .sr-meta-key {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-sec);
+        }
+
+        .sr-meta-icon {
+            font-size: 14px;
+            width: 18px;
+            text-align: center;
+        }
+
+        .sr-meta-val {
+            font-weight: 700;
+            color: var(--text-pri);
+            font-size: 12px;
+        }
+
+            .sr-meta-val.accent {
+                color: var(--accent);
+            }
+
+            .sr-meta-val.teal {
+                color: #22d3a4;
+            }
+
+        /* Empty state */
+        .sr-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .sr-empty .es-icon {
+                font-size: 40px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        /* ══ PRINT ══ */
+        @@media print {
+            /* 1. Force white page */
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #111111 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            /* 2. Hide ALL layout chrome */
+            .topbar,
+            .sidebar,
+            .sr-filter-card,
+            .sr-hint,
+            .sr-kpi-grid,
+            .btn-print,
+            .btn-generate,
+            #toast {
+                display: none !important;
+            }
+            /* 3. Reset the main-content wrapper so it fills the page */
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 !important;
+            }
+            /* 4. Reset the page wrapper */
+            .sr-page {
+                gap: 0 !important;
+                padding: 0 !important;
+            }
+            /* 5. Style the report card for print */
+            .sr-report-card {
+                background: #ffffff !important;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+                /* 6. Print header — company name + report title */
+                .sr-report-card::before {
+                    content: "Jyotirling Bricks Suppliers";
+                    display: block;
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 22px;
+                    font-weight: 700;
+                    text-align: center;
+                    color: #111111;
+                    padding: 24px 0 4px;
+                    letter-spacing: 1px;
+                }
+
+                .sr-report-card::after {
+                    content: "";
+                    display: block;
+                    height: 2px;
+                    background: #e07b39;
+                    margin: 0 20px 16px;
+                }
+            /* 7. Fix header row */
+            .sr-report-hdr {
+                background: #ffffff !important;
+                border-bottom: 1px solid #dddddd !important;
+                padding: 12px 20px !important;
+            }
+
+                .sr-report-hdr h2 {
+                    color: #111111 !important;
+                    font-size: 16px !important;
+                }
+
+                .sr-report-hdr p {
+                    color: #555555 !important;
+                }
+
+            .sr-report-icon {
+                background: rgba(224,123,57,.15) !important;
+            }
+            /* 8. Fix meta rows */
+            .sr-meta-grid {
+                padding: 0 20px !important;
+            }
+
+            .sr-meta-row {
+                border-bottom: 1px solid #eeeeee !important;
+                padding: 10px 0 !important;
+            }
+
+            .sr-meta-key {
+                color: #555555 !important;
+                font-size: 12px !important;
+            }
+
+            .sr-meta-val {
+                color: #111111 !important;
+                font-size: 12px !important;
+            }
+
+                .sr-meta-val.accent {
+                    color: #c96a28 !important;
+                }
+
+                .sr-meta-val.teal {
+                    color: #0a9e7a !important;
+                }
+        }
+
+    </style>
+}
+
+<div class="sr-page">
+
+    <div class="sr-hint" data-i18n="salesrpt.hint">● Filter by date range to view sales revenue summary</div>
+
+    <!-- ══ FILTER CARD ══ -->
+    <div class="sr-filter-card">
+        <div class="sr-filter-hdr">
+            <div class="sr-filter-icon">📊</div>
+            <div>
+                <h2 data-i18n="salesrpt.filterTitle">REPORT FILTERS</h2>
+                <p data-i18n="salesrpt.filterSub">Select date range to view revenue summary</p>
+            </div>
+        </div>
+        <form asp-action="Generate" method="post" novalidate>
+            @Html.AntiForgeryToken()
+            <div class="sr-filter-body">
+
+                <div class="sr-fg">
+                    <label data-i18n="salesrpt.fromDate">From Date</label>
+                    <input type="date" name="FromDate"
+                           value="@Model.FromDate.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <div class="sr-fg">
+                    <label data-i18n="salesrpt.toDate">To Date</label>
+                    <input type="date" name="ToDate"
+                           value="@Model.ToDate.ToString("yyyy-MM-dd")" required />
+                </div>
+
+                <button type="submit" class="btn-generate" data-i18n="salesrpt.generate">🔍 Generate</button>
+
+            </div>
+        </form>
+    </div>
+
+    @if (Model.IsGenerated)
+    {
+        <!-- ══ KPI CARDS ══ -->
+        <div class="sr-kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-icon teal">👥</div>
+                <div>
+                    <div class="kpi-label" data-i18n="salesrpt.kpiCustomers">Total Customers</div>
+                    <div class="kpi-value teal">@Model.TotalCustomers</div>
+                    <div class="kpi-sub" data-i18n="salesrpt.kpiPeriod">in selected period</div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon orange">₹</div>
+                <div>
+                    <div class="kpi-label" data-i18n="salesrpt.kpiRevenue">Total Revenue</div>
+                    <div class="kpi-value orange">Rs. @Model.TotalRevenue.ToString("N2")</div>
+                    <div class="kpi-sub" data-i18n="salesrpt.kpiRevSub">based on final amount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ REPORT SUMMARY ══ -->
+        <div class="sr-report-card" id="printArea">
+            <div class="sr-report-hdr">
+                <div class="sr-report-hdr-left">
+                    <div class="sr-report-icon">📄</div>
+                    <div>
+                        <h2 data-i18n="salesrpt.summaryTitle">REPORT SUMMARY</h2>
+                        <p data-i18n="salesrpt.summarySub">Detailed breakdown of the generated report</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-print" onclick="window.print()" data-i18n="salesrpt.print">
+                    🖨 Print Report
+                </button>
+            </div>
+
+            <div class="sr-meta-grid">
+                <div class="sr-meta-row">
+                    <div class="sr-meta-key">
+                        <span class="sr-meta-icon">📅</span> <span data-i18n="salesrpt.fromDateLbl">From Date</span>
+                    </div>
+                    <div class="sr-meta-val accent">@Model.FromDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="sr-meta-row">
+                    <div class="sr-meta-key">
+                        <span class="sr-meta-icon">📅</span> <span data-i18n="salesrpt.toDateLbl">To Date</span>
+                    </div>
+                    <div class="sr-meta-val accent">@Model.ToDate.ToString("dd MMM yyyy")</div>
+                </div>
+                <div class="sr-meta-row">
+                    <div class="sr-meta-key">
+                        <span class="sr-meta-icon">👥</span> <span data-i18n="salesrpt.totalCust">Total Customers</span>
+                    </div>
+                    <div class="sr-meta-val teal">@Model.TotalCustomers</div>
+                </div>
+                <div class="sr-meta-row">
+                    <div class="sr-meta-key">
+                        <span class="sr-meta-icon">₹</span> <span data-i18n="salesrpt.totalRev">Total Revenue</span>
+                    </div>
+                    <div class="sr-meta-val accent">Rs. @Model.TotalRevenue.ToString("N2")</div>
+                </div>
+                <div class="sr-meta-row">
+                    <div class="sr-meta-key">
+                        <span class="sr-meta-icon">🕐</span> <span data-i18n="salesrpt.generated">Report Generated</span>
+                    </div>
+                    <div class="sr-meta-val">
+                        @(Model.ReportGeneratedOn.HasValue
+                                            ? Model.ReportGeneratedOn.Value.ToString("dd MMM yyyy, hh:mm tt")
+                                            : "-")
+                </div>
+            </div>
+        </div>
+    </div>
+        }
+    else
+    {
+        <div class="sr-report-card">
+            <div class="sr-empty">
+                <span class="es-icon">📊</span>
+                <span data-i18n="salesrpt.empty">Select a date range and click Generate to view the sales report.</span>
+            </div>
+        </div>
+    }
+
+</div>

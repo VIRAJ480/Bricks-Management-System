@@ -1,0 +1,1184 @@
+﻿@model Brick_Manufacturing_Management_System.Models.VendorPaymentVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Vendor Payments";
+
+    bool isEdit = Model.PaymentId > 0;
+    int totalRecords = Model.PaymentList.Count;
+    decimal totalAmt = Model.PaymentList.Sum(p => p.Amount);
+    int pageSize = 5;
+    int pageCount = totalRecords == 0 ? 0 : (int)Math.Ceiling((double)totalRecords / pageSize);
+}
+
+@section Styles {
+    <style>
+        .pg-hdr {
+            margin-bottom: 22px;
+        }
+
+            .pg-hdr h2 {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--text-pri);
+                margin: 0;
+            }
+
+            .pg-hdr p {
+                font-size: 12px;
+                color: var(--text-sec);
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+        .split {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .split-resp {
+            grid-template-columns: 1fr;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            position: sticky;
+            top: 78px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+            .form-card::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .form-card::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 4px;
+            }
+
+        .fc-hdr {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 2;
+        }
+
+        .fc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+            .fc-hdr-icon.add-ic {
+                background: rgba(224,123,57,.15);
+            }
+
+            .fc-hdr-icon.edit-ic {
+                background: rgba(96,165,250,.15);
+            }
+
+        .fc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+            .fc-hdr h3.add-ttl {
+                color: var(--accent);
+            }
+
+            .fc-hdr h3.edit-ttl {
+                color: #60a5fa;
+            }
+
+        .fc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .fc-body {
+            padding: 18px 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-sec-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(224,123,57,.2);
+            margin-top: 4px;
+        }
+
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+            .fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                color: var(--text-sec);
+            }
+
+            .fg input, .fg select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 12px;
+                font-size: 13px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                width: 100%;
+                box-sizing: border-box;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .fg input:focus, .fg select:focus {
+                    border-color: var(--accent);
+                    background: rgba(224,123,57,.04);
+                }
+
+                .fg select option {
+                    background: #0d1117;
+                    color: var(--text-pri);
+                }
+
+        .select-wrap {
+            position: relative;
+        }
+
+            .select-wrap::after {
+                content: '\25BE';
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 12px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+        .verr {
+            font-size: 10px;
+            color: #f85149;
+            display: none;
+        }
+
+            .verr.show {
+                display: block;
+            }
+
+        .err-field {
+            border-color: #f85149 !important;
+        }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .2s, transform .15s;
+        }
+
+            .btn-save:active {
+                transform: scale(.98);
+            }
+
+        .btn-save-add {
+            background: var(--accent);
+            color: #fff;
+        }
+
+            .btn-save-add:hover {
+                background: #c96a28;
+            }
+
+        .btn-save-edit {
+            background: rgba(96,165,250,.18);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.35) !important;
+        }
+
+            .btn-save-edit:hover {
+                background: rgba(96,165,250,.3);
+            }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border);
+            transition: all .2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            box-sizing: border-box;
+        }
+
+            .btn-cancel:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tc-hdr {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tc-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .tc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .tc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .tc-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .tc-chips {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rchip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .rchip strong {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 14px;
+            }
+
+        .tc-search {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sw {
+            position: relative;
+        }
+
+            .sw i {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 13px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+            .sw input {
+                width: 100%;
+                padding: 9px 13px 9px 35px;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                font-size: 12px;
+                outline: none;
+                transition: border-color .2s;
+                box-sizing: border-box;
+            }
+
+                .sw input::placeholder {
+                    color: var(--text-sec);
+                    opacity: .5;
+                }
+
+                .sw input:focus {
+                    border-color: var(--accent);
+                }
+
+        .tbl-wrap {
+            overflow-x: auto;
+            overflow-y: visible;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+            .tbl-wrap::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .tbl-wrap::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 3px;
+            }
+
+                .tbl-wrap::-webkit-scrollbar-thumb:hover {
+                    background: var(--accent);
+                }
+
+        .ptbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            min-width: 780px;
+        }
+
+            .ptbl thead th {
+                padding: 10px 13px;
+                text-align: left;
+                font-size: 9px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+                font-weight: 700;
+                border-bottom: 1px solid var(--border);
+                background: var(--bg-card);
+                white-space: nowrap;
+            }
+
+            .ptbl tbody td {
+                padding: 10px 13px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-pri);
+                vertical-align: middle;
+            }
+
+            .ptbl tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .ptbl tbody tr:hover td {
+                background: rgba(224,123,57,.04);
+            }
+
+            .ptbl tbody tr.editing-row td {
+                background: rgba(96,165,250,.06);
+            }
+
+            .ptbl tbody tr.hidden-row {
+                display: none;
+            }
+
+        .amt-val {
+            color: #e07b39;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+        }
+
+        .vc {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .av-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: linear-gradient(135deg,#7c3dd6,#4a1d96);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .mode-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(167,139,250,.12);
+            color: #a78bfa;
+            border: 1px solid rgba(167,139,250,.2);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .bdg {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 9px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .bdg-paid {
+            background: rgba(34,211,164,.14);
+            color: #22d3a4;
+        }
+
+        .bdg-partial {
+            background: rgba(245,197,66,.14);
+            color: #f5c542;
+        }
+
+        .bdg-due {
+            background: rgba(248,81,73,.14);
+            color: #f85149;
+        }
+
+        .bdg-default {
+            background: rgba(148,163,184,.12);
+            color: #94a3b8;
+        }
+
+        .act {
+            display: flex;
+            gap: 5px;
+        }
+
+        .abtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            transition: background .2s;
+            text-decoration: none;
+        }
+
+        .abtn-edit {
+            background: rgba(96,165,250,.12);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.2) !important;
+        }
+
+            .abtn-edit:hover {
+                background: rgba(96,165,250,.25);
+            }
+
+        .abtn-del {
+            background: rgba(248,81,73,.10);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.2) !important;
+        }
+
+            .abtn-del:hover {
+                background: rgba(248,81,73,.25);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .empty-state .es-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        #noSearch {
+            display: none;
+            text-align: center;
+            padding: 28px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        .tc-pagination {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(224,123,57,.02);
+        }
+
+        .pg-info {
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-info span {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        .pg-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .18s;
+            padding: 0 8px;
+        }
+
+            .pg-btn:hover:not(:disabled):not(.pg-dots) {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(224,123,57,.07);
+            }
+
+            .pg-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(224,123,57,.4);
+            }
+
+            .pg-btn:disabled {
+                opacity: .3;
+                cursor: not-allowed;
+            }
+
+            .pg-btn.pg-dots {
+                border-color: transparent;
+                cursor: default;
+                color: var(--text-sec);
+                letter-spacing: 1px;
+            }
+
+        .pg-size-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-size-wrap select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text-pri);
+                font-size: 11px;
+                font-family: 'Nunito', sans-serif;
+                padding: 4px 8px;
+                outline: none;
+                cursor: pointer;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .pg-size-wrap select:focus {
+                    border-color: var(--accent);
+                }
+
+        .del-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .del-overlay.show {
+                display: flex;
+            }
+
+        .del-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            width: 360px;
+            max-width: 90vw;
+        }
+
+            .del-box h3 {
+                font-family: 'Rajdhani',sans-serif;
+                font-size: 20px;
+                color: #f85149;
+                margin-bottom: 8px;
+            }
+
+            .del-box p {
+                font-size: 12px;
+                color: var(--text-sec);
+                line-height: 1.6;
+            }
+
+        .del-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .btn-dc {
+            padding: 8px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Nunito',sans-serif;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-dc-cancel {
+            background: rgba(255,255,255,.06);
+            color: var(--text-sec);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-dc-del {
+            background: rgba(248,81,73,.14);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.3) !important;
+            transition: background .2s;
+        }
+
+            .btn-dc-del:hover {
+                background: rgba(248,81,73,.28);
+            }
+
+        .toast-alert {
+            padding: 11px 16px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .toast-success {
+            background: rgba(34,211,164,.12);
+            border: 1px solid rgba(34,211,164,.3);
+            color: #22d3a4;
+        }
+
+        .toast-error {
+            background: rgba(248,81,73,.12);
+            border: 1px solid rgba(248,81,73,.3);
+            color: #f85149;
+        }
+    </style>
+}
+
+<!-- PAGE HEADER -->
+<div class="pg-hdr">
+    <h2>VENDOR PAYMENTS</h2>
+    <p>
+        <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
+        Record and manage vendor payment transactions
+    </p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="toast-alert toast-success">
+        <i class="fas fa-circle-check"></i> @TempData["Success"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="toast-alert toast-error">
+        <i class="fas fa-circle-exclamation"></i> @TempData["Error"]
+    </div>
+}
+
+<div class="split">
+
+    <!-- ════ LEFT: FORM CARD ════ -->
+    <div class="form-card">
+        <div class="fc-hdr">
+            <div class="fc-hdr-icon @(isEdit ? "edit-ic" : "add-ic")">
+                @(isEdit ? "✏️" : "🏭")
+            </div>
+            <div>
+                <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")">
+                    @(isEdit ? "EDIT PAYMENT" : "NEW PAYMENT")
+                </h3>
+                <p>@(isEdit ? "Update vendor payment record" : "Record a vendor payment")</p>
+            </div>
+        </div>
+
+        <form asp-action="Save" asp-controller="VendorPayment" method="post" novalidate id="payForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="PaymentId" />
+
+            <div class="fc-body">
+
+                <div class="form-sec-lbl">📋 PAYMENT DETAILS</div>
+
+                <div class="fg">
+                    <label>Payment Date *</label>
+                    <input asp-for="PaymentDate" type="date"
+                           value="@Model.PaymentDate?.ToString("yyyy-MM-dd")"
+                           class="@(ViewData.ModelState["PaymentDate"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    <span asp-validation-for="PaymentDate" class="verr show"></span>
+                </div>
+
+                <div class="fg">
+                    <label>Vendor *</label>
+                    <div class="select-wrap">
+                        <select asp-for="VendorId" asp-items="Model.VendorOptions"
+                                class="@(ViewData.ModelState["VendorId"]?.Errors.Count > 0 ? "err-field" : "")">
+                            <option value="">— Select Vendor —</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="VendorId" class="verr show"></span>
+                </div>
+
+                <div class="form-sec-lbl">💰 AMOUNT</div>
+
+                <div class="fg">
+                    <label>Amount (₹) *</label>
+                    <input asp-for="Amount" type="number" step="0.01" min="0.01"
+                           placeholder="0.00" onwheel="this.blur()"
+                           class="@(ViewData.ModelState["Amount"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    <span asp-validation-for="Amount" class="verr show"></span>
+                </div>
+
+                <div class="form-sec-lbl">🏦 PAYMENT INFO</div>
+
+                <div class="fg">
+                    <label>Payment Mode *</label>
+                    <div class="select-wrap">
+                        <select asp-for="PaymentModeId" asp-items="Model.PaymentModeOptions"
+                                class="@(ViewData.ModelState["PaymentModeId"]?.Errors.Count > 0 ? "err-field" : "")">
+                            <option value="">— Select Mode —</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="PaymentModeId" class="verr show"></span>
+                </div>
+
+                <div class="fg">
+                    <label>Payment Status *</label>
+                    <div class="select-wrap">
+                        <select asp-for="StatusId" asp-items="Model.StatusOptions"
+                                class="@(ViewData.ModelState["StatusId"]?.Errors.Count > 0 ? "err-field" : "")">
+                            <option value="">— Select Status —</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="StatusId" class="verr show"></span>
+                </div>
+
+                <div style="margin-top:6px;display:flex;flex-direction:column;gap:8px;">
+                    <button type="submit" class="btn-save @(isEdit ? "btn-save-edit" : "btn-save-add")">
+                        @(isEdit ? "💾 Update Payment" : "+ Save Payment")
+                    </button>
+                    @if (isEdit)
+                    {
+                        <a href="/VendorPayment/Index" class="btn-cancel">&#8634; Cancel Edit</a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn-cancel" onclick="resetForm()">&#8634; Reset</button>
+                    }
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- ════ RIGHT: TABLE CARD ════ -->
+    <div class="table-card">
+
+        <div class="tc-hdr">
+            <div class="tc-hdr-left">
+                <div class="tc-hdr-icon">🏭</div>
+                <div>
+                    <h3>Payment List</h3>
+                    <p>All recorded vendor payments</p>
+                </div>
+            </div>
+            <span class="tc-badge">@totalRecords Payment@(totalRecords != 1 ? "s" : "")</span>
+        </div>
+
+        <div class="tc-chips">
+            <div class="rchip">
+                Total Paid &nbsp;<strong style="color:#e07b39;">&#8377;@totalAmt.ToString("N2")</strong>
+            </div>
+            <div class="rchip">
+                Records &nbsp;<strong style="color:#22d3a4;">@totalRecords</strong>
+            </div>
+        </div>
+
+        <div class="tc-search">
+            <div class="sw">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="searchInput"
+                       placeholder="Search by vendor, mode, status..."
+                       oninput="filterTable()" />
+            </div>
+        </div>
+
+        @if (!Model.PaymentList.Any())
+        {
+            <div class="empty-state">
+                <span class="es-icon">🏭</span>
+                No vendor payment records yet.<br />Add your first payment using the form.
+            </div>
+        }
+        else
+        {
+            <div class="tbl-wrap">
+                <table class="ptbl" id="payTable">
+                    <thead>
+                        <tr>
+                            <th style="width:46px;">#</th>
+                            <th>Date</th>
+                            <th>Vendor</th>
+                            <th>Amount</th>
+                            <th>Mode</th>
+                            <th>Status</th>
+                            <th style="width:120px;text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payBody">
+                        @foreach (var p in Model.PaymentList)
+                        {
+                            bool isEditing = Model.PaymentId == p.PaymentId;
+
+                            var sLower = (p.StatusName ?? "").ToLower();
+                            var bdgClass = sLower.Contains("paid") || sLower.Contains("complet") || sLower.Contains("success")
+                            ? "bdg-paid"
+                            : sLower.Contains("partial") ? "bdg-partial"
+                            : sLower.Contains("due") || sLower.Contains("pend") || sLower.Contains("fail")
+                            ? "bdg-due"
+                            : "bdg-default";
+
+                            var vendorName = string.IsNullOrWhiteSpace(p.VendorName) ? "?" : p.VendorName;
+                            var vendorInit = string.Join("", vendorName.Split(' ').Take(2)
+                            .Select(w => w.Length > 0 ? w[0].ToString() : "")).ToUpper();
+                            if (string.IsNullOrEmpty(vendorInit)) vendorInit = "?";
+
+                            var safeVendor = (p.VendorName ?? "").Replace("'", "\\'");
+                            var dataSearch = $"{(p.VendorName ?? "").ToLower()} {(p.PaymentMode ?? "").ToLower()} {(p.StatusName ?? "").ToLower()}";
+
+                            <tr class="@(isEditing ? "editing-row" : "")"
+                                id="row-@p.PaymentId"
+                                data-search="@dataSearch">
+                                <td style="color:var(--text-sec);font-size:11px;">@p.PaymentId</td>
+                                <td style="white-space:nowrap;font-size:11px;font-weight:600;">
+                                    @p.PaymentDate.ToString("dd MMM yy")
+                                </td>
+                                <td>
+                                    <div class="vc">
+                                        <div class="av-sm">@vendorInit</div>
+                                        <span style="font-weight:600;font-size:12px;">@p.VendorName</span>
+                                    </div>
+                                </td>
+                                <td><span class="amt-val">&#8377;@p.Amount.ToString("N2")</span></td>
+                                <td><span class="mode-pill">@p.PaymentMode</span></td>
+                                <td><span class="bdg @bdgClass">@p.StatusName</span></td>
+                                <td>
+                                    <div class="act">
+                                        <a href="/VendorPayment/Index?editId=@p.PaymentId"
+                                           class="abtn abtn-edit">
+                                            <i class="fas fa-pen"></i> Edit
+                                        </a>
+                                        <button type="button" class="abtn abtn-del"
+                                                onclick="openDel(@p.PaymentId, '@safeVendor')">
+                                            <i class="fas fa-trash"></i> Del
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tc-pagination">
+                <div class="pg-info">
+                    Showing <span id="pgFrom">1</span>&#8211;<span id="pgTo">@Math.Min(pageSize, totalRecords)</span>
+                    of <span id="pgTotal">@totalRecords</span> records
+                </div>
+                <div class="pg-btns" id="pgBtns"></div>
+                <div class="pg-size-wrap">
+                    Rows:
+                    <select id="pgSizeSelect" onchange="changePageSize(+this.value)">
+                        <option value="5" selected>5</option>
+                        <option value="8">8</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                    </select>
+                </div>
+            </div>
+        }
+
+        <div id="noSearch">
+            <i class="fas fa-magnifying-glass"
+               style="font-size:22px;margin-bottom:8px;display:block;opacity:.4;"></i>
+            No records match your search.
+        </div>
+
+    </div><!-- /table-card -->
+
+</div><!-- /split -->
+<!-- DELETE MODAL -->
+<div class="del-overlay" id="delOverlay">
+    <div class="del-box">
+        <h3>&#9888;&#65039; Delete Payment?</h3>
+        <p>
+            You are about to permanently delete the payment record for
+            <strong id="delLabel" style="color:var(--accent);"></strong>.<br />
+            This action cannot be undone.
+        </p>
+        <div class="del-footer">
+            <button type="button" class="btn-dc btn-dc-cancel" onclick="closeDel()">Cancel</button>
+            <form id="delForm" method="post" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-dc btn-dc-del">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script type="text/javascript">
+        var TOTAL_ROWS = @totalRecords;
+        var pageSize    = 5;
+        var currentPage = 0;
+        var isSearching = false;
+
+        function getPageCount() { return Math.max(1, Math.ceil(TOTAL_ROWS / pageSize)); }
+
+        function assignPages() {
+            document.querySelectorAll('#payBody tr').forEach(function(r, i) {
+                r.dataset.page = Math.floor(i / pageSize);
+            });
+        }
+
+        function renderPagination() {
+            var pc  = getPageCount();
+            var box = document.getElementById('pgBtns');
+            box.innerHTML = '';
+            function btn(label, page, cls) {
+                var b = document.createElement('button');
+                b.className = 'pg-btn' + (cls ? ' ' + cls : '');
+                b.innerHTML = label;
+                if (page !== null) b.onclick = (function(p) { return function() { changePage(p); }; })(page);
+                else b.disabled = true;
+                return b;
+            }
+            var prev = btn('&#8249;', currentPage - 1);
+            prev.disabled = currentPage === 0;
+            box.appendChild(prev);
+            var show = new Set([0, pc - 1]);
+            for (var i = Math.max(0, currentPage - 2); i <= Math.min(pc - 1, currentPage + 2); i++) show.add(i);
+            var prev_p = -1;
+            Array.from(show).sort(function(a,b){return a-b;}).forEach(function(p) {
+                if (p - prev_p > 1) box.appendChild(btn('&hellip;', null, 'pg-dots'));
+                box.appendChild(btn(p + 1, p, p === currentPage ? 'active' : ''));
+                prev_p = p;
+            });
+            var next = btn('&#8250;', currentPage + 1);
+            next.disabled = currentPage >= pc - 1;
+            box.appendChild(next);
+        }
+
+        function showPage(p) {
+            currentPage = p;
+            document.querySelectorAll('#payBody tr').forEach(function(r) {
+                r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p);
+            });
+            document.getElementById('pgFrom').textContent  = p * pageSize + 1;
+            document.getElementById('pgTo').textContent    = Math.min((p + 1) * pageSize, TOTAL_ROWS);
+            document.getElementById('pgTotal').textContent = TOTAL_ROWS;
+            renderPagination();
+        }
+
+        function changePage(p) {
+            if (p < 0 || p >= getPageCount()) return;
+            showPage(p);
+        }
+
+        function changePageSize(val) {
+            pageSize = val; currentPage = 0;
+            assignPages(); showPage(0);
+        }
+
+        assignPages();
+        if (TOTAL_ROWS > 0) showPage(0);
+
+        function resetForm() {
+            document.getElementById('payForm').reset();
+            document.querySelectorAll('.verr').forEach(function(e) {
+                e.classList.remove('show');
+            });
+            document.querySelectorAll('.err-field').forEach(function(e) {
+                e.classList.remove('err-field');
+            });
+            var today  = new Date().toISOString().split('T')[0];
+            var dateEl = document.querySelector('input[name="PaymentDate"]');
+            if (dateEl) dateEl.value = today;
+        }
+
+        function filterTable() {
+            var q    = document.getElementById('searchInput').value.toLowerCase().trim();
+            var rows = Array.from(document.querySelectorAll('#payBody tr'));
+            isSearching = q.length > 0;
+            if (!isSearching) {
+                assignPages(); showPage(0);
+                document.getElementById('noSearch').style.display = 'none';
+                return;
+            }
+            var vis = 0;
+            rows.forEach(function(r) {
+                var match = ((r.dataset.search || '') + ' ' + r.textContent.toLowerCase()).includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) vis++;
+            });
+            document.getElementById('noSearch').style.display = vis === 0 ? 'block' : 'none';
+            document.getElementById('pgFrom').textContent  = vis > 0 ? 1 : 0;
+            document.getElementById('pgTo').textContent    = vis;
+            document.getElementById('pgTotal').textContent = vis;
+            document.getElementById('pgBtns').innerHTML    = '';
+        }
+
+        function openDel(id, label) {
+            document.getElementById('delLabel').textContent = label;
+            document.getElementById('delForm').action = '/VendorPayment/Delete/' + id;
+            document.getElementById('delOverlay').classList.add('show');
+        }
+
+        function closeDel() {
+            document.getElementById('delOverlay').classList.remove('show');
+        }
+
+        document.getElementById('delOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeDel();
+        });
+
+        var editRow = document.querySelector('.editing-row');
+        if (editRow) {
+            changePage(parseInt(editRow.dataset.page) || 0);
+            setTimeout(function() {
+                editRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    </script>
+}

@@ -1,0 +1,1175 @@
+﻿@model Brick_Manufacturing_Management_System.Models.MaterialReportVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Material Purchase Report";
+
+    bool hasData = Model.ReportData != null && Model.ReportData.Any();
+    int totalRec = hasData ? Model.ReportData!.Count : 0;
+
+    int pageSize = 10;
+    int pageCount = (int)Math.Ceiling((double)totalRec / pageSize);
+}
+
+@section Styles {
+    <style>
+
+        /* ══ PAGE HEADER ══ */
+        .pg-hdr {
+            margin-bottom: 22px;
+        }
+
+            .pg-hdr h2 {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--text-pri);
+                margin: 0;
+            }
+
+            .pg-hdr p {
+                font-size: 12px;
+                color: var(--text-sec);
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+        /* ══ FILTER CARD ══ */
+        .filter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .fc-hdr {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            background: var(--bg-card);
+        }
+
+        .fc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: rgba(224,123,57,.15);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .fc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .fc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        /* Alert banners */
+        .alert {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 20px 0;
+        }
+
+        .alert-success {
+            background: rgba(34,211,164,.1);
+            border: 1px solid rgba(34,211,164,.25);
+            color: #22d3a4;
+        }
+
+        .alert-danger {
+            background: rgba(248,81,73,.1);
+            border: 1px solid rgba(248,81,73,.25);
+            color: #f85149;
+        }
+
+        /* Filter body */
+        .filter-body {
+            padding: 18px 20px 20px;
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .form-sec-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(224,123,57,.2);
+            margin-bottom: 14px;
+        }
+
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 160px;
+        }
+
+            .fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                color: var(--text-sec);
+            }
+
+            .fg input[type="date"] {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 12px;
+                font-size: 13px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                width: 100%;
+                box-sizing: border-box;
+                -webkit-appearance: none;
+                appearance: none;
+                color-scheme: dark;
+            }
+
+                .fg input[type="date"]:focus {
+                    border-color: var(--accent);
+                    background: rgba(224,123,57,.04);
+                }
+
+        .btn-generate {
+            padding: 10px 26px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .2s, transform .15s;
+            white-space: nowrap;
+            align-self: flex-end;
+            height: 40px;
+        }
+
+            .btn-generate:hover {
+                background: #c96a28;
+            }
+
+            .btn-generate:active {
+                transform: scale(.98);
+            }
+
+        .btn-reset-filter {
+            padding: 10px 18px;
+            border-radius: 9px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border);
+            transition: all .2s;
+            white-space: nowrap;
+            align-self: flex-end;
+            height: 40px;
+        }
+
+            .btn-reset-filter:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        /* ══ TABLE CARD ══ */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tc-hdr {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tc-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .tc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .tc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .tc-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Summary chips */
+        .tc-chips {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rchip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .rchip strong {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 14px;
+            }
+
+            .rchip.gross-chip {
+                border-color: rgba(224,123,57,.35);
+                background: rgba(224,123,57,.06);
+            }
+
+                .rchip.gross-chip strong {
+                    color: var(--accent);
+                    font-size: 16px;
+                }
+
+        /* Search */
+        .tc-search {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sw {
+            position: relative;
+        }
+
+            .sw i {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 13px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+            .sw input {
+                width: 100%;
+                padding: 9px 13px 9px 35px;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                font-size: 12px;
+                outline: none;
+                transition: border-color .2s;
+                box-sizing: border-box;
+            }
+
+                .sw input::placeholder {
+                    color: var(--text-sec);
+                    opacity: .5;
+                }
+
+                .sw input:focus {
+                    border-color: var(--accent);
+                }
+
+        /* Table wrap */
+        .tbl-wrap {
+            overflow-x: auto;
+            overflow-y: visible;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+            .tbl-wrap::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            .tbl-wrap::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .tbl-wrap::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 3px;
+            }
+
+                .tbl-wrap::-webkit-scrollbar-thumb:hover {
+                    background: var(--accent);
+                }
+
+        /* TABLE */
+        .ptbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            min-width: 760px;
+        }
+
+            .ptbl thead th {
+                padding: 10px 13px;
+                text-align: left;
+                font-size: 9px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+                font-weight: 700;
+                border-bottom: 1px solid var(--border);
+                background: var(--bg-card);
+                white-space: nowrap;
+            }
+
+                .ptbl thead th.text-right {
+                    text-align: right;
+                }
+
+            .ptbl tbody td {
+                padding: 10px 13px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-pri);
+                vertical-align: middle;
+            }
+
+                .ptbl tbody td.text-right {
+                    text-align: right;
+                }
+
+            .ptbl tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .ptbl tbody tr:hover td {
+                background: rgba(224,123,57,.04);
+            }
+
+            .ptbl tbody tr.hidden-row {
+                display: none;
+            }
+
+            /* Gross footer row */
+            .ptbl tfoot td {
+                padding: 10px 13px;
+                border-top: 2px solid rgba(224,123,57,.4);
+                font-weight: 700;
+                font-size: 12px;
+                background: rgba(224,123,57,.05);
+            }
+
+                .ptbl tfoot td.gross-lbl {
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 14px;
+                    letter-spacing: 1px;
+                    color: var(--accent);
+                    text-align: right;
+                }
+
+                .ptbl tfoot td.gross-val {
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 16px;
+                    color: var(--accent);
+                    text-align: right;
+                }
+
+        /* Amount pill */
+        .amt-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(34,211,164,.08);
+            color: #22d3a4;
+            border: 1px solid rgba(34,211,164,.18);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Vendor / material chips */
+        .vendor-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(96,165,250,.1);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.2);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .material-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(167,139,250,.1);
+            color: #a78bfa;
+            border: 1px solid rgba(167,139,250,.2);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Date badge */
+        .date-badge {
+            font-family: 'Nunito', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sec);
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 8px;
+            white-space: nowrap;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .empty-state .es-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        #noSearch {
+            display: none;
+            text-align: center;
+            padding: 28px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        /* ══ PAGINATION ══ */
+        .tc-pagination {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(224,123,57,.02);
+        }
+
+        .pg-info {
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-info span {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        .pg-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .18s;
+            padding: 0 8px;
+        }
+
+            .pg-btn:hover:not(:disabled):not(.pg-dots) {
+                border-color: var(--accent);
+                color: var(--accent);
+                background: rgba(224,123,57,.07);
+            }
+
+            .pg-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+                font-weight: 700;
+                box-shadow: 0 2px 8px rgba(224,123,57,.4);
+            }
+
+            .pg-btn:disabled {
+                opacity: .3;
+                cursor: not-allowed;
+            }
+
+            .pg-btn.pg-dots {
+                border-color: transparent;
+                cursor: default;
+                color: var(--text-sec);
+                letter-spacing: 1px;
+            }
+
+        .pg-size-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-size-wrap select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text-pri);
+                font-size: 11px;
+                font-family: 'Nunito', sans-serif;
+                padding: 4px 8px;
+                outline: none;
+                cursor: pointer;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .pg-size-wrap select:focus {
+                    border-color: var(--accent);
+                }
+
+        /* Print button */
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--border);
+            color: var(--text-sec);
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+            .btn-print:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        @@media print {
+            /* Force white page */
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #111111 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            /* Hide layout chrome */
+            .topbar,
+            .sidebar,
+            .filter-card,
+            .tc-search,
+            .tc-pagination,
+            .btn-print,
+            .pg-hdr {
+                display: none !important;
+            }
+
+            /* Reset main content wrapper */
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 16px !important;
+            }
+
+            /* Style the table card for print */
+            .table-card {
+                background: #ffffff !important;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+            }
+
+            /* Print header — rendered as real HTML, translated by JS */
+            #printHeader {
+                display: block !important;
+                text-align: center;
+                padding: 20px 0 4px;
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+                color: #111111;
+                letter-spacing: 1px;
+            }
+
+            #printHeaderBar {
+                display: block !important;
+                height: 2px;
+                background: #e07b39;
+                margin: 0 0 12px;
+            }
+
+            /* Fix table header */
+            .tc-hdr {
+                background: #ffffff !important;
+                border-bottom: 1px solid #dddddd !important;
+            }
+
+            .tc-hdr h3 {
+                color: #111111 !important;
+            }
+
+            .tc-hdr p {
+                color: #555555 !important;
+            }
+
+            .tc-hdr-icon {
+                background: rgba(224,123,57,.15) !important;
+            }
+
+            .tc-badge {
+                background: #e07b39 !important;
+                color: #ffffff !important;
+            }
+
+            /* Fix summary chips */
+            .tc-chips {
+                border-bottom: 1px solid #eeeeee !important;
+            }
+
+            .rchip {
+                background: #f5f5f5 !important;
+                border-color: #dddddd !important;
+                color: #333333 !important;
+            }
+
+            .rchip strong {
+                color: #111111 !important;
+            }
+
+            .rchip.gross-chip {
+                background: rgba(224,123,57,.08) !important;
+                border-color: rgba(224,123,57,.4) !important;
+            }
+
+            .rchip.gross-chip strong {
+                color: #c96a28 !important;
+            }
+
+            /* Fix table wrapper — no clipping in print */
+            .tbl-wrap {
+                overflow: visible !important;
+            }
+
+            /* Fix table — fit page width, no min-width */
+            .ptbl {
+                min-width: 0 !important;
+                width: 100% !important;
+                font-size: 10px !important;
+                table-layout: fixed !important;
+            }
+
+            .ptbl thead th {
+                background: #f5f5f5 !important;
+                color: #555555 !important;
+                border-bottom: 1px solid #dddddd !important;
+                white-space: normal !important;
+                font-size: 9px !important;
+                padding: 6px 6px !important;
+            }
+
+            .ptbl tbody td {
+                color: #111111 !important;
+                border-bottom: 1px solid #eeeeee !important;
+                padding: 6px 6px !important;
+                word-break: break-word !important;
+            }
+
+            /* Show ALL rows regardless of pagination */
+            .ptbl tbody tr.hidden-row {
+                display: table-row !important;
+            }
+
+            .ptbl tbody tr:hover td {
+                background: transparent !important;
+            }
+
+            .ptbl tfoot td {
+                background: rgba(224,123,57,.06) !important;
+                border-top: 2px solid rgba(224,123,57,.4) !important;
+                padding: 6px 6px !important;
+            }
+
+            .ptbl tfoot td.gross-lbl,
+            .ptbl tfoot td.gross-val {
+                color: #c96a28 !important;
+            }
+
+            /* Fix pills */
+            .amt-pill {
+                background: rgba(34,211,164,.1) !important;
+                color: #0a9e7a !important;
+                border-color: rgba(34,211,164,.25) !important;
+            }
+
+            .vendor-pill {
+                background: rgba(96,165,250,.1) !important;
+                color: #2563eb !important;
+                border-color: rgba(96,165,250,.25) !important;
+            }
+
+            .material-pill {
+                background: rgba(167,139,250,.1) !important;
+                color: #7c3aed !important;
+                border-color: rgba(167,139,250,.25) !important;
+            }
+
+            .date-badge {
+                background: #f5f5f5 !important;
+                color: #555555 !important;
+                border-color: #dddddd !important;
+            }
+        }
+
+    </style>
+}
+
+<!-- PAGE HEADER -->
+<div class="pg-hdr">
+    <h2 data-i18n="matrpt.title">📦 MATERIAL PURCHASE REPORT</h2>
+    <p>
+        <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
+        <span data-i18n="matrpt.subtitle">Filter by date range and generate material purchase summary</span>
+    </p>
+</div>
+
+<!-- ════ FILTER CARD ════ -->
+<div class="filter-card">
+    <div class="fc-hdr">
+        <div class="fc-hdr-icon">🗓️</div>
+        <div>
+            <h3 data-i18n="matrpt.filterTitle">REPORT FILTER</h3>
+            <p data-i18n="matrpt.filterSub">Select date range to generate report</p>
+        </div>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">⚠️ @TempData["Error"]</div>
+    }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">✅ @TempData["Success"]</div>
+    }
+
+    <form asp-action="Index" asp-controller="MaterialReport" method="post" id="filterForm">
+        @Html.AntiForgeryToken()
+        <div class="filter-body">
+
+            <!-- From Date -->
+            <div class="fg">
+                <label data-i18n="matrpt.fromDate">From Date *</label>
+                <input type="date"
+                       name="FromDate"
+                       value="@(Model.FromDate.HasValue? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <!-- To Date -->
+            <div class="fg">
+                <label data-i18n="matrpt.toDate">To Date *</label>
+                <input type="date"
+                       name="ToDate"
+                       value="@(Model.ToDate.HasValue? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")"
+                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <!-- Generate -->
+            <button type="submit" class="btn-generate" data-i18n="matrpt.generate">
+                🔍 Generate Report
+            </button>
+
+            <!-- Reset -->
+            <button type="button" class="btn-reset-filter" onclick="resetFilter()" data-i18n="matrpt.reset">↺ Reset</button>
+
+        </div>
+    </form>
+</div>
+
+<!-- ════ RESULTS TABLE CARD ════ -->
+<div class="table-card">
+
+    <!-- Print-only header (translated by i18n.js) -->
+    <div id="printHeader" style="display:none;">
+        <span data-i18n="brand.name">Jyotirling</span> <span data-i18n="brand.sub">Bricks Suppliers</span>
+        &nbsp;&mdash;&nbsp;
+        <span data-i18n="matrpt.title">Material Purchase Report</span>
+    </div>
+    <div id="printHeaderBar" style="display:none;"></div>
+
+    <div class="tc-hdr">
+        <div class="tc-hdr-left">
+            <div class="tc-hdr-icon">📦</div>
+            <div>
+                <h3 data-i18n="matrpt.records">Purchase Records</h3>
+                <p>
+                    @if (Model.FromDate.HasValue && Model.ToDate.HasValue && hasData)
+                    {
+                        @($"{Model.FromDate.Value:dd MMM yyyy}  →  {Model.ToDate.Value:dd MMM yyyy}")
+                    }
+                    else
+                    {
+                        <span data-i18n="matrpt.selectRange">Select a date range and click Generate</span>
+                    }
+                </p>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            @if (hasData)
+            {
+                <button type="button" class="btn-print" onclick="printReport()" data-i18n="matrpt.print">
+                    🖨️ Print
+                </button>
+            }
+            <span class="tc-badge">@totalRec Record@(totalRec != 1 ? "s" : "")</span>
+        </div>
+    </div>
+
+    @if (hasData)
+    {
+        <!-- Summary chips -->
+        <div class="tc-chips">
+            <div class="rchip">
+                <span data-i18n="matrpt.totalRecords">Total Records</span> &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong>
+            </div>
+            <div class="rchip">
+                <span data-i18n="matrpt.period">Period</span> &nbsp;
+                <strong style="color:var(--text-pri);">
+                    @Model.FromDate!.Value.ToString("dd MMM") – @Model.ToDate!.Value.ToString("dd MMM yyyy")
+                </strong>
+            </div>
+            <div class="rchip gross-chip">
+                <span data-i18n="matrpt.grossTotal">💰 Gross Total</span> &nbsp;<strong>₹ @Model.GrossTotal.ToString("N2")</strong>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="tc-search">
+            <div class="sw">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" id="searchInput"
+                       placeholder="Search by vendor, material, date…"
+                       data-i18n-placeholder="matrpt.search"
+                       oninput="filterTable()" />
+            </div>
+        </div>
+
+        <div class="tbl-wrap">
+            <table class="ptbl" id="rptTable">
+                <thead>
+                    <tr>
+                        <th style="width:40px;" data-i18n="matrpt.col.no">#</th>
+                        <th data-i18n="matrpt.col.date">Purchase Date</th>
+                        <th data-i18n="matrpt.col.vendor">Vendor</th>
+                        <th data-i18n="matrpt.col.material">Material</th>
+                        <th class="text-right" data-i18n="matrpt.col.qty">Qty</th>
+                        <th class="text-right" data-i18n="matrpt.col.rate">Rate (₹)</th>
+                        <th class="text-right" data-i18n="matrpt.col.total">Total Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="rptBody">
+                    @{
+                        int srNo = 0;
+                    }
+                    @foreach (var row in Model.ReportData)
+                    {
+                        srNo++;
+                        <tr id="row-@srNo"
+                            data-search="@row.VendorName.ToLower() @row.MaterialName.ToLower() @row.PurchaseDate.ToString("dd MMM yyyy").ToLower() @row.PurchaseDate.ToString("yyyy-MM-dd")">
+                            <td style="color:var(--text-sec);font-size:11px;">@srNo</td>
+                            <td>
+                                <span class="date-badge">
+                                    📅 @row.PurchaseDate.ToString("dd MMM yyyy")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="vendor-pill">🏭 @row.VendorName</span>
+                            </td>
+                            <td>
+                                <span class="material-pill">🧱 @row.MaterialName</span>
+                            </td>
+                            <td class="text-right" style="font-weight:600;">
+                                @row.Quantity.ToString("N2")
+                            </td>
+                            <td class="text-right" style="color:var(--text-sec);">
+                                ₹ @row.Rate.ToString("N2")
+                            </td>
+                            <td class="text-right">
+                                <span class="amt-pill">₹ @row.TotalAmount.ToString("N2")</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6" class="gross-lbl" data-i18n="matrpt.grossLbl">GROSS TOTAL</td>
+                        <td class="gross-val">₹ @Model.GrossTotal.ToString("N2")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div id="noSearch">
+            <i class="fas fa-magnifying-glass" style="font-size:22px;margin-bottom:8px;display:block;opacity:.4;"></i>
+            <span data-i18n="matrpt.noSearch">No records match your search.</span>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="tc-pagination">
+            <div class="pg-info">
+                <span data-i18n="matrpt.showing">Showing</span> <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, totalRec)</span>
+                <span data-i18n="matrpt.of">of</span> <span id="pgTotal">@totalRec</span> <span data-i18n="matrpt.recordsLbl">records</span>
+            </div>
+            <div class="pg-btns" id="pgBtns"></div>
+            <div class="pg-size-wrap">
+                <span data-i18n="matrpt.rows">Rows:</span>
+                <select id="pgSizeSelect" onchange="changePageSize(+this.value)">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                </select>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <span class="es-icon">📋</span>
+            @if (Model.FromDate == null)
+            {
+                <span data-i18n="matrpt.emptyDefault">Select a date range above and click <strong>Generate Report</strong> to view purchase data.</span>
+            }
+            else
+            {
+                <span data-i18n="matrpt.emptyNoData">No purchase records found for the selected date range.</span>
+            }
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+    <script>
+        const TOTAL_ROWS = @totalRec;
+        let pageSize    = 10;
+        let currentPage = 0;
+
+        function getPageCount() { return Math.max(1, Math.ceil(TOTAL_ROWS / pageSize)); }
+
+        function assignPages() {
+            document.querySelectorAll('#rptBody tr').forEach((r, i) => {
+                r.dataset.page = Math.floor(i / pageSize);
+            });
+        }
+
+        function renderPagination() {
+            const pc  = getPageCount();
+            const box = document.getElementById('pgBtns');
+            if (!box) return;
+            box.innerHTML = '';
+            function btn(label, page, cls) {
+                const b = document.createElement('button');
+                b.className = 'pg-btn' + (cls ? ' ' + cls : '');
+                b.innerHTML = label;
+                if (page !== null) b.onclick = () => changePage(page);
+                else b.disabled = true;
+                return b;
+            }
+            const prev = btn('&#8249;', currentPage - 1);
+            prev.disabled = currentPage === 0;
+            box.appendChild(prev);
+            const show = new Set([0, pc - 1]);
+            for (let i = Math.max(0, currentPage - 2); i <= Math.min(pc - 1, currentPage + 2); i++) show.add(i);
+            let prev_p = -1;
+            [...show].sort((a, b) => a - b).forEach(p => {
+                if (p - prev_p > 1) box.appendChild(btn('…', null, 'pg-dots'));
+                box.appendChild(btn(p + 1, p, p === currentPage ? 'active' : ''));
+                prev_p = p;
+            });
+            const next = btn('&#8250;', currentPage + 1);
+            next.disabled = currentPage >= pc - 1;
+            box.appendChild(next);
+        }
+
+        function showPage(p) {
+            currentPage = p;
+            document.querySelectorAll('#rptBody tr').forEach(r => {
+                r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p);
+            });
+            const pgFrom  = document.getElementById('pgFrom');
+            const pgTo    = document.getElementById('pgTo');
+            const pgTotal = document.getElementById('pgTotal');
+            if (pgFrom)  pgFrom.textContent  = p * pageSize + 1;
+            if (pgTo)    pgTo.textContent    = Math.min((p + 1) * pageSize, TOTAL_ROWS);
+            if (pgTotal) pgTotal.textContent = TOTAL_ROWS;
+            renderPagination();
+        }
+
+        function changePage(p) {
+            if (p < 0 || p >= getPageCount()) return;
+            showPage(p);
+        }
+
+        function changePageSize(val) {
+            pageSize = val; currentPage = 0;
+            assignPages(); showPage(0);
+        }
+
+        if (TOTAL_ROWS > 0) { assignPages(); showPage(0); }
+
+        /* ── Search ── */
+        function filterTable() {
+            const q    = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = Array.from(document.querySelectorAll('#rptBody tr'));
+            const ns   = document.getElementById('noSearch');
+            if (!q) {
+                assignPages(); showPage(0);
+                if (ns) ns.style.display = 'none';
+                return;
+            }
+            let vis = 0;
+            rows.forEach(r => {
+                const match = ((r.dataset.search || '') + ' ' + r.textContent.toLowerCase()).includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) vis++;
+            });
+            if (ns) ns.style.display = vis === 0 ? 'block' : 'none';
+            const pgFrom  = document.getElementById('pgFrom');
+            const pgTo    = document.getElementById('pgTo');
+            const pgTotal = document.getElementById('pgTotal');
+            if (pgFrom)  pgFrom.textContent  = vis > 0 ? 1 : 0;
+            if (pgTo)    pgTo.textContent    = vis;
+            if (pgTotal) pgTotal.textContent = vis;
+            const pgBtns = document.getElementById('pgBtns');
+            if (pgBtns)  pgBtns.innerHTML   = '';
+        }
+
+        /* ── Reset filter ── */
+        function resetFilter() {
+            document.getElementById('filterForm').reset();
+        }
+
+        /* ── Print — show all rows, print, restore pagination ── */
+        function printReport() {
+            const rows = document.querySelectorAll('#rptBody tr');
+            rows.forEach(r => r.classList.remove('hidden-row'));
+            window.print();
+            // Restore pagination after print dialog closes
+            setTimeout(() => { assignPages(); showPage(currentPage); }, 500);
+        }
+    </script>
+}

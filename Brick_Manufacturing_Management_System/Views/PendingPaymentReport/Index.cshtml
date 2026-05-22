@@ -1,0 +1,755 @@
+﻿@model List<Brick_Manufacturing_Management_System.Models.PendingPaymentsVM>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Pending Payment Report";
+
+    var safeModel = Model ?? new List<Brick_Manufacturing_Management_System.Models.PendingPaymentsVM>();
+    int totalCount = safeModel.Count;
+    int pendingCount = safeModel.Count(x => x.PaymentStatus == "Pending");
+    int partialCount = safeModel.Count(x => x.PaymentStatus == "Partial");
+    decimal totalDue = safeModel.Sum(x => x.RemainingAmount);
+    decimal totalPaid = safeModel.Sum(x => x.TotalPaid);
+
+    int pageSize = 8;
+    int pageCount = (int)Math.Ceiling((double)totalCount / pageSize);
+}
+
+@section Styles {
+    <style>
+        /* ══ PAGE HEADER ══ */
+        .pg-hdr {
+            margin-bottom: 22px;
+        }
+
+            .pg-hdr h2 {
+                font-family: 'Rajdhani',sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--text-pri);
+                margin: 0;
+            }
+
+            .pg-hdr p {
+                font-size: 12px;
+                color: var(--text-sec);
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+        /* ══ STAT CARDS ══ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5,1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        @@media(max-width:1100px) {
+            .stats-row {
+                grid-template-columns: repeat(3,1fr);
+            }
+        }
+
+        @@media(max-width:700px) {
+            .stats-row {
+                grid-template-columns: repeat(2,1fr);
+            }
+        }
+
+        @@media(max-width:440px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            transition: border-color .2s;
+        }
+
+            .stat-card:hover {
+                border-color: rgba(224,123,57,.35);
+            }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+            .stat-icon.orange {
+                background: rgba(224,123,57,.15);
+                color: #e07b39;
+            }
+
+            .stat-icon.green {
+                background: rgba(34,211,164,.13);
+                color: #22d3a4;
+            }
+
+            .stat-icon.amber {
+                background: rgba(245,197,66,.12);
+                color: #f5c542;
+            }
+
+            .stat-icon.red {
+                background: rgba(248,81,73,.12);
+                color: #f85149;
+            }
+
+            .stat-icon.purple {
+                background: rgba(167,139,250,.12);
+                color: #a78bfa;
+            }
+
+        .stat-info p {
+            font-size: 10px;
+            color: var(--text-sec);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .stat-info h3 {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 24px;
+            color: var(--text-pri);
+            letter-spacing: 1px;
+            line-height: 1.15;
+            margin: 2px 0 0;
+        }
+
+        /* ══ TABLE CARD ══ */
+        .table-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .tc-hdr {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tc-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .tc-hdr h3 {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .tc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .tc-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Search */
+        .tc-search {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sw {
+            position: relative;
+        }
+
+            .sw .sw-icon {
+                position: absolute;
+                left: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 13px;
+                pointer-events: none;
+            }
+
+            .sw input {
+                width: 100%;
+                padding: 9px 13px 9px 35px;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                color: var(--text-pri);
+                font-family: 'Nunito',sans-serif;
+                font-size: 12px;
+                outline: none;
+                transition: border-color .2s;
+                box-sizing: border-box;
+            }
+
+                .sw input::placeholder {
+                    color: var(--text-sec);
+                    opacity: .5;
+                }
+
+                .sw input:focus {
+                    border-color: var(--accent);
+                }
+
+        /* Table */
+        .tbl-wrap {
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+            .tbl-wrap::-webkit-scrollbar {
+                height: 5px;
+            }
+
+            .tbl-wrap::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 3px;
+            }
+
+        .ptbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            min-width: 800px;
+        }
+
+            .ptbl thead th {
+                padding: 10px 14px;
+                text-align: left;
+                font-size: 9px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+                font-weight: 700;
+                border-bottom: 1px solid var(--border);
+                background: var(--bg-card);
+                white-space: nowrap;
+            }
+
+            .ptbl tbody td {
+                padding: 11px 14px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-pri);
+                vertical-align: middle;
+            }
+
+            .ptbl tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .ptbl tbody tr:hover td {
+                background: rgba(224,123,57,.04);
+            }
+
+            .ptbl tbody tr.hidden-row {
+                display: none;
+            }
+
+        /* ID badge */
+        .id-bdg {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: rgba(224,123,57,.12);
+            color: #e07b39;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Rajdhani',sans-serif;
+        }
+
+        /* Customer cell */
+        .cc {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .av-sm {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: linear-gradient(135deg,#e07b39,#7c3510);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        /* Amount badges */
+        .amt {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .amt-total {
+            color: #e07b39;
+        }
+
+        .amt-paid {
+            color: #22d3a4;
+        }
+
+        .amt-due {
+            color: #f85149;
+        }
+
+            .amt-due.zero {
+                color: #22d3a4;
+            }
+
+        /* Progress bar */
+        .prog-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 120px;
+        }
+
+        .prog-bg {
+            height: 5px;
+            border-radius: 10px;
+            background: rgba(255,255,255,.07);
+            overflow: hidden;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width .4s ease;
+        }
+
+        .prog-label {
+            font-size: 10px;
+            color: var(--text-sec);
+            font-family: 'Nunito',sans-serif;
+        }
+
+        /* Status badges */
+        .bdg {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .bdg-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .bdg-partial {
+            background: rgba(245,197,66,.14);
+            color: #f5c542;
+        }
+
+        .bdg-pending {
+            background: rgba(248,81,73,.14);
+            color: #f85149;
+        }
+
+        /* Empty */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .empty-state .es-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        #noSearch {
+            display: none;
+            text-align: center;
+            padding: 28px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        /* ══ PAGINATION ══ */
+        .tc-pagination {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(224,123,57,.02);
+        }
+
+        .pg-info {
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-info span {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        .pg-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito',sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+            padding: 0 8px;
+        }
+
+            .pg-btn:hover:not(:disabled) {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .pg-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+                font-weight: 700;
+            }
+
+            .pg-btn:disabled {
+                opacity: .35;
+                cursor: not-allowed;
+            }
+    </style>
+}
+
+<!-- PAGE HEADER -->
+<div class="pg-hdr">
+    <h2 data-i18n="pendrpt.title">PENDING PAYMENT REPORT</h2>
+    <p>
+        <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
+        <span data-i18n="pendrpt.subtitle">Track outstanding and partially paid customer balances</span>
+    </p>
+</div>
+
+<!-- STAT CARDS -->
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon orange">👥</div>
+        <div class="stat-info">
+            <p data-i18n="pendrpt.statCustDue">Customers Due</p>
+            <h3>@totalCount</h3>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div class="stat-info">
+            <p data-i18n="pendrpt.statPending">Fully Pending</p>
+            <h3>@pendingCount</h3>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">🕐</div>
+        <div class="stat-info">
+            <p data-i18n="pendrpt.statPartial">Partial</p>
+            <h3>@partialCount</h3>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">💰</div>
+        <div class="stat-info">
+            <p data-i18n="pendrpt.statCollected">Total Collected</p>
+            <h3>₹@totalPaid.ToString("N0")</h3>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">📄</div>
+        <div class="stat-info">
+            <p data-i18n="pendrpt.statOutstanding">Total Outstanding</p>
+            <h3>₹@totalDue.ToString("N0")</h3>
+        </div>
+    </div>
+</div>
+
+<!-- TABLE CARD -->
+<div class="table-card">
+    <div class="tc-hdr">
+        <div class="tc-hdr-left">
+            <div class="tc-hdr-icon">📋</div>
+            <div>
+                <h3 data-i18n="pendrpt.tableTitle">Outstanding Payments</h3>
+                <p data-i18n="pendrpt.tableSub">Customers with pending or partial balance</p>
+            </div>
+        </div>
+        <span class="tc-badge">@totalCount Record@(totalCount != 1 ? "s" : "")</span>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="tc-search">
+        <div class="sw">
+            <span class="sw-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by customer name…"
+                   data-i18n-placeholder="pendrpt.search"
+                   oninput="onSearch()" />
+        </div>
+    </div>
+
+    @if (safeModel.Any())
+    {
+        <div class="tbl-wrap">
+            <table class="ptbl">
+                <thead>
+                    <tr>
+                        <th style="width:50px;" data-i18n="pendrpt.col.no">#</th>
+                        <th data-i18n="pendrpt.col.customer">Customer</th>
+                        <th data-i18n="pendrpt.col.totalSales">Total Sales</th>
+                        <th data-i18n="pendrpt.col.paid">Paid</th>
+                        <th data-i18n="pendrpt.col.remaining">Remaining</th>
+                        <th style="min-width:140px;" data-i18n="pendrpt.col.progress">Progress</th>
+                        <th data-i18n="pendrpt.col.status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="reportBody">
+                    @foreach (var item in safeModel)
+                    {
+                        var barColor = item.PaymentStatus == "Partial" ? "#f5c542" : "#f85149";
+                        var custInit = string.Join("",
+                        item.CustomerName.Split(' ').Take(2)
+                        .Select(w => w.Length > 0 ? w[0].ToString() : ""))
+                        .ToUpper();
+
+                        <tr data-name="@item.CustomerName.ToLower()"
+                            data-status="@item.PaymentStatus">
+                            <td><span class="id-bdg">@item.CustomerId</span></td>
+                            <td>
+                                <div class="cc">
+                                    <div class="av-sm">@custInit</div>
+                                    <span style="font-weight:600;font-size:12.5px;">@item.CustomerName</span>
+                                </div>
+                            </td>
+                            <td><span class="amt amt-total">₹@item.FinalAmount.ToString("N2")</span></td>
+                            <td><span class="amt amt-paid">₹@item.TotalPaid.ToString("N2")</span></td>
+                            <td>
+                                <span class="amt amt-due @(item.RemainingAmount == 0 ? "zero" : "")">
+                                    ₹@item.RemainingAmount.ToString("N2")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="prog-wrap">
+                                    <div class="prog-bg">
+                                        <div class="prog-fill"
+                                             style="width:@(item.PaidPercent)%;background:@barColor;">
+                                        </div>
+                                    </div>
+                                    <span class="prog-label">@item.PaidPercent% paid</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="bdg @(item.PaymentStatus == "Partial" ? "bdg-partial" : "bdg-pending")">
+                                    <span class="bdg-dot"></span>
+                                    @item.PaymentStatus
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div id="noSearch" style="display:none;text-align:center;padding:28px;color:var(--text-sec);font-size:12px;">
+            <span style="font-size:28px;margin-bottom:8px;display:block;opacity:.6;">🔍</span>
+            <span data-i18n="pendrpt.noSearch">No records match your search.</span>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="tc-pagination">
+            <div class="pg-info">
+                <span data-i18n="pendrpt.showing">Showing</span> <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, totalCount)</span>
+                <span data-i18n="pendrpt.of">of</span> <span id="pgTotal">@totalCount</span> <span data-i18n="pendrpt.records">records</span>
+            </div>
+            <div class="pg-btns">
+                <button class="pg-btn" id="pgPrev" onclick="changePage(currentPage - 1)" disabled>&#8249;</button>
+                @for (int i = 0; i < pageCount; i++)
+                {
+                    <button class="pg-btn @(i == 0 ? "active" : "")"
+                            id="pgBtn@(i)"
+                            onclick="changePage(@i)">
+                        @(i + 1)
+                    </button>
+                }
+                <button class="pg-btn" id="pgNext"
+                        onclick="changePage(currentPage + 1)"
+                        @(pageCount <= 1 ? "disabled" : "")>
+                    &#8250;
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <span class="es-icon">🎉</span>
+            <span data-i18n="pendrpt.empty">No outstanding payments — all customers are fully paid!</span>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        /* ══ PAGINATION ══ */
+        const PAGE_SIZE = @pageSize;
+        let currentPage = 0;
+
+        function getAllRows() {
+            return Array.from(document.querySelectorAll('#reportBody tr'));
+        }
+
+        function getVisibleRows() {
+            return getAllRows().filter(r => !r.classList.contains('hidden-row'));
+        }
+
+        function showPage(p) {
+            const visible = getVisibleRows();
+            const total   = visible.length;
+            const pages   = Math.ceil(total / PAGE_SIZE) || 1;
+            if (p >= pages) p = pages - 1;
+            if (p < 0)      p = 0;
+            currentPage = p;
+
+            visible.forEach((r, i) => {
+                r.style.display = Math.floor(i / PAGE_SIZE) === p ? '' : 'none';
+            });
+
+            const from = total === 0 ? 0 : p * PAGE_SIZE + 1;
+            const to   = Math.min((p + 1) * PAGE_SIZE, total);
+            const fromEl = document.getElementById('pgFrom');
+            const toEl   = document.getElementById('pgTo');
+            const totEl  = document.getElementById('pgTotal');
+            if (fromEl) fromEl.textContent = from;
+            if (toEl)   toEl.textContent   = to;
+            if (totEl)  totEl.textContent  = total;
+
+            rebuildPageButtons(pages, p);
+        }
+
+        function rebuildPageButtons(pages, active) {
+            const container = document.getElementById('pgBtnContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < pages; i++) {
+                const btn = document.createElement('button');
+                btn.className   = 'pg-btn' + (i === active ? ' active' : '');
+                btn.textContent = i + 1;
+                btn.onclick     = () => changePage(i);
+                container.appendChild(btn);
+            }
+            const prev = document.getElementById('pgPrev');
+            const next = document.getElementById('pgNext');
+            if (prev) prev.disabled = (active === 0);
+            if (next) next.disabled = (active >= pages - 1);
+        }
+
+        function changePage(p) { showPage(p); }
+
+        /* ══ SEARCH ══ */
+        function onSearch() {
+            const q   = (document.getElementById('searchInput')?.value || '').toLowerCase().trim();
+            const rows = getAllRows();
+            let vis = 0;
+            rows.forEach(r => {
+                const name  = (r.getAttribute('data-name') || '').toLowerCase();
+                const match = q === '' || name.includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) vis++;
+            });
+            document.getElementById('noSearch').style.display = vis === 0 ? 'block' : 'none';
+            showPage(0);
+        }
+
+        /* ── INIT ── */
+        (function init() {
+            const pgBtns = document.querySelector('.pg-btns');
+            if (!pgBtns) return;
+            const staticBtns = pgBtns.querySelectorAll('.pg-btn:not(#pgPrev):not(#pgNext)');
+            staticBtns.forEach(b => b.remove());
+            const container = document.createElement('span');
+            container.id    = 'pgBtnContainer';
+            container.style.display = 'contents';
+            const next = document.getElementById('pgNext');
+            if (next) pgBtns.insertBefore(container, next);
+            showPage(0);
+        })();
+    </script>
+}

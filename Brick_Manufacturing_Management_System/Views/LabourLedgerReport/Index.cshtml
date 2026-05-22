@@ -1,0 +1,819 @@
+﻿@model Brick_Manufacturing_Management_System.Models.LabourLedgerReportVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Labour Ledger Report";
+}
+
+@section Styles {
+    <style>
+
+        /* ══ PAGE HEADER ══ */
+        .pg-hdr {
+            margin-bottom: 22px;
+        }
+
+            .pg-hdr h2 {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 28px;
+                font-weight: 700;
+                letter-spacing: 2px;
+                color: var(--text-pri);
+                margin: 0;
+            }
+
+            .pg-hdr p {
+                font-size: 12px;
+                color: var(--text-sec);
+                margin-top: 4px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+        /* ══ SPLIT LAYOUT ══ */
+        .split {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @@media (max-width: 900px) {
+            .split {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ══ LEFT: FILTER CARD ══ */
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            position: sticky;
+            top: 78px;
+        }
+
+        .fc-hdr {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            background: var(--bg-card);
+        }
+
+        .fc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.15);
+            border-radius: 9px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .fc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .fc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .fc-body {
+            padding: 18px 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ── Fields ── */
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+            .fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+            }
+
+            .fg input, .fg select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 12px;
+                font-size: 13px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                width: 100%;
+                box-sizing: border-box;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .fg input:focus, .fg select:focus {
+                    border-color: var(--accent);
+                    background: rgba(224,123,57,.04);
+                }
+
+                .fg select option {
+                    background: #0d1117;
+                    color: var(--text-pri);
+                }
+
+        .select-wrap {
+            position: relative;
+        }
+
+            .select-wrap::after {
+                content: '▾';
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 12px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+        /* Validation */
+        .verr {
+            font-size: 10px;
+            color: #f85149;
+            display: none;
+        }
+
+            .verr.show {
+                display: block;
+            }
+
+        .err-field {
+            border-color: #f85149 !important;
+        }
+
+        /* Show Report button */
+        .btn-show {
+            width: 100%;
+            padding: 12px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .2s, transform .15s;
+            margin-top: 4px;
+        }
+
+            .btn-show:hover {
+                background: #c96a28;
+            }
+
+            .btn-show:active {
+                transform: scale(.98);
+            }
+
+        /* ══ RIGHT: REPORT CARD ══ */
+        .report-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .rc-hdr {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .rc-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rc-hdr-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .rc-hdr h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-pri);
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .rc-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .labour-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .date-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.04);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .date-chip strong {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        /* ── Report body ── */
+        .report-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Section blocks */
+        .section-block {
+            background: rgba(255,255,255,.02);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sec-hdr {
+            padding: 10px 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .sec-hdr.advance {
+                background: rgba(96,165,250,.06);
+            }
+
+            .sec-hdr.salary {
+                background: rgba(34,211,164,.06);
+            }
+
+        .sec-hdr-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+            .sec-hdr-dot.blue {
+                background: #60a5fa;
+            }
+
+            .sec-hdr-dot.green {
+                background: #22d3a4;
+            }
+
+        .sec-hdr span {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .sec-hdr.advance span {
+            color: #60a5fa;
+        }
+
+        .sec-hdr.salary span {
+            color: #22d3a4;
+        }
+
+        /* Ledger rows */
+        .ledger-rows {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(255,255,255,.04);
+            font-size: 13px;
+        }
+
+            .lr:last-child {
+                border-bottom: none;
+            }
+
+            .lr:hover {
+                background: rgba(224,123,57,.03);
+            }
+
+            .lr.divider {
+                background: rgba(255,255,255,.025);
+                border-top: 1px solid var(--border);
+            }
+
+                .lr.divider .lr-label {
+                    font-weight: 700;
+                    color: var(--text-pri);
+                }
+
+        .lr-label {
+            color: var(--text-sec);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+            .lr-label .lr-icon {
+                font-size: 14px;
+                width: 22px;
+                text-align: center;
+            }
+
+        .lr-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Value colour helpers */
+        .val-default {
+            color: var(--text-pri);
+        }
+
+        .val-accent {
+            color: #e07b39;
+        }
+
+        .val-blue {
+            color: #60a5fa;
+        }
+
+        .val-green {
+            color: #22d3a4;
+        }
+
+        .val-red {
+            color: #f85149;
+        }
+
+        .val-yellow {
+            color: #f5c542;
+        }
+
+        /* ── Idle / no-data states ── */
+        .idle-state {
+            text-align: center;
+            padding: 70px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .idle-state .idle-icon {
+                font-size: 44px;
+                margin-bottom: 14px;
+                display: block;
+                opacity: .45;
+            }
+
+            .idle-state h4 {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 18px;
+                font-weight: 700;
+                color: var(--text-pri);
+                margin: 0 0 6px;
+            }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .no-data .nd-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+                display: block;
+                opacity: .45;
+            }
+
+        /* ══ PRINT BUTTON ══ */
+        .btn-print {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 8px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid var(--border);
+            color: var(--text-sec);
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+            .btn-print:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        /* ══ PRINT STYLES ══ */
+        @@media print {
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+            html, body {
+                background: #ffffff !important;
+                color: #111111 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            .topbar, .sidebar, .pg-hdr, .form-card, .btn-print {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                margin-top: 0 !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 16px !important;
+            }
+
+            .split {
+                grid-template-columns: 1fr !important;
+            }
+
+            .report-card {
+                background: #ffffff !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            #printHeader {
+                display: block !important;
+                text-align: center;
+                padding: 20px 0 4px;
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 20px;
+                font-weight: 700;
+                color: #111111;
+                letter-spacing: 1px;
+            }
+
+            #printHeaderBar {
+                display: block !important;
+                height: 2px;
+                background: #e07b39;
+                margin: 0 0 12px;
+            }
+
+            .rc-hdr {
+                background: #ffffff !important;
+                border-bottom: 1px solid #dddddd !important;
+            }
+
+            .rc-hdr h3, .rc-hdr p { color: #111111 !important; }
+
+            .labour-badge { background: #e07b39 !important; color: #fff !important; }
+
+            .date-chip {
+                background: #f5f5f5 !important;
+                border-color: #dddddd !important;
+                color: #555555 !important;
+            }
+
+                .date-chip strong { color: #111111 !important; }
+
+            .section-block {
+                background: #ffffff !important;
+                border: 1px solid #dddddd !important;
+                break-inside: avoid;
+            }
+
+            .sec-hdr.advance { background: rgba(96,165,250,.08) !important; }
+            .sec-hdr.salary  { background: rgba(34,211,164,.08) !important; }
+
+            .sec-hdr.advance span { color: #2563eb !important; }
+            .sec-hdr.salary span  { color: #0a9e7a !important; }
+
+            .lr { border-bottom: 1px solid #eeeeee !important; }
+            .lr-label { color: #555555 !important; }
+
+            .val-default { color: #111111 !important; }
+            .val-accent  { color: #c96a28 !important; }
+            .val-blue    { color: #2563eb !important; }
+            .val-green   { color: #0a9e7a !important; }
+            .val-red     { color: #dc2626 !important; }
+            .val-yellow  { color: #b45309 !important; }
+        }
+
+    </style>
+}
+
+<!-- PAGE HEADER -->
+<div class="pg-hdr">
+    <h2>LABOUR LEDGER REPORT</h2>
+    <p>
+        <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
+        Advance &amp; salary summary for a selected labour over a date range
+    </p>
+</div>
+
+<div class="split">
+
+    <!-- ════ LEFT: FILTER CARD ════ -->
+    <div class="form-card">
+        <div class="fc-hdr">
+            <div class="fc-hdr-icon">📋</div>
+            <div>
+                <h3>FILTER</h3>
+                <p>Select labour &amp; date range</p>
+            </div>
+        </div>
+
+        <form asp-action="Index" method="post" novalidate id="filterForm">
+            @Html.AntiForgeryToken()
+
+            <div class="fc-body">
+
+                <!-- Labour -->
+                <div class="fg">
+                    <label>Labour *</label>
+                    <div class="select-wrap">
+                        <select asp-for="LabourId"
+                                asp-items="Model.LabourOptions"
+                                class="@(ViewData.ModelState["LabourId"]?.Errors.Count > 0 ? "err-field" : "")">
+                            <option value="">— Select Labour —</option>
+                        </select>
+                    </div>
+                    @if (ViewData.ModelState["LabourId"]?.Errors.Count > 0)
+                    {
+                        <span class="verr show">@ViewData.ModelState["LabourId"]!.Errors[0].ErrorMessage</span>
+                    }
+                </div>
+
+                <!-- From Date -->
+                <div class="fg">
+                    <label>From Date *</label>
+                    <input asp-for="FromDate"
+                           type="date"
+                           value="@Model.FromDate?.ToString("yyyy-MM-dd")"
+                           class="@(ViewData.ModelState["FromDate"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    @if (ViewData.ModelState["FromDate"]?.Errors.Count > 0)
+                    {
+                        <span class="verr show">@ViewData.ModelState["FromDate"]!.Errors[0].ErrorMessage</span>
+                    }
+                </div>
+
+                <!-- To Date -->
+                <div class="fg">
+                    <label>To Date *</label>
+                    <input asp-for="ToDate"
+                           type="date"
+                           value="@Model.ToDate?.ToString("yyyy-MM-dd")"
+                           class="@(ViewData.ModelState["ToDate"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    @if (ViewData.ModelState["ToDate"]?.Errors.Count > 0)
+                    {
+                        <span class="verr show">@ViewData.ModelState["ToDate"]!.Errors[0].ErrorMessage</span>
+                    }
+                </div>
+
+                <button type="submit" class="btn-show">
+                    🔍 Show Report
+                </button>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- ════ RIGHT: REPORT CARD ════ -->
+    <div class="report-card">
+
+        @if (!Model.ReportRequested)
+        {
+            <!-- ── Idle: form not yet submitted ── -->
+            <div class="idle-state">
+                <span class="idle-icon">📊</span>
+                <h4>No Report Yet</h4>
+                Select a labour and date range,<br />
+                then click <strong style="color:var(--accent);">Show Report</strong>.
+            </div>
+        }
+        else if (Model.Result == null)
+        {
+            <!-- ── Submitted but SP returned no rows ── -->
+            <div class="rc-hdr">
+                <div class="rc-hdr-left">
+                    <div class="rc-hdr-icon">📊</div>
+                    <div>
+                        <h3>Labour Ledger</h3>
+                        <p>
+                            <span class="date-chip">
+                                📅 <strong>@Model.FromDate?.ToString("dd MMM yyyy")</strong>
+                                &nbsp;→&nbsp;
+                                <strong>@Model.ToDate?.ToString("dd MMM yyyy")</strong>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="no-data">
+                <span class="nd-icon">🔍</span>
+                No records found for the selected labour and date range.
+            </div>
+        }
+        else
+        {
+            <!-- ── Report result ── -->
+            var r = Model.Result;
+
+            <div class="rc-hdr">
+                <div class="rc-hdr-left">
+                    <div class="rc-hdr-icon">👷</div>
+                    <div>
+                        <h3>@r.LabourName</h3>
+                        <p>
+                            <span class="date-chip">
+                                📅 <strong>@Model.FromDate?.ToString("dd MMM yyyy")</strong>
+                                &nbsp;→&nbsp;
+                                <strong>@Model.ToDate?.ToString("dd MMM yyyy")</strong>
+                            </span>
+                        </p>
+                    </div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button type="button" class="btn-print" onclick="window.print()">
+                        🖨️ Print
+                    </button>
+                    <span class="labour-badge"># @r.LabourId</span>
+                </div>
+            </div>
+
+            <!-- Print-only header (hidden on screen) -->
+            <div id="printHeader" style="display:none;">
+                Jyotirling Bricks Suppliers — Labour Ledger Report
+            </div>
+            <div id="printHeaderBar" style="display:none;"></div>
+
+            <div class="report-body">
+
+                <!-- 🔵 ADVANCE SECTION -->
+                <div class="section-block">
+                    <div class="sec-hdr advance">
+                        <div class="sec-hdr-dot blue"></div>
+                        <span>ADVANCE SECTION</span>
+                    </div>
+                    <div class="ledger-rows">
+
+                        <div class="lr">
+                            <div class="lr-label">
+                                <span class="lr-icon">💼</span> Initial Advance
+                            </div>
+                            <div class="lr-value val-blue">₹@r.InitialAdvance.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr">
+                            <div class="lr-label">
+                                <span class="lr-icon">➕</span> Additional Advance
+                            </div>
+                            <div class="lr-value val-blue">₹@r.AdditionalAdvance.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr divider">
+                            <div class="lr-label">
+                                <span class="lr-icon">🟰</span> Total Advance
+                            </div>
+                            <div class="lr-value val-accent">₹@r.TotalAdvance.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr">
+                            <div class="lr-label">
+                                <span class="lr-icon">➖</span> Deduction
+                            </div>
+                            <div class="lr-value val-red">₹@r.TotalDeduction.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr divider">
+                            <div class="lr-label">
+                                <span class="lr-icon">💰</span> Advance Balance
+                            </div>
+                            <div class="lr-value @(r.AdvanceBalance > 0 ? "val-yellow" : "val-green")">
+                                ₹@r.AdvanceBalance.ToString("N2")
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 🟢 SALARY SECTION -->
+                <div class="section-block">
+                    <div class="sec-hdr salary">
+                        <div class="sec-hdr-dot green"></div>
+                        <span>SALARY SECTION</span>
+                    </div>
+                    <div class="ledger-rows">
+
+                        <div class="lr">
+                            <div class="lr-label">
+                                <span class="lr-icon">🛠️</span> Salary Earned
+                            </div>
+                            <div class="lr-value val-green">₹@r.SalaryEarned.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr">
+                            <div class="lr-label">
+                                <span class="lr-icon">📉</span> Expense
+                            </div>
+                            <div class="lr-value val-red">₹@r.TotalExpense.ToString("N2")</div>
+                        </div>
+
+                        <div class="lr divider">
+                            <div class="lr-label">
+                                <span class="lr-icon">🟰</span> Final Salary
+                            </div>
+                            <div class="lr-value @(r.FinalSalary >= 0 ? "val-accent" : "val-red")">
+                                ₹@r.FinalSalary.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="lr divider">
+                            <div class="lr-label">
+                                <span class="lr-icon">✅</span> Paid Amount
+                            </div>
+                            <div class="lr-value val-green">₹@r.PaidAmount.ToString("N2")</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        
+            <!-- /report-body -->
+        }
+
+    </div><!-- /report-card -->
+
+</div><!-- /split -->
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

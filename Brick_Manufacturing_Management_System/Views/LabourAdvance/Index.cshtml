@@ -1,0 +1,1125 @@
+﻿@model Brick_Manufacturing_Management_System.Models.LabourAdvanceVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Labour Advance";
+
+    bool isEdit = Model.AdvanceId > 0;
+    int total = Model.AdvanceList.Count;
+    decimal grandTotal = Model.AdvanceList.Sum(a => a.AdvanceAmount);
+
+    int pageSize = 8;
+    int pageCount = (int)Math.Ceiling((double)total / pageSize);
+}
+
+@section Styles {
+    <style>
+
+        .adv-page-wrap {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - var(--topbar-h) - 48px);
+            gap: 0;
+        }
+
+        /* ── TOP CHIPS ── */
+        .achips {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .achips-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .achip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 12px;
+            color: var(--text-sec);
+        }
+
+            .achip strong {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 16px;
+                color: var(--text-pri);
+            }
+
+        .page-ttl {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-pri);
+            letter-spacing: 1px;
+        }
+
+        /* ── SPLIT CONTAINER ── */
+        .split-wrap {
+            display: flex;
+            gap: 0;
+            flex: 1;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg-card);
+        }
+
+        /* ── LEFT FORM PANEL ── */
+        .form-side {
+            width: 300px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .fs-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            flex-shrink: 0;
+            background: rgba(224,123,57,.05);
+        }
+
+            .fs-header.add-hdr {
+                color: var(--accent);
+            }
+
+            .fs-header.edit-hdr {
+                color: #60a5fa;
+            }
+
+        .fs-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+        }
+
+            .fs-body::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .fs-body::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 2px;
+            }
+
+        .fs-footer {
+            padding: 13px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            padding: 10px 13px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 16px 0;
+            flex-shrink: 0;
+        }
+
+        .alert-success {
+            background: rgba(34,211,164,.1);
+            border: 1px solid rgba(34,211,164,.25);
+            color: #22d3a4;
+        }
+
+        .alert-danger {
+            background: rgba(248,81,73,.1);
+            border: 1px solid rgba(248,81,73,.25);
+            color: #f85149;
+        }
+
+        /* ── LABOUR PREVIEW CARD ── */
+        .labour-preview {
+            display: none;
+            background: rgba(224,123,57,.07);
+            border: 1px solid rgba(224,123,57,.25);
+            border-radius: 9px;
+            padding: 10px 13px;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .labour-preview.show {
+                display: flex;
+            }
+
+        .lp-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: var(--text-sec);
+        }
+
+        .lp-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-pri);
+        }
+
+        .lp-total {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+        }
+
+        .lp-sub {
+            font-size: 10px;
+            color: var(--text-sec);
+        }
+
+        /* FIELDS */
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+            .fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: none;
+                color: var(--text-sec);
+            }
+
+            .fg input, .fg select {
+                background: rgba(0,0,0,.3);
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 8px 11px;
+                font-size: 12px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s;
+                width: 100%;
+                box-sizing: border-box;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .fg input:focus, .fg select:focus {
+                    border-color: var(--accent);
+                }
+
+                .fg select option {
+                    background: #161b22;
+                    color: var(--text-pri);
+                }
+
+        .select-wrap {
+            position: relative;
+        }
+
+            .select-wrap::after {
+                content: '▾';
+                position: absolute;
+                right: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 11px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+        .fg .verr {
+            font-size: 10px;
+            color: #f85149;
+            display: none;
+            margin-top: 2px;
+        }
+
+            .fg .verr.show {
+                display: block;
+            }
+
+        .fg input.err-field, .fg select.err-field {
+            border-color: #f85149 !important;
+        }
+
+        /* ₹ prefix */
+        .input-pfx {
+            position: relative;
+        }
+
+            .input-pfx span {
+                position: absolute;
+                left: 11px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 11px;
+                font-weight: 700;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+            .input-pfx input {
+                padding-left: 26px;
+            }
+
+        /* BUTTONS */
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .2s, transform .15s;
+        }
+
+            .btn-submit:active {
+                transform: scale(.98);
+            }
+
+        .btn-add-mode {
+            background: var(--accent);
+            color: #fff;
+        }
+
+            .btn-add-mode:hover {
+                background: #c96a28;
+            }
+
+        .btn-edit-mode {
+            background: rgba(96,165,250,.2);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.3) !important;
+        }
+
+            .btn-edit-mode:hover {
+                background: rgba(96,165,250,.32);
+            }
+
+        .btn-reset {
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border);
+            transition: all .2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            box-sizing: border-box;
+        }
+
+            .btn-reset:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        /* ── RIGHT TABLE PANEL ── */
+        .table-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ts-header {
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            background: rgba(224,123,57,.04);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ts-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            color: var(--text-pri);
+        }
+
+        .ts-summary {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .schip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 14px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .schip strong {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 14px;
+            }
+
+        .search-wrap {
+            position: relative;
+        }
+
+            .search-wrap input {
+                background: rgba(0,0,0,.25);
+                border: 1px solid var(--border);
+                border-radius: 7px;
+                padding: 7px 12px 7px 30px;
+                font-size: 12px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                width: 210px;
+                outline: none;
+                transition: border-color .2s;
+            }
+
+                .search-wrap input:focus {
+                    border-color: var(--accent);
+                }
+
+        .search-si {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--text-sec);
+        }
+
+        .ts-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+            .ts-body::-webkit-scrollbar {
+                width: 4px;
+                height: 6px;
+            }
+
+            .ts-body::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 3px;
+            }
+
+                .ts-body::-webkit-scrollbar-thumb:hover {
+                    background: var(--accent);
+                }
+
+        /* TABLE */
+        .atbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 680px;
+        }
+
+            .atbl thead th {
+                padding: 10px 12px;
+                text-align: left;
+                font-size: 9px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+                font-weight: 700;
+                border-bottom: 1px solid var(--border);
+                background: var(--bg-card);
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 2;
+            }
+
+            .atbl td {
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-pri);
+                vertical-align: middle;
+            }
+
+            .atbl tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .atbl tbody tr:hover td {
+                background: rgba(224,123,57,.04);
+            }
+
+            .atbl tbody tr.editing-row td {
+                background: rgba(96,165,250,.06);
+            }
+
+            .atbl tbody tr.hidden-row {
+                display: none;
+            }
+
+        .av {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#e07b39,#7c3510);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .type-bdg {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(167,139,250,.12);
+            color: #a78bfa;
+            border: 1px solid rgba(167,139,250,.2);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .amt-bdg {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .total-bdg {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #22d3a4;
+        }
+
+        .act {
+            display: flex;
+            gap: 5px;
+        }
+
+        .abtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            transition: background .2s;
+            text-decoration: none;
+        }
+
+        .abtn-edit {
+            background: rgba(96,165,250,.12);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.2) !important;
+        }
+
+            .abtn-edit:hover {
+                background: rgba(96,165,250,.25);
+            }
+
+        .abtn-del {
+            background: rgba(248,81,73,.10);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.2) !important;
+        }
+
+            .abtn-del:hover {
+                background: rgba(248,81,73,.25);
+            }
+
+        .empty-tbl {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+        #noSearch {
+            display: none;
+            text-align: center;
+            padding: 28px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        /* ══ PAGINATION (matches MaterialPurchase style) ══ */
+        .ts-pagination {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(224,123,57,.02);
+            flex-shrink: 0;
+        }
+
+        .pg-info {
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-info span {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        .pg-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+            padding: 0 8px;
+        }
+
+            .pg-btn:hover:not(:disabled) {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .pg-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+                font-weight: 700;
+            }
+
+            .pg-btn:disabled {
+                opacity: .35;
+                cursor: not-allowed;
+            }
+
+        /* DELETE MODAL */
+        .del-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .del-overlay.show {
+                display: flex;
+            }
+
+        .del-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            width: 360px;
+            max-width: 90vw;
+            animation: popIn .22s ease;
+        }
+
+        @@keyframes popIn {
+            from {
+                transform: scale(.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .del-box h3 {
+            font-family: 'Rajdhani',sans-serif;
+            font-size: 20px;
+            color: #f85149;
+            margin-bottom: 8px;
+        }
+
+        .del-box p {
+            font-size: 12px;
+            color: var(--text-sec);
+            line-height: 1.6;
+        }
+
+        .del-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .btn-dc {
+            padding: 8px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Nunito',sans-serif;
+            cursor: pointer;
+        }
+
+        .btn-dc-cancel {
+            background: rgba(255,255,255,.06);
+            color: var(--text-sec);
+            border: 1px solid var(--border);
+        }
+
+        .btn-dc-del {
+            background: rgba(248,81,73,.14);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.3);
+            transition: background .2s;
+        }
+
+            .btn-dc-del:hover {
+                background: rgba(248,81,73,.28);
+            }
+
+    </style>
+}
+
+<div class="adv-page-wrap">
+
+    <!-- TOP CHIPS -->
+    <div class="achips">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div class="page-ttl" data-i18n="nav.labourAdvance">💰 Labour Advance</div>
+            <div class="achips-left">
+                <div class="achip">Records <strong>@total</strong></div>
+                <div class="achip">Total Disbursed <strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
+            </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-sec);">@DateTime.Now.ToString("dddd, dd MMM yyyy")</div>
+    </div>
+
+    <!-- SPLIT LAYOUT -->
+    <div class="split-wrap">
+
+        <!-- ══ LEFT: FORM ══ -->
+        <aside class="form-side">
+            <div class="fs-header @(isEdit ? "edit-hdr" : "add-hdr")">
+                @(isEdit ? "✏️" : "💰") <span data-i18n='@(isEdit ? "advance.editAdvance" : "advance.recordAdvance")'>@(isEdit ? "Edit Advance" : "Record Advance")</span>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">✅ @TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">⚠️ @TempData["Error"]</div>
+            }
+
+            <form asp-action="Save" asp-controller="LabourAdvance" method="post" novalidate id="advForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="AdvanceId" />
+
+                <div class="fs-body">
+
+                    <!-- Labour total preview card -->
+                    <div class="labour-preview" id="labourPreview">
+                        <div class="lp-label">Selected Labour</div>
+                        <div class="lp-name" id="previewName">—</div>
+                        <div class="lp-label" style="margin-top:4px;">Total Advance So Far</div>
+                        <div class="lp-total" id="previewTotal">₹ 0.00</div>
+                        <div class="lp-sub">Includes all previous advances</div>
+                    </div>
+
+                    <div class="fg">
+                        <label data-i18n="advance.advanceDate">Advance Date *</label>
+                        <input asp-for="AdvanceDate"
+                               type="date"
+                               value="@Model.AdvanceDate?.ToString("yyyy-MM-dd")"
+                               class="@(ViewData.ModelState["AdvanceDate"]?.Errors.Count > 0 ? "err-field" : "")" />
+                        <span asp-validation-for="AdvanceDate" class="verr show"></span>
+                    </div>
+
+                    <div class="fg">
+                        <label data-i18n="form.labour">Labour *</label>
+                        <div class="select-wrap">
+                            <select asp-for="LabourId"
+                                    asp-items="Model.LabourOptions"
+                                    id="labourSelect"
+                                    onchange="fetchLabourTotal(this.value)"
+                                    class="@(ViewData.ModelState["LabourId"]?.Errors.Count > 0 ? "err-field" : "")">
+                                <option value="">— Select Labour —</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="LabourId" class="verr show"></span>
+                    </div>
+
+                    <div class="fg">
+                        <label data-i18n="advance.advanceType">Advance Type *</label>
+                        <div class="select-wrap">
+                            <select asp-for="AdvanceTypeId"
+                                    asp-items="Model.AdvanceTypeOptions"
+                                    class="@(ViewData.ModelState["AdvanceTypeId"]?.Errors.Count > 0 ? "err-field" : "")">
+                                <option value="">— Select Type —</option>
+                            </select>
+                        </div>
+                        <span asp-validation-for="AdvanceTypeId" class="verr show"></span>
+                    </div>
+
+                    <div class="fg">
+                        <label data-i18n="advance.advanceAmount">Advance Amount (₹) *</label>
+                        <div class="input-pfx">
+                            <span>₹</span>
+                            <input asp-for="AdvanceAmount"
+                                   type="number" min="1" step="0.01"
+                                   placeholder="0.00" onwheel="this.blur()"
+                                   class="@(ViewData.ModelState["AdvanceAmount"]?.Errors.Count > 0 ? "err-field" : "")" />
+                        </div>
+                        <span asp-validation-for="AdvanceAmount" class="verr show"></span>
+                    </div>
+
+                </div>
+
+                <div class="fs-footer">
+                    <button type="submit" class="btn-submit @(isEdit ? "btn-edit-mode" : "btn-add-mode")" data-i18n='@(isEdit ? "advance.updateBtn" : "advance.saveBtn")'>
+                        @(isEdit ? "💾 Update Advance" : "＋ Record Advance")
+                    </button>
+                    @if (isEdit)
+                    {
+                        <a href="/LabourAdvance/Index" class="btn-reset" data-i18n="common.cancelEdit">↺ Cancel Edit</a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn-reset" onclick="resetForm()" data-i18n="common.reset">↺ Reset</button>
+                    }
+                </div>
+            </form>
+        </aside>
+
+        <!-- ══ RIGHT: TABLE ══ -->
+        <section class="table-side">
+
+            <div class="ts-header">
+                <div class="ts-title" data-i18n="advance.advanceRecords">Advance Records</div>
+                <div class="search-wrap">
+                    <span class="search-si">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Search by labour or type…" oninput="filterTable()" />
+                </div>
+            </div>
+
+            <div class="ts-summary">
+                <div class="schip">Total Records &nbsp;<strong>@total</strong></div>
+                <div class="schip">Total Disbursed &nbsp;<strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
+            </div>
+
+            <div class="ts-body">
+                @if (!Model.AdvanceList.Any())
+                {
+                    <div class="empty-tbl">💰 No advance records yet. Record the first advance using the form.</div>
+                }
+                else
+                {
+                    <table class="atbl" id="advTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="form.date">Date</th>
+                                <th data-i18n="form.labour">Labour</th>
+                                <th data-i18n="advance.advanceType.col">Advance Type</th>
+                                <th data-i18n="form.amount">Amount</th>
+                                <th data-i18n="advance.labourTotal">Labour Total</th>
+                                <th style="text-align:center;" data-i18n="common.actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="advBody">
+                            @foreach (var a in Model.AdvanceList)
+                            {
+                                bool isEditing = Model.AdvanceId == a.AdvanceId;
+                                string safeLabourName = a.LabourName.Replace("'", "\\'");
+                                string initials = string.Join("",
+                                a.LabourName.Split(' ')
+                                .Take(2)
+                                .Select(w => w.Length > 0 ? w[0].ToString() : "")
+                                ).ToUpper();
+
+                                <tr class="@(isEditing ? "editing-row" : "")"
+                                    id="row-@a.AdvanceId"
+                                    data-search="@a.LabourName.ToLower() @a.AdvanceTypeName.ToLower()">
+                                    <td style="color:var(--text-sec);font-size:11px;">@a.AdvanceId</td>
+                                    <td style="font-size:11px;font-weight:600;white-space:nowrap;">
+                                        @a.AdvanceDate.ToString("dd MMM yyyy")
+                                    </td>
+                                    <td>
+                                        <div class="name-cell">
+                                            <div class="av">@initials</div>
+                                            <div style="font-weight:600;">@a.LabourName</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="type-bdg">@a.AdvanceTypeName</span></td>
+                                    <td><span class="amt-bdg">₹ @a.AdvanceAmount.ToString("N2")</span></td>
+                                    <td><span class="total-bdg">₹ @a.TotalAdvance.ToString("N2")</span></td>
+                                    <td>
+                                        <div class="act" style="justify-content:center;">
+                                            <a href="/LabourAdvance/Index?editId=@a.AdvanceId" class="abtn abtn-edit">✏ Edit</a>
+                                            <button type="button" class="abtn abtn-del"
+                                                    onclick="openDel(@a.AdvanceId, '@safeLabourName')">
+                                                🗑 Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <div id="noSearch">
+                        <span style="font-size:22px;display:block;margin-bottom:8px;opacity:.4;">🔍</span>
+                        No records match your search.
+                    </div>
+                }
+            </div>
+
+            <!-- ══ PAGINATION (matches MaterialPurchase style) ══ -->
+            @if (Model.AdvanceList.Any())
+            {
+                <div class="ts-pagination">
+                    <div class="pg-info">
+                        Showing <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, total)</span>
+                        of <span>@total</span> records
+                    </div>
+                    <div class="pg-btns">
+                        <button class="pg-btn" id="pgPrev" onclick="changePage(currentPage - 1)" disabled>&#8249;</button>
+                        @for (int i = 0; i < pageCount; i++)
+                        {
+                            <button class="pg-btn @(i == 0 ? "active" : "")"
+                                    id="pgBtn@(i)"
+                                    onclick="changePage(@i)">
+                                @(i + 1)
+                            </button>
+                        }
+                        <button class="pg-btn" id="pgNext"
+                                onclick="changePage(currentPage + 1)"
+                                @(pageCount <= 1 ? "disabled" : "")>
+                            &#8250;
+                        </button>
+                    </div>
+                </div>
+            }
+
+        </section>
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="del-overlay" id="delOverlay">
+    <div class="del-box">
+        <h3 data-i18n="advance.deleteTitle">⚠️ Delete Advance?</h3>
+        <p>
+            You are about to permanently delete the advance record for
+            <strong id="delLabourName" style="color:var(--accent);"></strong>.<br>
+            This action cannot be undone.
+        </p>
+        <div class="del-footer">
+            <button type="button" class="btn-dc btn-dc-cancel" onclick="closeDel()" data-i18n="common.cancel">Cancel</button>
+            <form id="delForm" method="post" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-dc btn-dc-del" data-i18n="common.yesDelete">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const PAGE_SIZE  = @pageSize;
+        const TOTAL_ROWS = @total;
+        const PAGE_COUNT = @pageCount;
+        let currentPage  = 0;
+        let isSearching  = false;
+
+        /* ── Assign page numbers ── */
+        (function assignPages() {
+            const rows = Array.from(document.querySelectorAll('#advBody tr'));
+            rows.forEach((r, i) => { r.dataset.page = Math.floor(i / PAGE_SIZE); });
+        })();
+
+        function showPage(p) {
+            if (isSearching) return;
+            currentPage = p;
+            const rows = Array.from(document.querySelectorAll('#advBody tr'));
+            rows.forEach(r => r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p));
+
+            const from = p * PAGE_SIZE + 1;
+            const to   = Math.min((p + 1) * PAGE_SIZE, TOTAL_ROWS);
+            const fromEl = document.getElementById('pgFrom');
+            const toEl   = document.getElementById('pgTo');
+            if (fromEl) fromEl.textContent = from;
+            if (toEl)   toEl.textContent   = to;
+
+            for (let i = 0; i < PAGE_COUNT; i++) {
+                const btn = document.getElementById('pgBtn' + i);
+                if (btn) btn.classList.toggle('active', i === p);
+            }
+            const prevBtn = document.getElementById('pgPrev');
+            const nextBtn = document.getElementById('pgNext');
+            if (prevBtn) prevBtn.disabled = (p === 0);
+            if (nextBtn) nextBtn.disabled = (p >= PAGE_COUNT - 1);
+        }
+
+        function changePage(p) {
+            if (p < 0 || p >= PAGE_COUNT) return;
+            showPage(p);
+        }
+
+        if (TOTAL_ROWS > 0) showPage(0);
+
+        /* ── FETCH LABOUR TOTAL (AJAX) ── */
+        async function fetchLabourTotal(labourId) {
+            const preview = document.getElementById('labourPreview');
+            if (!labourId) { preview.classList.remove('show'); return; }
+            try {
+                const res  = await fetch('/LabourAdvance/GetLabourTotal?labourId=' + labourId);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('previewName').textContent  = data.labourName;
+                    document.getElementById('previewTotal').textContent =
+                        '₹ ' + parseFloat(data.total).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+                    preview.classList.add('show');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        /* Show preview if edit mode has labour pre-selected */
+        (function initEditPreview() {
+            const sel = document.getElementById('labourSelect');
+            if (sel && sel.value) fetchLabourTotal(sel.value);
+        })();
+
+        /* ── RESET ── */
+        function resetForm() {
+            document.getElementById('advForm').reset();
+            document.getElementById('labourPreview').classList.remove('show');
+            document.querySelectorAll('.verr').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.err-field').forEach(e => e.classList.remove('err-field'));
+        }
+
+        /* ── SEARCH ── */
+        function filterTable() {
+            const q    = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = Array.from(document.querySelectorAll('#advBody tr'));
+            isSearching = q.length > 0;
+
+            if (!isSearching) {
+                showPage(currentPage);
+                document.getElementById('noSearch').style.display = 'none';
+                return;
+            }
+
+            let vis = 0;
+            rows.forEach(r => {
+                const haystack = (r.dataset.search || '') + ' ' + r.textContent.toLowerCase();
+                const match    = haystack.includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) vis++;
+            });
+            document.getElementById('noSearch').style.display = vis === 0 ? 'block' : 'none';
+        }
+
+        /* ── DELETE MODAL ── */
+        function openDel(id, name) {
+            document.getElementById('delLabourName').textContent = name;
+            document.getElementById('delForm').action = '/LabourAdvance/Delete/' + id;
+            document.getElementById('delOverlay').classList.add('show');
+        }
+        function closeDel() {
+            document.getElementById('delOverlay').classList.remove('show');
+        }
+        document.getElementById('delOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeDel();
+        });
+
+        /* ── SCROLL EDITING ROW INTO VIEW ── */
+        const editRow = document.querySelector('.editing-row');
+        if (editRow) {
+            const editPage = parseInt(editRow.dataset.page) || 0;
+            showPage(editPage);
+            setTimeout(() => editRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+    </script>
+}

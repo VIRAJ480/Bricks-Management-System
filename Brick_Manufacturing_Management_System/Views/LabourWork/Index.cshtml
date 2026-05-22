@@ -1,0 +1,1210 @@
+﻿@model Brick_Manufacturing_Management_System.Models.LabourWorkVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Labour Work Entry";
+
+    bool isEdit = Model.WorkId > 0;
+    int totalRec = Model.WorkList.Count;
+    decimal totalSal = Model.WorkList.Sum(w => w.TotalSalary);
+
+    int pageSize = 8;
+    int pageCount = (int)Math.Ceiling((double)totalRec / pageSize);
+}
+
+@section Styles {
+    <style>
+
+        /* ══ PAGE LAYOUT ══ */
+        .lw-wrap {
+            display: flex;
+            gap: 0;
+            height: calc(100vh - var(--topbar-h) - 32px);
+            overflow: hidden;
+        }
+
+        /* ══ LEFT PANEL ══ */
+        .lw-left {
+            width: 290px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px 0 0 12px;
+            overflow: hidden;
+        }
+
+        .panel-hdr {
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .panel-hdr-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+            .panel-icon.add-ic {
+                background: rgba(224,123,57,.15);
+            }
+
+            .panel-icon.edit-ic {
+                background: rgba(96,165,250,.15);
+            }
+
+        .panel-hdr h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+            .panel-hdr h2.add-ttl {
+                color: var(--accent);
+            }
+
+            .panel-hdr h2.edit-ttl {
+                color: #60a5fa;
+            }
+
+        .panel-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        /* Scrollable form body */
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            scrollbar-width: thin;
+        }
+
+            .panel-body::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .panel-body::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 2px;
+            }
+
+        /* Sticky footer */
+        .panel-footer {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* ── FIELDS ── */
+        .fg {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+            .fg label {
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: none;
+                color: var(--text-sec);
+            }
+
+            .fg input, .fg select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 12px;
+                font-size: 13px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s, background .2s;
+                width: 100%;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .fg input:focus, .fg select:focus {
+                    border-color: var(--accent);
+                    background: rgba(224,123,57,.04);
+                }
+
+                .fg input[readonly] {
+                    background: rgba(224,123,57,.07);
+                    border-color: rgba(224,123,57,.25);
+                    color: var(--accent);
+                    font-weight: 700;
+                    cursor: not-allowed;
+                }
+
+                .fg select option {
+                    background: #0d1117;
+                    color: var(--text-pri);
+                }
+
+        .select-wrap {
+            position: relative;
+        }
+
+            .select-wrap::after {
+                content: '▾';
+                position: absolute;
+                right: 12px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 12px;
+                color: var(--text-sec);
+                pointer-events: none;
+            }
+
+        .fg-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .calc-hint {
+            font-size: 10px;
+            color: var(--text-sec);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .calc-hint span {
+                color: var(--accent);
+                font-weight: 700;
+            }
+
+        .form-sec-lbl {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(224,123,57,.2);
+            margin-top: 4px;
+        }
+
+        .verr {
+            font-size: 10px;
+            color: #f85149;
+            display: none;
+        }
+
+            .verr.show {
+                display: block;
+            }
+
+        .err-field {
+            border-color: #f85149 !important;
+        }
+
+        /* ── Alert/Toast banners ── */
+        .alert-bar {
+            padding: 9px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: 0 16px 10px;
+        }
+
+        .alert-success {
+            background: rgba(34,211,164,.12);
+            color: #22d3a4;
+            border: 1px solid rgba(34,211,164,.25);
+        }
+
+        .alert-error {
+            background: rgba(248,81,73,.12);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.25);
+        }
+
+        /* Buttons */
+        .btn-save {
+            width: 100%;
+            padding: 11px;
+            border-radius: 9px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            transition: background .2s, transform .15s;
+        }
+
+            .btn-save:active {
+                transform: scale(.98);
+            }
+
+        .btn-save-add {
+            background: var(--accent);
+            color: #fff;
+        }
+
+            .btn-save-add:hover {
+                background: #c96a28;
+            }
+
+        .btn-save-edit {
+            background: rgba(96,165,250,.18);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.35) !important;
+        }
+
+            .btn-save-edit:hover {
+                background: rgba(96,165,250,.3);
+            }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 9px;
+            border-radius: 9px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border);
+            transition: all .2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+            .btn-cancel:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+        /* ══ RIGHT PANEL ══ */
+        .lw-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            background: var(--bg-card);
+            overflow: hidden;
+        }
+
+        .rp-hdr {
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .rp-hdr-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rp-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(224,123,57,.12);
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .rp-hdr h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            color: var(--text-pri);
+            line-height: 1.1;
+        }
+
+        .rp-hdr p {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin: 0;
+        }
+
+        .rec-badge {
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 5px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Summary chips */
+        .rp-chips {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+
+        .rchip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .rchip strong {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 14px;
+            }
+
+        /* Search */
+        .rp-search {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .search-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+            .search-wrap input {
+                width: 100%;
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 9px 14px 9px 36px;
+                font-size: 12px;
+                color: var(--text-pri);
+                font-family: 'Nunito', sans-serif;
+                outline: none;
+                transition: border-color .2s;
+                box-sizing: border-box;
+            }
+
+                .search-wrap input:focus {
+                    border-color: var(--accent);
+                }
+
+        .search-ico {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: var(--text-sec);
+        }
+
+        /* Table area */
+        .rp-table-area {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+            .rp-table-area::-webkit-scrollbar {
+                width: 4px;
+                height: 4px;
+            }
+
+            .rp-table-area::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 2px;
+            }
+
+        /* TABLE */
+        .ptbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 640px;
+        }
+
+            .ptbl thead th {
+                padding: 10px 13px;
+                text-align: left;
+                font-size: 9px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                color: var(--text-sec);
+                font-weight: 700;
+                border-bottom: 1px solid var(--border);
+                background: var(--bg-card);
+                white-space: nowrap;
+                position: sticky;
+                top: 0;
+                z-index: 2;
+            }
+
+            .ptbl tbody td {
+                padding: 10px 13px;
+                border-bottom: 1px solid var(--border);
+                color: var(--text-pri);
+                vertical-align: middle;
+            }
+
+            .ptbl tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+            .ptbl tbody tr:hover td {
+                background: rgba(224,123,57,.04);
+            }
+
+            .ptbl tbody tr.editing-row td {
+                background: rgba(96,165,250,.06);
+            }
+
+            .ptbl tbody tr.hidden-row {
+                display: none;
+            }
+
+        .tbl-summary td {
+            background: rgba(224,123,57,.06) !important;
+            border-top: 1px solid rgba(224,123,57,.2) !important;
+            font-weight: 700;
+            font-size: 11px;
+            position: sticky;
+            bottom: 0;
+        }
+
+        /* Salary amount */
+        .amt-salary {
+            color: #e07b39;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+        }
+
+        .amt-wage {
+            color: #22d3a4;
+            font-weight: 700;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+        }
+
+        /* Labour avatar */
+        .vc {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .av-sm {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: linear-gradient(135deg, #e07b39, #7c3510);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        /* Days badge */
+        .days-pill {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(167,139,250,.12);
+            color: #a78bfa;
+            border: 1px solid rgba(167,139,250,.2);
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Action buttons */
+        .act {
+            display: flex;
+            gap: 5px;
+        }
+
+        .abtn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            transition: background .2s;
+            text-decoration: none;
+        }
+
+        .abtn-edit {
+            background: rgba(96,165,250,.12);
+            color: #60a5fa;
+            border: 1px solid rgba(96,165,250,.2) !important;
+        }
+
+            .abtn-edit:hover {
+                background: rgba(96,165,250,.25);
+            }
+
+        .abtn-del {
+            background: rgba(248,81,73,.10);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.2) !important;
+        }
+
+            .abtn-del:hover {
+                background: rgba(248,81,73,.25);
+            }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+            font-size: 13px;
+        }
+
+            .empty-state .es-icon {
+                font-size: 36px;
+                margin-bottom: 10px;
+                display: block;
+            }
+
+        .no-search {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            color: var(--text-sec);
+            font-size: 12px;
+        }
+
+        /* ══ PAGINATION ══ */
+        .rp-pagination {
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: rgba(224,123,57,.02);
+        }
+
+        .pg-info {
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-info span {
+                color: var(--text-pri);
+                font-weight: 700;
+            }
+
+        .pg-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pg-btn {
+            min-width: 32px;
+            height: 32px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+            padding: 0 8px;
+        }
+
+            .pg-btn:hover:not(:disabled) {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
+            .pg-btn.active {
+                background: var(--accent);
+                color: #fff;
+                border-color: var(--accent);
+                font-weight: 700;
+            }
+
+            .pg-btn:disabled {
+                opacity: .35;
+                cursor: not-allowed;
+            }
+
+        /* ══ DELETE MODAL ══ */
+        .del-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.65);
+            z-index: 500;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .del-overlay.show {
+                display: flex;
+            }
+
+        .del-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 26px;
+            width: 360px;
+            max-width: 90vw;
+            animation: popIn .22s ease;
+        }
+
+        @@keyframes popIn {
+            from {
+                transform: scale(.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .del-box h3 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            color: #f85149;
+            margin-bottom: 8px;
+        }
+
+        .del-box p {
+            font-size: 12px;
+            color: var(--text-sec);
+            line-height: 1.6;
+        }
+
+        .del-footer {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .btn-dc {
+            padding: 8px 16px;
+            border-radius: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-dc-cancel {
+            background: rgba(255,255,255,.06);
+            color: var(--text-sec);
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-dc-del {
+            background: rgba(248,81,73,.14);
+            color: #f85149;
+            border: 1px solid rgba(248,81,73,.3) !important;
+            transition: background .2s;
+        }
+
+            .btn-dc-del:hover {
+                background: rgba(248,81,73,.28);
+            }
+
+    </style>
+}
+
+<div class="lw-wrap">
+
+    <!-- ══════════ LEFT: VERTICAL FORM PANEL ══════════ -->
+    <aside class="lw-left">
+
+        <div class="panel-hdr">
+            <div class="panel-hdr-top">
+                <div class="panel-icon @(isEdit ? "edit-ic" : "add-ic")">
+                    @(isEdit ? "✏️" : "👷")
+                </div>
+                <div>
+                    <h2 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "work.editEntry" : "work.workEntry")'>
+                        @(isEdit ? "EDIT ENTRY" : "WORK ENTRY")
+                    </h2>
+                    <p>@(isEdit ? "Update work record" : "Record labour work days")</p>
+                </div>
+            </div>
+        </div>
+
+        @* TempData alerts inside the left panel *@
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-bar alert-success">✅ @TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-bar alert-error">⚠️ @TempData["Error"]</div>
+        }
+
+        <form asp-action="Save" method="post" novalidate id="lwForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="WorkId" />
+
+            <div class="panel-body">
+
+                <div class="form-sec-lbl" data-i18n="purchase.pricing">📋 Work Details</div>
+
+                <!-- Work Date -->
+                <div class="fg">
+                    <label data-i18n="work.workDate">Work Date *</label>
+                    <input asp-for="WorkDate" type="date"
+                           value="@Model.WorkDate?.ToString("yyyy-MM-dd")"
+                           class="@(ViewData.ModelState["WorkDate"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    <span asp-validation-for="WorkDate" class="verr show"></span>
+                </div>
+
+                <!-- Labour -->
+                <div class="fg">
+                    <label data-i18n="form.labour">Labour *</label>
+                    <div class="select-wrap">
+                        <select asp-for="LabourId" asp-items="Model.LabourOptions"
+                                id="selLabour"
+                                onchange="fetchWage(this.value)"
+                                class="@(ViewData.ModelState["LabourId"]?.Errors.Count > 0 ? "err-field" : "")">
+                            <option value="">— Select Labour —</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="LabourId" class="verr show"></span>
+                </div>
+
+                <div class="form-sec-lbl" data-i18n="purchase.payment">💰 Salary Calculation</div>
+
+                <!-- Daily Wage -->
+                <div class="fg">
+                    <label data-i18n="work.dailyWage">Daily Wage (₹) *</label>
+                    <input asp-for="DailyWage" type="number" step="0.01" min="0.01"
+                           placeholder="0.00" id="fWage" oninput="calcSalary()" onwheel="this.blur()"
+                           class="@(ViewData.ModelState["DailyWage"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    <span asp-validation-for="DailyWage" class="verr show"></span>
+                </div>
+
+                <!-- Days Worked -->
+                <div class="fg">
+                    <label data-i18n="work.daysWorked">Days Worked *</label>
+                    <input asp-for="DaysWorked" type="number" step="1" min="1" max="365"
+                           placeholder="0" id="fDays" oninput="calcSalary()" onwheel="this.blur()"
+                           class="@(ViewData.ModelState["DaysWorked"]?.Errors.Count > 0 ? "err-field" : "")" />
+                    <span asp-validation-for="DaysWorked" class="verr show"></span>
+                </div>
+
+                <!-- Total Salary (auto) -->
+                <div class="fg">
+                    <label data-i18n="work.totalSalary">Total Salary (Auto)</label>
+                    <input type="text" id="dispSalary" readonly placeholder="₹ 0.00"
+                           value="@(Model.TotalSalary.HasValue && Model.TotalSalary > 0 ? "₹ " + Model.TotalSalary.Value.ToString("N2") : "")" />
+                    <input type="hidden" asp-for="TotalSalary" id="fSalary" />
+                    <div class="calc-hint">🧮 Wage × Days = <span id="salHintVal">@(Model.TotalSalary?.ToString("N2") ?? "0.00")</span></div>
+                </div>
+
+            </div>
+
+            <div class="panel-footer">
+                <button type="submit" class="btn-save @(isEdit ? "btn-save-edit" : "btn-save-add")" data-i18n='@(isEdit ? "work.updateBtn" : "work.saveBtn")'>
+                    @(isEdit ? "💾 Update Entry" : "＋ Save Entry")
+                </button>
+                @if (isEdit)
+                {
+                    <a href="/LabourWork/Index" class="btn-cancel" data-i18n="common.cancelEdit">↺ Cancel Edit</a>
+                }
+                else
+                {
+                    <button type="button" class="btn-cancel" onclick="resetForm()" data-i18n="common.reset">↺ Reset</button>
+                }
+            </div>
+        </form>
+
+    </aside>
+
+    <!-- ══════════ RIGHT: TABLE PANEL ══════════ -->
+    <section class="lw-right">
+
+        <div class="rp-hdr">
+            <div class="rp-hdr-left">
+                <div class="rp-icon">👷</div>
+                <div>
+                    <h2 data-i18n="work.workRecords">WORK RECORDS</h2>
+                    <p>All labour work entries</p>
+                </div>
+            </div>
+            <div class="rec-badge">@totalRec Records</div>
+        </div>
+
+        <div class="rp-chips">
+            <div class="rchip">Entries &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong></div>
+            <div class="rchip">Total Salary &nbsp;<strong style="color:#e07b39;">₹@totalSal.ToString("N2")</strong></div>
+        </div>
+
+        <div class="rp-search">
+            <div class="search-wrap">
+                <span class="search-ico">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by labour name, date…" oninput="filterTable()" />
+            </div>
+        </div>
+
+        <div class="rp-table-area">
+            @if (!Model.WorkList.Any())
+            {
+                <div class="empty-state">
+                    <span class="es-icon">👷</span>
+                    No work entries yet.<br />Add your first entry using the form.
+                </div>
+            }
+            else
+            {
+                <table class="ptbl" id="lwTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th data-i18n="form.date">Date</th>
+                            <th data-i18n="form.labour">Labour</th>
+                            <th data-i18n="work.dailyWage">Daily Wage</th>
+                            <th data-i18n="work.daysCol">Days</th>
+                            <th data-i18n="work.totalSalaryCol">Total Salary</th>
+                            <th data-i18n="common.actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lwBody">
+                        @foreach (var w in Model.WorkList)
+                        {
+                            bool isEditing = Model.WorkId == w.WorkId;
+
+                            var labourInit = w.LabourName.Split(' ')
+                            .Take(2)
+                            .Select(x => x.Length > 0 ? x[0].ToString() : "")
+                            .Aggregate("", (a, b) => a + b)
+                            .ToUpper();
+
+                            string safeName = w.LabourName.Replace("'", "\\'");
+
+                            <tr class="@(isEditing ? "editing-row" : "")"
+                                id="row-@w.WorkId">
+                                <td style="color:var(--text-sec);font-size:11px;">@w.WorkId</td>
+                                <td style="white-space:nowrap;font-size:11px;font-weight:600;">
+                                    @w.WorkDate.ToString("dd MMM yyyy")
+                                </td>
+                                <td>
+                                    <div class="vc">
+                                        <div class="av-sm">@labourInit</div>
+                                        <span style="font-weight:600;font-size:12px;">@w.LabourName</span>
+                                    </div>
+                                </td>
+                                <td><span class="amt-wage">₹@w.DailyWage.ToString("N2")</span></td>
+                                <td><span class="days-pill">@w.DaysWorked days</span></td>
+                                <td><span class="amt-salary">₹@w.TotalSalary.ToString("N2")</span></td>
+                                <td>
+                                    <div class="act">
+                                        <a href="/LabourWork/Index?editId=@w.WorkId" class="abtn abtn-edit">✏ Edit</a>
+                                        <button type="button" class="abtn abtn-del"
+                                                onclick="openDel(@w.WorkId, '@safeName')">
+                                            🗑 Del
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="tbl-summary">
+                            <td colspan="5" style="color:var(--text-sec);font-size:11px;letter-spacing:1px;text-transform:uppercase;">
+                                Page Total
+                            </td>
+                            <td><span class="amt-salary">₹@totalSal.ToString("N2")</span></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class="no-search" id="noSearch">🔍 No records match your search.</div>
+            }
+        </div>
+
+        <!-- PAGINATION -->
+        @if (Model.WorkList.Any())
+        {
+            <div class="rp-pagination">
+                <div class="pg-info">
+                    Showing <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, totalRec)</span>
+                    of <span>@totalRec</span> records
+                </div>
+                <div class="pg-btns">
+                    <button class="pg-btn" id="pgPrev" onclick="changePage(currentPage - 1)" disabled>&#8249;</button>
+                    @for (int i = 0; i < pageCount; i++)
+                    {
+                        <button class="pg-btn @(i == 0 ? "active" : "")"
+                                id="pgBtn@(i)"
+                                onclick="changePage(@i)">
+                            @(i + 1)
+                        </button>
+                    }
+                    <button class="pg-btn" id="pgNext"
+                            onclick="changePage(currentPage + 1)"
+                            @(pageCount <= 1 ? "disabled" : "")>
+                        &#8250;
+                    </button>
+                </div>
+            </div>
+        }
+
+    </section>
+
+</div>
+
+<!-- DELETE MODAL -->
+<div class="del-overlay" id="delOverlay">
+    <div class="del-box">
+        <h3 data-i18n="work.deleteTitle">⚠️ Delete Entry?</h3>
+        <p>
+            You are about to permanently delete the work entry for
+            <strong id="delLabel" style="color:var(--accent);"></strong>.<br />
+            This action cannot be undone.
+        </p>
+        <div class="del-footer">
+            <button type="button" class="btn-dc btn-dc-cancel" onclick="closeDel()" data-i18n="common.cancel">Cancel</button>
+            <form id="delForm" method="post" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-dc btn-dc-del" data-i18n="common.yesDelete">Yes, Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+
+        /* ══════════════════════════════════════════
+           PAGINATION
+        ══════════════════════════════════════════ */
+        const PAGE_SIZE  = @pageSize;
+        const TOTAL_ROWS = @totalRec;
+        const PAGE_COUNT = @pageCount;
+        let currentPage  = 0;
+        let isSearching  = false;
+
+        // Assign page index to each row
+        (function assignPages() {
+            const rows = Array.from(document.querySelectorAll('#lwBody tr'));
+            rows.forEach((r, i) => { r.dataset.page = Math.floor(i / PAGE_SIZE); });
+        })();
+
+        function showPage(p) {
+            if (isSearching) return;
+            currentPage = p;
+            const rows = Array.from(document.querySelectorAll('#lwBody tr'));
+            rows.forEach(r => r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p));
+
+            const from = p * PAGE_SIZE + 1;
+            const to   = Math.min((p + 1) * PAGE_SIZE, TOTAL_ROWS);
+            const fromEl = document.getElementById('pgFrom');
+            const toEl   = document.getElementById('pgTo');
+            if (fromEl) fromEl.textContent = from;
+            if (toEl)   toEl.textContent   = to;
+
+            for (let i = 0; i < PAGE_COUNT; i++) {
+                const btn = document.getElementById('pgBtn' + i);
+                if (btn) btn.classList.toggle('active', i === p);
+            }
+            const prevBtn = document.getElementById('pgPrev');
+            const nextBtn = document.getElementById('pgNext');
+            if (prevBtn) prevBtn.disabled = p === 0;
+            if (nextBtn) nextBtn.disabled = p >= PAGE_COUNT - 1;
+        }
+
+        function changePage(p) {
+            if (p < 0 || p >= PAGE_COUNT) return;
+            showPage(p);
+        }
+
+        if (TOTAL_ROWS > 0) showPage(0);
+
+        /* ══════════════════════════════════════════
+           FETCH DAILY WAGE WHEN LABOUR SELECTED
+        ══════════════════════════════════════════ */
+        async function fetchWage(labourId) {
+            if (!labourId) {
+                document.getElementById('fWage').value = '';
+                calcSalary();
+                return;
+            }
+            try {
+                const res  = await fetch('/LabourWork/GetLabourWage?labourId=' + labourId);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('fWage').value = data.dailyWage;
+                    calcSalary();
+                }
+            } catch (e) {
+                console.warn('Failed to fetch wage:', e);
+            }
+        }
+
+        /* ══════════════════════════════════════════
+           AUTO-CALCULATE: Salary = Wage × Days
+        ══════════════════════════════════════════ */
+        function calcSalary() {
+            const wage = parseFloat(document.getElementById('fWage').value) || 0;
+            const days = parseInt(document.getElementById('fDays').value)   || 0;
+            const sal  = wage * days;
+
+            document.getElementById('fSalary').value       = sal.toFixed(2);
+            document.getElementById('dispSalary').value    = sal > 0
+                ? '₹ ' + sal.toLocaleString('en-IN', { minimumFractionDigits: 2 })
+                : '';
+            document.getElementById('salHintVal').textContent =
+                sal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+        }
+
+        /* ══════════════════════════════════════════
+           RESET FORM
+        ══════════════════════════════════════════ */
+        function resetForm() {
+            document.getElementById('lwForm').reset();
+            ['fSalary', 'dispSalary'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('salHintVal').textContent = '0.00';
+            document.querySelectorAll('.verr').forEach(e => e.classList.remove('show'));
+            document.querySelectorAll('.err-field').forEach(e => e.classList.remove('err-field'));
+            const today = new Date().toISOString().split('T')[0];
+            const dateEl = document.querySelector('input[name="WorkDate"]');
+            if (dateEl) dateEl.value = today;
+        }
+
+        /* ══════════════════════════════════════════
+           SEARCH FILTER
+        ══════════════════════════════════════════ */
+        function filterTable() {
+            const q    = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = Array.from(document.querySelectorAll('#lwBody tr'));
+            isSearching = q.length > 0;
+
+            if (!isSearching) {
+                showPage(currentPage);
+                const ns = document.getElementById('noSearch');
+                if (ns) ns.style.display = 'none';
+                return;
+            }
+
+            let vis = 0;
+            rows.forEach(r => {
+                const match = r.textContent.toLowerCase().includes(q);
+                r.classList.toggle('hidden-row', !match);
+                if (match) vis++;
+            });
+            const ns = document.getElementById('noSearch');
+            if (ns) ns.style.display = vis === 0 ? 'block' : 'none';
+        }
+
+        /* ══════════════════════════════════════════
+           DELETE MODAL
+        ══════════════════════════════════════════ */
+        function openDel(id, name) {
+            document.getElementById('delLabel').textContent = name;
+            document.getElementById('delForm').action = '/LabourWork/Delete/' + id;
+            document.getElementById('delOverlay').classList.add('show');
+        }
+
+        function closeDel() {
+            document.getElementById('delOverlay').classList.remove('show');
+        }
+
+        document.getElementById('delOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeDel();
+        });
+
+        /* ══════════════════════════════════════════
+           SCROLL EDITING ROW INTO VIEW
+        ══════════════════════════════════════════ */
+        const editRow = document.querySelector('.editing-row');
+        if (editRow) {
+            const editPage = parseInt(editRow.dataset.page) || 0;
+            showPage(editPage);
+            setTimeout(() => editRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+        }
+
+        /* ══════════════════════════════════════════
+           INIT: prefill salary if editing
+        ══════════════════════════════════════════ */
+        (function initSalary() {
+            const wage = parseFloat(document.getElementById('fWage')?.value) || 0;
+            const days = parseInt(document.getElementById('fDays')?.value)   || 0;
+            if (wage > 0 && days > 0) calcSalary();
+        })();
+
+    </script>
+}

@@ -1,0 +1,515 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Login";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Brick Factory ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-hover: #1c2128;
+            --accent: #e07b39;
+            --accent2: #f0a060;
+            --accent-dim: rgba(224,123,57,0.18);
+            --text-pri: #e6edf3;
+            --text-sec: #8b949e;
+            --border: rgba(255,255,255,0.07);
+            --border-acc: rgba(224,123,57,0.4);
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg-dark);
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-pri);
+            overflow: hidden;
+        }
+
+        /* ── animated background particles ── */
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+            .bg-layer::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: radial-gradient(ellipse 60% 50% at 80% 20%, rgba(224,123,57,0.08) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 10% 80%, rgba(224,123,57,0.05) 0%, transparent 55%);
+            }
+
+            /* brick grid pattern */
+            .bg-layer::after {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+                background-size: 40px 20px;
+                mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+            }
+
+        .floating-brick {
+            position: absolute;
+            font-size: 28px;
+            opacity: 0;
+            animation: floatUp 8s infinite ease-in;
+        }
+
+        keyframes floatUp {
+            0%
+
+        {
+            opacity: 0;
+            transform: translateY(0) rotate(0deg);
+        }
+
+        10% {
+            opacity: 0.15;
+        }
+
+        90% {
+            opacity: 0.05;
+        }
+
+        100% {
+            opacity: 0;
+            transform: translateY(-120vh) rotate(180deg);
+        }
+
+        }
+
+        /* ── center layout ── */
+        .login-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* ── card ── */
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 32px 32px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(224,123,57,0.06);
+            animation: cardIn .5s cubic-bezier(.22,.68,0,1.2) both;
+        }
+
+        keyframes cardIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(24px) scale(0.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        }
+
+        /* ── brand ── */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #e07b39, #b85a1e);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 16px rgba(224,123,57,0.4);
+            flex-shrink: 0;
+        }
+
+        .brand-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+            .brand-text small {
+                display: block;
+                font-size: 10px;
+                font-weight: 500;
+                letter-spacing: 2.5px;
+                color: var(--accent);
+                text-transform: uppercase;
+            }
+
+        /* ── heading ── */
+        .login-heading {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-pri);
+            margin-bottom: 4px;
+        }
+
+        .login-sub {
+            font-size: 13px;
+            color: var(--text-sec);
+            margin-bottom: 28px;
+        }
+
+        /* ── divider ── */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 24px;
+        }
+
+        /* ── form ── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-sec);
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--text-sec);
+            pointer-events: none;
+            transition: color .2s;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 14px 11px 40px;
+            color: var(--text-pri);
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+            .form-input::placeholder {
+                color: var(--text-sec);
+            }
+
+            .form-input:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(224,123,57,0.12);
+            }
+
+                .form-input:focus + .input-icon,
+                .input-wrap:focus-within .input-icon {
+                    color: var(--accent);
+                }
+
+        /* password toggle */
+        .pw-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-sec);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 2px 4px;
+            transition: color .2s;
+        }
+
+            .pw-toggle:hover {
+                color: var(--accent);
+            }
+
+        .form-input.has-toggle {
+            padding-right: 40px;
+        }
+
+        /* ── validation ── */
+        .field-error {
+            font-size: 11px;
+            color: #f85149;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-input.error {
+            border-color: rgba(248,81,73,0.5);
+        }
+
+        /* ── remember / error row ── */
+        .form-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: var(--text-sec);
+            cursor: pointer;
+            user-select: none;
+        }
+
+            .checkbox-label input[type=checkbox] {
+                accent-color: var(--accent);
+                width: 14px;
+                height: 14px;
+                cursor: pointer;
+            }
+
+        /* ── submit ── */
+        .btn-login {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #e07b39, #c96820);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 4px 20px rgba(224,123,57,0.3);
+        }
+
+            .btn-login:hover {
+                opacity: 0.92;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 28px rgba(224,123,57,0.45);
+            }
+
+            .btn-login:active {
+                transform: translateY(0);
+            }
+
+            .btn-login.loading {
+                pointer-events: none;
+                opacity: .7;
+            }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        keyframes spin {
+            to
+
+        {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        /* ── server error banner ── */
+        .error-banner {
+            background: rgba(248,81,73,0.1);
+            border: 1px solid rgba(248,81,73,0.3);
+            border-radius: 9px;
+            padding: 11px 14px;
+            font-size: 13px;
+            color: #f85149;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            animation: cardIn .3s ease both;
+        }
+
+        /* ── footer ── */
+        .login-footer {
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- animated background -->
+    <div class="bg-layer">
+        <span class="floating-brick" style="left:8%;  animation-delay:0s;    animation-duration:9s;">🧱</span>
+        <span class="floating-brick" style="left:22%; animation-delay:2.5s;  animation-duration:11s;">🧱</span>
+        <span class="floating-brick" style="left:45%; animation-delay:1s;    animation-duration:8s; font-size:18px;">🧱</span>
+        <span class="floating-brick" style="left:65%; animation-delay:4s;    animation-duration:10s;">🧱</span>
+        <span class="floating-brick" style="left:80%; animation-delay:0.5s;  animation-duration:12s; font-size:20px;">🧱</span>
+        <span class="floating-brick" style="left:91%; animation-delay:3s;    animation-duration:9s; font-size:16px;">🧱</span>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="login-card">
+
+            <!-- Brand -->
+            <div class="brand">
+                <div class="brand-icon">🧱</div>
+                <div class="brand-text">
+                            Jyotirling 
+                    <small>Bricks Suppliers</small>
+                </div>
+            </div>
+
+            <div class="login-heading">Welcome Back 👋</div>
+            <div class="login-sub">Sign in to manage your brick factory</div>
+            <div class="divider"></div>
+
+            @* Server-side error (e.g. wrong credentials) *@
+            @if (TempData["LoginError"] != null)
+            {
+                <div class="error-banner">
+                    ⚠️ @TempData["LoginError"]
+                </div>
+            }
+
+            <form id="loginForm" asp-controller="Login" asp-action="Index" method="post" novalidate>
+                @Html.AntiForgeryToken()
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label class="form-label" for="username">Username</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">👤</span>
+                        <input class="form-input" type="text" id="username" name="Username"
+                               placeholder="Enter your username" autocomplete="username" />
+                    </div>
+                    <div class="field-error" id="err-username">Please enter your username.</div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔒</span>
+                        <input class="form-input has-toggle" type="password" id="password" name="Password"
+                               placeholder="Enter your password" autocomplete="current-password" />
+                        <button type="button" class="pw-toggle" onclick="togglePw()" title="Show/Hide password">👁</button>
+                    </div>
+                    <div class="field-error" id="err-password">Please enter your password.</div>
+                </div>
+
+                <!-- Remember me -->
+                <div class="form-row">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="RememberMe" />
+                        Remember me
+                    </label>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn-login" id="loginBtn" onclick="return handleSubmit(event)">
+                    <span class="spinner" id="spinner"></span>
+                    <span id="btnText">↩ Sign In</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                © @DateTime.Now.Year Jyotirling Bricks Suppliers
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePw() {
+            const inp = document.getElementById('password');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        }
+
+        function handleSubmit(e) {
+            let valid = true;
+
+            const username = document.getElementById('username');
+            const password = document.getElementById('password');
+            const errU = document.getElementById('err-username');
+            const errP = document.getElementById('err-password');
+
+            // reset
+            username.classList.remove('error'); errU.style.display = 'none';
+            password.classList.remove('error'); errP.style.display = 'none';
+
+            if (!username.value.trim()) {
+                username.classList.add('error');
+                errU.style.display = 'block';
+                valid = false;
+            }
+            if (!password.value.trim()) {
+                password.classList.add('error');
+                errP.style.display = 'block';
+                valid = false;
+            }
+
+            if (!valid) { e.preventDefault(); return false; }
+
+            // loading state
+            document.getElementById('spinner').style.display = 'block';
+            document.getElementById('btnText').textContent = 'Signing in…';
+            document.getElementById('loginBtn').classList.add('loading');
+            return true;
+        }
+    </script>
+</body>
+</html>
