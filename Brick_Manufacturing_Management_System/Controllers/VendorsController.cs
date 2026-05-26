@@ -133,6 +133,19 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				return RedirectToAction(nameof(Index));
 			}
 
+			// Check Vendor Payment
+			bool hasVendorPayment = await _ctx.VendorPayments
+				.AnyAsync(x => x.VendorId == id);
+
+			if (hasVendorPayment)
+			{
+				TempData["Error"] =
+					$"Cannot delete '{entity.VendorName}' — linked records exist in Vendor Payment.";
+
+				return RedirectToAction(nameof(Index));
+			}
+
+
 			_ctx.VendorMasters.Remove(entity);
 			await _ctx.SaveChangesAsync();
 			TempData["Success"] = $"Vendor '{entity.VendorName}' deleted.";
