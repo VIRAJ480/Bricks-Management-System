@@ -83,7 +83,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			if (duplicate)
 			{
-				ModelState.AddModelError("MaterialName", "A material with this name already exists.");
+				ModelState.AddModelError("MaterialName", "या नावाचं मटेरियल आधीपासून आहे.");
 				return View("Index", rebuilt);
 			}
 
@@ -100,7 +100,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				};
 				_ctx.MaterialMasters.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Material '{entity.MaterialName}' added successfully.";
+				TempData["Success"] = $"'{entity.MaterialName}' मटेरियल यशस्वीरित्या अॅड झालं.";
 			}
 			else
 			{
@@ -115,7 +115,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.UnitId = model.UnitId;
 				entity.Status = statusVal;
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Material '{entity.MaterialName}' updated successfully.";
+				TempData["Success"] = $"'{entity.MaterialName}' मटेरियल यशस्वीरित्या अपडेट झालं.";
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -138,7 +138,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			bool hasPurchases = await _ctx.MaterialPurchases.AnyAsync(x => x.MaterialId == id);
 			if (hasPurchases)
 			{
-				TempData["Error"] = $"Cannot delete '{entity.MaterialName}' — linked records exist in: Material Purchase. Please delete those records first.";
+				TempData["Error"] = $"'{entity.MaterialName}' डिलीट करता येणार नाही — Material Purchase मध्ये याचे रेकॉर्ड आधीपासून आहेत. आधी ते रेकॉर्ड डिलीट करा.";
 				return RedirectToAction(nameof(Index));
 			}
 

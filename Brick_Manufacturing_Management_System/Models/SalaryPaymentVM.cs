@@ -16,11 +16,23 @@ namespace Brick_Manufacturing_Management_System.Models
 		[DataType(DataType.Date)]
 		public DateOnly? SalaryDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
-		// Auto-fetched from LabourWork: SUM(DailyWage * DaysWorked) for selected labour
+		[Required(ErrorMessage = "Daily wage is required.")]
+		[Range(0, 999999999.99, ErrorMessage = "Daily wage cannot be negative.")]
+		[Display(Name = "Daily Wage (₹)")]
+		public decimal? DailyWage { get; set; } = 0;
+
+		[Required(ErrorMessage = "Working days is required.")]
+		[Range(0, 366, ErrorMessage = "Working days must be between 0 and 366.")]
+		[Display(Name = "Working Days")]
+		public int? WorkingDays { get; set; } = 0;
+
+		// Auto-calculated: DailyWage * WorkingDays
 		public decimal? TotalSalary { get; set; }
 
-		// Auto-fetched from LabourExpense: SUM(Amount) for selected labour
-		public decimal? TotalExpense { get; set; }
+		[Required(ErrorMessage = "Total expense is required.")]
+		[Range(0, 999999999.99, ErrorMessage = "Total expense cannot be negative.")]
+		[Display(Name = "Total Expense (₹)")]
+		public decimal? TotalExpense { get; set; } = 0;
 
 		// Auto-calculated: TotalSalary - TotalExpense
 		public decimal? FinalSalary { get; set; }
@@ -34,11 +46,8 @@ namespace Brick_Manufacturing_Management_System.Models
 		[Display(Name = "Payment Status")]
 		public int? StatusId { get; set; }
 
-		// ── Dropdowns ─────────────────────────────────────────────────────────
 		public List<SelectListItem> LabourOptions { get; set; } = new();
 		public List<SelectListItem> StatusOptions { get; set; } = new();
-
-		// ── Table list ────────────────────────────────────────────────────────
 		public List<SalaryPaymentListItem> SalaryList { get; set; } = new();
 	}
 
@@ -47,6 +56,8 @@ namespace Brick_Manufacturing_Management_System.Models
 		public int SalaryId { get; set; }
 		public string LabourName { get; set; } = string.Empty;
 		public DateOnly SalaryDate { get; set; }
+		public decimal DailyWage { get; set; }
+		public int WorkingDays { get; set; }
 		public decimal TotalSalary { get; set; }
 		public decimal TotalExpense { get; set; }
 		public decimal FinalSalary { get; set; }

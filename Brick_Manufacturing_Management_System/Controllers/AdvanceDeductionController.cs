@@ -35,7 +35,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = $"Failed to load labour list: {ex.Message}";
+				TempData["Error"] = $"मजुरांची यादी लोड करताना प्रॉब्लेम आला: {ex.Message}";
 				vm.LabourOptions = new List<SelectListItem>();
 			}
 		}
@@ -61,7 +61,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = $"Failed to load deduction records: {ex.Message}";
+				TempData["Error"] = $"कपातीचे रेकॉर्ड लोड करताना प्रॉब्लेम आला: {ex.Message}";
 				return new List<AdvanceDeductionListItem>();
 			}
 		}
@@ -124,12 +124,12 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					}
 					else
 					{
-						TempData["Error"] = "Deduction record not found.";
+						TempData["Error"] = "कपातीची नोंद सापडली नाही.";
 					}
 				}
 				catch (Exception ex)
 				{
-					TempData["Error"] = $"Failed to load record for editing: {ex.Message}";
+					TempData["Error"] = $"एडिटसाठी रेकॉर्ड लोड करताना प्रॉब्लेम आला: {ex.Message}";
 				}
 			}
 
@@ -143,7 +143,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			try
 			{
 				if (labourId <= 0)
-					return Json(new { success = false, message = "Invalid labour ID." });
+					return Json(new { success = false, message = "मजुराचा ID चुकीचा आहे."});
 
 				var labour = await _ctx.LabourMasters
 					.Where(l => l.LabourId == labourId)
@@ -151,7 +151,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					.FirstOrDefaultAsync();
 
 				if (labour == null)
-					return Json(new { success = false, message = "Labour not found." });
+					return Json(new { success = false, message = "मजूर सापडला नाही." });
 
 				var totalAdvance = await _ctx.LabourAdvances
 					.Where(a => a.LabourId == labourId)
@@ -211,7 +211,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				if (model.Amount.Value > currentBalance)
 				{
 					ModelState.AddModelError("Amount",
-						$"Deduction (₹{model.Amount.Value:N2}) cannot exceed available advance balance (₹{currentBalance:N2}).");
+                               $"कपातची रक्कम (₹{model.Amount.Value:N2}) उपलब्ध अॅडव्हान्स बॅलन्सपेक्षा (₹{currentBalance:N2}) जास्त असू शकत नाही.");
 					return View("Index", model);
 				}
 			}
@@ -230,7 +230,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					};
 					_ctx.AdvanceDeductions.Add(entity);
 					await _ctx.SaveChangesAsync();
-					TempData["Success"] = $"Deduction recorded successfully. Amount: ₹{model.Amount:N2}";
+					TempData["Success"] = $"कपात यशस्वीरित्या नोंद झाली. रक्कम: ₹{model.Amount:N2}";
 				}
 				else
 				{
@@ -238,7 +238,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					var entity = await _ctx.AdvanceDeductions.FindAsync(model.DeductionId);
 					if (entity == null)
 					{
-						TempData["Error"] = "Deduction record not found. It may have been deleted.";
+						TempData["Error"] = "कपातीची नोंद सापडली नाही. कदाचित ती डिलीट झाली असेल.";
 						return RedirectToAction(nameof(Index));
 					}
 
@@ -247,7 +247,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					entity.Amount = model.Amount;
 					entity.Reason = model.Reason?.Trim();
 					await _ctx.SaveChangesAsync();
-					TempData["Success"] = $"Deduction updated successfully. Amount: ₹{model.Amount:N2}";
+					TempData["Success"] = $"कपात यशस्वीरित्या अपडेट झाली. रक्कम: ₹{model.Amount:N2}";
 				}
 			}
 			catch (DbUpdateException dbEx)
@@ -282,21 +282,21 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.AdvanceDeductions.FindAsync(id);
 				if (entity == null)
 				{
-					TempData["Error"] = "Deduction record not found. It may have already been deleted.";
+					TempData["Error"] = "कपातीची नोंद सापडली नाही. कदाचित ती आधीच डिलीट झाली असेल.";
 					return RedirectToAction(nameof(Index));
 				}
 
 				_ctx.AdvanceDeductions.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Deduction record deleted successfully.";
+				TempData["Success"] = "कपातीची नोंद यशस्वीरित्या डिलीट झाली.";
 			}
 			catch (DbUpdateException dbEx)
 			{
-				TempData["Error"] = $"Cannot delete: {dbEx.InnerException?.Message ?? dbEx.Message}";
+				TempData["Error"] = $"डिलीट करता आलं नाही: {dbEx.InnerException?.Message ?? dbEx.Message}";
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = $"Unexpected error while deleting: {ex.Message}";
+				TempData["Error"] = $"डिलीट करताना अचानक प्रॉब्लेम आला: {ex.Message}";
 			}
 
 			return RedirectToAction(nameof(Index));

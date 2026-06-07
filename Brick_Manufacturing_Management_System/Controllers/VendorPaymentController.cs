@@ -113,7 +113,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			if (!model.PaymentDate.HasValue)
 			{
-				ModelState.AddModelError("PaymentDate", "Payment date is required.");
+				ModelState.AddModelError("PaymentDate", "पेमेंटची तारीख टाकणं गरजेचं आहे.");
 				return View("Index", model);
 			}
 
@@ -132,7 +132,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				};
 				_ctx.VendorPayments.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Vendor payment of ₹{model.Amount:N2} recorded successfully!";
+				TempData["Success"] = $"₹{model.Amount:N2} चे Vendor पेमेंट यशस्वीरित्या नोंद झालं!";
 			}
 			else
 			{
@@ -140,7 +140,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.VendorPayments.FindAsync(model.PaymentId);
 				if (entity == null)
 				{
-					TempData["Error"] = "Payment record not found.";
+					TempData["Error"] = "पेमेंटची नोंद सापडली नाही.";
 					return RedirectToAction(nameof(Index));
 				}
 
@@ -150,7 +150,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.PaymentModeId = model.PaymentModeId!.Value;
 				entity.StatusId = model.StatusId!.Value;
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Vendor payment updated successfully!";
+				TempData["Success"] = "Vendor पेमेंट यशस्वीरित्या अपडेट झालं!";
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -168,7 +168,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			{
 				_ctx.VendorPayments.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Vendor payment record deleted.";
+				TempData["Success"] ="Vendor पेमेंटची नोंद डिलीट झाली.";
 			}
 			else
 			{

@@ -18,7 +18,6 @@ namespace Brick_Manufacturing_Management_System.Controllers
 		private bool IsLoggedIn() =>
 			HttpContext.Session.GetString("Username") != null;
 
-		// ── Helper: populate dropdowns ────────────────────────────────────────
 		private async Task PopulateDropdowns(SalaryPaymentVM vm)
 		{
 			vm.LabourOptions = await _ctx.LabourMasters
@@ -40,45 +39,33 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				.ToListAsync();
 		}
 
-		// ── Helper: flat list for table ───────────────────────────────────────
 		private async Task<List<SalaryPaymentListItem>> GetSalaryList()
 		{
-			return await _ctx.SalaryPayments
+			// Materialise first, then project in memory — avoids all EF cast errors
+			var raw = await _ctx.SalaryPayments
 				.Include(s => s.Labour)
 				.Include(s => s.Status)
 				.OrderByDescending(s => s.SalaryDate)
 				.ThenByDescending(s => s.SalaryId)
-				.Select(s => new SalaryPaymentListItem
-				{
-					SalaryId = s.SalaryId,
-					LabourName = s.Labour != null ? s.Labour.LabourName : "—",
-					SalaryDate = s.SalaryDate != null
-									? DateOnly.FromDateTime(s.SalaryDate.Value.ToDateTime(TimeOnly.MinValue))
-									: DateOnly.FromDateTime(DateTime.Today),
-					TotalSalary = s.TotalSalary ?? 0,
-					TotalExpense = s.TotalExpense ?? 0,
-					FinalSalary = s.FinalSalary ?? 0,
-					PaidAmount = s.PaidAmount ?? 0,
-					StatusName = s.Status != null ? s.Status.StatusName ?? "—" : "—"
-				})
 				.ToListAsync();
+
+			return raw.Select(s => new SalaryPaymentListItem
+			{
+				SalaryId = s.SalaryId,
+				LabourName = s.Labour?.LabourName ?? "—",
+				SalaryDate = s.SalaryDate.HasValue
+							? DateOnly.FromDateTime(s.SalaryDate.Value.ToDateTime(TimeOnly.MinValue))
+							: DateOnly.FromDateTime(DateTime.Today),
+				DailyWage = s.DailyWage ?? 0,
+				WorkingDays = s.WorkingDays ?? 0,   // int? ?? int → int ✓
+				TotalSalary = s.TotalSalary ?? 0,
+				TotalExpense = s.TotalExpense ?? 0,
+				FinalSalary = s.FinalSalary ?? 0,
+				PaidAmount = s.PaidAmount ?? 0,
+				StatusName = s.Status?.StatusName ?? "—"
+			}).ToList();
 		}
 
-		// ── Helper: calculate labour aggregates from LabourWork & LabourExpense
-		private async Task<(decimal totalSalary, decimal totalExpense)> GetLabourAggregates(int labourId)
-		{
-			decimal totalSalary = await _ctx.LabourWorks
-				.Where(w => w.LabourId == labourId)
-				.SumAsync(w => (decimal?)(w.DailyWage * w.DaysWorked)) ?? 0;
-
-			decimal totalExpense = await _ctx.LabourExpenses
-				.Where(e => e.LabourId == labourId)
-				.SumAsync(e => (decimal?)e.Amount) ?? 0;
-
-			return (totalSalary, totalExpense);
-		}
-
-		// ══ INDEX ─────────────────────────────────────────────────────────────
 		[HttpGet]
 		public async Task<IActionResult> Index(int? editId)
 		{
@@ -99,9 +86,11 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				{
 					vm.SalaryId = entity.SalaryId;
 					vm.LabourId = entity.LabourId;
-					vm.SalaryDate = entity.SalaryDate != null
-										 ? DateOnly.FromDateTime(entity.SalaryDate.Value.ToDateTime(TimeOnly.MinValue))
-										 : DateOnly.FromDateTime(DateTime.Today);
+					vm.SalaryDate = entity.SalaryDate.HasValue
+										? DateOnly.FromDateTime(entity.SalaryDate.Value.ToDateTime(TimeOnly.MinValue))
+										: DateOnly.FromDateTime(DateTime.Today);
+					vm.DailyWage = entity.DailyWage;
+					vm.WorkingDays = entity.WorkingDays;
 					vm.TotalSalary = entity.TotalSalary;
 					vm.TotalExpense = entity.TotalExpense;
 					vm.FinalSalary = entity.FinalSalary;
@@ -113,45 +102,25 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			return View(vm);
 		}
 
-		// ── AJAX: get labour aggregates when labour dropdown changes ──────────
-		[HttpGet]
-		public async Task<IActionResult> GetLabourData(int labourId)
-		{
-			if (!IsLoggedIn()) return Unauthorized();
-
-			var (totalSalary, totalExpense) = await GetLabourAggregates(labourId);
-			decimal finalSalary = totalSalary - totalExpense;
-
-			return Json(new
-			{
-				totalSalary = totalSalary,
-				totalExpense = totalExpense,
-				finalSalary = finalSalary
-			});
-		}
-
-		// ══ SAVE — Insert or Update ───────────────────────────────────────────
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Save(SalaryPaymentVM model)
 		{
 			if (!IsLoggedIn()) return RedirectToAction("Index", "Login");
 
-			// Recalculate server-side
-			decimal totalSalary = model.TotalSalary ?? 0;
+			decimal dailyWage = model.DailyWage ?? 0;
+			int workingDays = model.WorkingDays ?? 0;          // ← int, not decimal
+			decimal totalSalary = dailyWage * workingDays;      // decimal * int = decimal ✓
 			decimal totalExpense = model.TotalExpense ?? 0;
 			decimal finalSalary = totalSalary - totalExpense;
 			decimal paid = model.PaidAmount ?? 0;
 
+			model.TotalSalary = totalSalary;
 			model.FinalSalary = finalSalary;
 
-			// Paid cannot exceed final salary
 			if (paid > finalSalary)
-			{
-				ModelState.AddModelError("PaidAmount", "Paid amount cannot exceed final salary.");
-			}
+				ModelState.AddModelError("PaidAmount", "दिलेली रक्कम अंतिम पगारापेक्षा जास्त असू शकत नाही ");
 
-			// Rebuild for re-render on validation failure
 			await PopulateDropdowns(model);
 			model.SalaryList = await GetSalaryList();
 
@@ -162,11 +131,12 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			if (model.SalaryId == 0)
 			{
-				// INSERT
 				var entity = new SalaryPayment
 				{
 					LabourId = model.LabourId,
-					SalaryDate = new DateOnly?(salaryDate),
+					SalaryDate = salaryDate,
+					DailyWage = dailyWage,
+					WorkingDays = workingDays,
 					TotalSalary = totalSalary,
 					TotalExpense = totalExpense,
 					FinalSalary = finalSalary,
@@ -175,20 +145,21 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				};
 				_ctx.SalaryPayments.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Salary recorded. Final: ₹{finalSalary:N2}";
+				TempData["Success"] = $"पगार यशस्वीरित्या नोंद झाला. अंतिम रक्कम: ₹{finalSalary:N2}";
 			}
 			else
 			{
-				// UPDATE
 				var entity = await _ctx.SalaryPayments.FindAsync(model.SalaryId);
 				if (entity == null)
 				{
-					TempData["Error"] = "Salary record not found.";
+					TempData["Error"] = "पगाराची नोंद सापडली नाही.";
 					return RedirectToAction(nameof(Index));
 				}
 
 				entity.LabourId = model.LabourId;
-				entity.SalaryDate = new DateOnly?(salaryDate);
+				entity.SalaryDate = salaryDate;
+				entity.DailyWage = dailyWage;
+				entity.WorkingDays = workingDays;
 				entity.TotalSalary = totalSalary;
 				entity.TotalExpense = totalExpense;
 				entity.FinalSalary = finalSalary;
@@ -196,13 +167,12 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.StatusId = model.StatusId;
 
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Salary updated. Final: ₹{finalSalary:N2}";
+				TempData["Success"] = $"पगार यशस्वीरित्या अपडेट झाला. अंतिम रक्कम: ₹{finalSalary:N2}";
 			}
 
 			return RedirectToAction(nameof(Index));
 		}
 
-		// ══ DELETE ───────────────────────────────────────────────────────────
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Delete(int id)
@@ -214,11 +184,11 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			{
 				_ctx.SalaryPayments.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Salary record deleted.";
+				TempData["Success"] = "पगाराची नोंद डिलीट झाली.";
 			}
 			else
 			{
-				TempData["Error"] = "Salary record not found.";
+				TempData["Error"] = "पगाराची नोंद सापडली नाही.";
 			}
 
 			return RedirectToAction(nameof(Index));

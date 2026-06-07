@@ -36,7 +36,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = $"Failed to load customer records: {ex.Message}";
+				TempData["Error"] = $"कस्टमरचे रेकॉर्ड लोड करताना प्रॉब्लेम आला: {ex.Message}";
 				return new List<CustomerMasterListItem>();
 			}
 		}
@@ -66,12 +66,12 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					}
 					else
 					{
-						TempData["Error"] = "Customer record not found.";
+						TempData["Error"] = "कस्टमरची नोंद सापडली नाही.";
 					}
 				}
 				catch (Exception ex)
 				{
-					TempData["Error"] = $"Failed to load record for editing: {ex.Message}";
+					TempData["Error"] = $"एडिटसाठी रेकॉर्ड लोड करताना प्रॉब्लेम आला: {ex.Message}";
 				}
 			}
 
@@ -104,7 +104,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					};
 					_ctx.CustomerMasters.Add(entity);
 					await _ctx.SaveChangesAsync();
-					TempData["Success"] = $"Customer '{model.CustomerName}' added successfully.";
+					TempData["Success"] = $"'{model.CustomerName}' कस्टमर यशस्वीरित्या अॅड झाला.";
 				}
 				else
 				{
@@ -112,7 +112,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					var entity = await _ctx.CustomerMasters.FindAsync(model.CustomerId);
 					if (entity == null)
 					{
-						TempData["Error"] = "Customer record not found. It may have been deleted.";
+						TempData["Error"] = "कस्टमरची नोंद सापडली नाही. कदाचित ती डिलीट झाली असेल.";
 						return RedirectToAction(nameof(Index));
 					}
 
@@ -120,7 +120,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					entity.MobileNumber = model.MobileNumber?.Trim();
 					entity.Address = model.Address?.Trim();
 					await _ctx.SaveChangesAsync();
-					TempData["Success"] = $"Customer '{model.CustomerName}' updated successfully.";
+					TempData["Success"] = $"'{model.CustomerName}' कस्टमर यशस्वीरित्या अपडेट झाला.";
 				}
 			}
 			catch (DbUpdateException dbEx)
@@ -146,7 +146,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			if (id <= 0)
 			{
-				TempData["Error"] = "Invalid record ID.";
+				TempData["Error"] = "रेकॉर्डचा ID चुकीचा आहे.";
 				return RedirectToAction(nameof(Index));
 			}
 
@@ -155,7 +155,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.CustomerMasters.FindAsync(id);
 				if (entity == null)
 				{
-					TempData["Error"] = "Customer record not found. It may have already been deleted.";
+					TempData["Error"] = "कस्टमरची नोंद सापडली नाही. कदाचित ती आधीच डिलीट झाली असेल.";
 					return RedirectToAction(nameof(Index));
 				}
 
@@ -167,21 +167,21 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					var linked = new List<string>();
 					if (hasSales)    linked.Add("Brick Sales");
 					if (hasPayments) linked.Add("Customer Payment");
-					TempData["Error"] = $"Cannot delete '{entity.CustomerName}' — linked records exist in: {string.Join(", ", linked)}. Please delete those records first.";
+					TempData["Error"] = $"'{entity.CustomerName}' ला डिलीट करता येणार नाही — {string.Join(", ", linked)} मध्ये याचे रेकॉर्ड आधीपासून आहेत. आधी ते रेकॉर्ड डिलीट करा.";
 					return RedirectToAction(nameof(Index));
 				}
 
 				_ctx.CustomerMasters.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Customer '{entity.CustomerName}' deleted successfully.";
+				TempData["Success"] = $"'{entity.CustomerName}' कस्टमर यशस्वीरित्या डिलीट झाला.";
 			}
 			catch (DbUpdateException dbEx)
 			{
-				TempData["Error"] = $"Cannot delete: {dbEx.InnerException?.Message ?? dbEx.Message}";
+				TempData["Error"] = $"डिलीट करता आलं नाही: {dbEx.InnerException?.Message ?? dbEx.Message}";
 			}
 			catch (Exception ex)
 			{
-				TempData["Error"] = $"Unexpected error while deleting: {ex.Message}";
+				TempData["Error"] = $"डिलीट करताना अचानक प्रॉब्लेम आला: {ex.Message}";
 			}
 
 			return RedirectToAction(nameof(Index));

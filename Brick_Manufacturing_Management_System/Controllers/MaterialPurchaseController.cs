@@ -123,7 +123,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			// Paid cannot exceed total
 			if (paid > total)
 			{
-				ModelState.AddModelError("PaidAmount", "Paid amount cannot exceed total amount.");
+				ModelState.AddModelError("PaidAmount", "दिलेली रक्कम एकूण रकमेपेक्षा जास्त असू शकत नाही.");
 				return View("Index", model);
 			}
 
@@ -149,7 +149,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				};
 				_ctx.MaterialPurchases.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Purchase recorded successfully. Total: ₹{total:N2}";
+				TempData["Success"] = $"खरेदी यशस्वीरित्या नोंद झाली. एकूण रक्कम: ₹{total:N2}";
 			}
 			else
 			{
@@ -157,7 +157,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.MaterialPurchases.FindAsync(model.PurchaseId);
 				if (entity == null)
 				{
-					TempData["Error"] = "Purchase record not found.";
+					TempData["Error"] = "Purchase record सापडलं नाही.";
 					return RedirectToAction(nameof(Index));
 				}
 
@@ -170,7 +170,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.PaidAmount = paid;
 				entity.PendingAmount = pending;
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Purchase updated successfully. Total: ₹{total:N2}";
+				TempData["Success"] = $"खरेदी यशस्वीरित्या अपडेट झाली. एकूण रक्कम: ₹{total:N2}";
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -188,11 +188,11 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			{
 				_ctx.MaterialPurchases.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Purchase record deleted.";
+				TempData["Success"] = "खरेदीची नोंद डिलीट झाली.";
 			}
 			else
 			{
-				TempData["Error"] = "Purchase record not found.";
+				TempData["Error"] = "खरेदीची नोंद सापडली नाही.";
 			}
 
 			return RedirectToAction(nameof(Index));

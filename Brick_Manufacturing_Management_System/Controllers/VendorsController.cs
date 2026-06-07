@@ -129,7 +129,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			bool hasPurchases = await _ctx.MaterialPurchases.AnyAsync(x => x.VendorId == id);
 			if (hasPurchases)
 			{
-				TempData["Error"] = $"Cannot delete '{entity.VendorName}' — linked records exist in: Material Purchase. Please delete those records first.";
+				TempData["Error"] = $"'{entity.VendorName}' ला डिलीट करता येणार नाही — Material Purchase मध्ये याचे रेकॉर्ड आधीपासून आहेत. आधी ते रेकॉर्ड डिलीट करा.";
 				return RedirectToAction(nameof(Index));
 			}
 
@@ -139,8 +139,8 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			if (hasVendorPayment)
 			{
-				TempData["Error"] =
-					$"Cannot delete '{entity.VendorName}' — linked records exist in Vendor Payment.";
+				TempData["Error"] = $"'{entity.VendorName}' ला डिलीट करता येणार नाही — Vendor Payment मध्ये याचे हिशोब आधीपासून आहेत.";
+				//$"Cannot delete '{entity.VendorName}' — linked records exist in Vendor Payment.";
 
 				return RedirectToAction(nameof(Index));
 			}

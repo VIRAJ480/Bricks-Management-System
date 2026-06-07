@@ -104,7 +104,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				};
 				_ctx.BrickProductions.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Production recorded: {model.Quantity:N0} bricks on {productionDate:dd MMM yyyy}.";
+				TempData["Success"] = $"{productionDate:dd MMM yyyy} रोजी {model.Quantity:N0} विटांचं उत्पादन यशस्वीरित्या नोंद झालं.";
 			}
 			else
 			{
@@ -112,7 +112,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.BrickProductions.FindAsync(model.ProductionId);
 				if (entity == null)
 				{
-					TempData["Error"] = "Production record not found.";
+					TempData["Error"] = "उत्पादनाची नोंद सापडली नाही.";
 					return RedirectToAction(nameof(Index));
 				}
 
@@ -121,7 +121,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.Quantity = model.Quantity;
 
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Production updated: {model.Quantity:N0} bricks on {productionDate:dd MMM yyyy}.";
+				TempData["Success"] = $"{productionDate:dd MMM yyyy} रोजी {model.Quantity:N0} विटांचं उत्पादन यशस्वीरित्या अपडेट झालं.";
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -139,11 +139,11 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			{
 				_ctx.BrickProductions.Remove(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = "Production record deleted.";
+				TempData["Success"] = "उत्पादनाची नोंद डिलीट झाली.";
 			}
 			else
 			{
-				TempData["Error"] = "Production record not found.";
+				TempData["Error"] = "उत्पादनाची नोंद सापडली नाही.";
 			}
 
 			return RedirectToAction(nameof(Index));

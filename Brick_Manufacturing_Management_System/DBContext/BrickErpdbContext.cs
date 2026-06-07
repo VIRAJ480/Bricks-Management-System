@@ -274,8 +274,15 @@ public partial class BrickErpdbContext : DbContext
             entity.HasKey(e => e.SalaryId).HasName("PK__SalaryPa__4BE204573D4F4EF2");
 
             entity.ToTable("SalaryPayment");
+			// DailyWage IS decimal in DB — keep this
+			entity.Property(e => e.DailyWage).HasColumnType("decimal(18, 2)");
 
-            entity.Property(e => e.FinalSalary).HasColumnType("decimal(18, 2)");
+			// DaysWorked is INT in DB — map column name only, NO decimal cast
+			entity.Property(e => e.WorkingDays).HasColumnName("DaysWorked");
+
+
+
+			entity.Property(e => e.FinalSalary).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalExpense).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.TotalSalary).HasColumnType("decimal(18, 2)");

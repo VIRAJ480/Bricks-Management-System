@@ -70,7 +70,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				if (dup)
 				{
 					ModelState.AddModelError("MobileNumber",
-						"A labour entry with this mobile number already exists.");
+                                                     "या मोबाईल नंबरवरचं मजूराचं नाव आधीपासून आहे.");
 					return View("Index", model);
 				}
 			}
@@ -89,7 +89,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 				_ctx.LabourMasters.Add(entity);
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Labour '{entity.LabourName}' added successfully.";
+				TempData["Success"] = $"'{entity.LabourName}' मजूर यशस्वीरित्या अॅड झाला.";
 			}
 			else
 			{
@@ -97,7 +97,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				var entity = await _ctx.LabourMasters.FindAsync(model.LabourId);
 				if (entity == null)
 				{
-					TempData["Error"] = "Labour record not found.";
+					TempData["Error"] = "मजुराची नोंद सापडली नाही.";
 					return RedirectToAction(nameof(Index));
 				}
 
@@ -108,7 +108,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				entity.JoiningDate = model.JoiningDate;   // ✅ DateOnly? = DateOnly?
 
 				await _ctx.SaveChangesAsync();
-				TempData["Success"] = $"Labour '{entity.LabourName}' updated successfully.";
+				TempData["Success"] = $"'{entity.LabourName}' मजूर यशस्वीरित्या अपडेट झाला.";
 			}
 
 			return RedirectToAction(nameof(Index));
@@ -142,13 +142,13 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				if (hasExpense)   linked.Add("Labour Expense");
 				if (hasDeduction) linked.Add("Advance Deduction");
 				if (hasSalary)    linked.Add("Salary Payment");
-				TempData["Error"] = $"Cannot delete '{entity.LabourName}' — linked records exist in: {string.Join(", ", linked)}. Please delete those records first.";
+				TempData["Error"] = $"'{entity.LabourName}' ला डिलीट करता येणार नाही — {string.Join(", ", linked)} मध्ये याचे रेकॉर्ड आधीपासून आहेत. आधी ते रेकॉर्ड डिलीट करा.";
 				return RedirectToAction(nameof(Index));
 			}
 
 			_ctx.LabourMasters.Remove(entity);
 			await _ctx.SaveChangesAsync();
-			TempData["Success"] = $"Labour '{entity.LabourName}' deleted.";
+			TempData["Success"] = $"'{entity.LabourName}' मजूर डिलीट झाला.";
 
 			return RedirectToAction(nameof(Index));
 		}
