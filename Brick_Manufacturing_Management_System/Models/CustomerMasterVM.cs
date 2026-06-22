@@ -11,6 +11,7 @@ namespace Brick_Manufacturing_Management_System.Models
 		[Display(Name = "Customer Name")]
 		public string? CustomerName { get; set; }
 
+		[Required(ErrorMessage = "Mobile number is required.")]
 		[StringLength(15, ErrorMessage = "Mobile number cannot exceed 15 characters.")]
 		[RegularExpression(@"^[0-9]{10,15}$", ErrorMessage = "Enter a valid mobile number (10–15 digits).")]
 		[Display(Name = "Mobile Number")]

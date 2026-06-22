@@ -22,7 +22,7 @@ namespace Brick_Manufacturing_Management_System.Models
 		public decimal? Amount { get; set; }
 
 		[Required(ErrorMessage = "Reason is required.")]
-		[StringLength(200, ErrorMessage = "Reason cannot exceed 200 characters.")]
+		[StringLength(100, ErrorMessage = "Reason cannot exceed 200 characters.")]
 		public string? Reason { get; set; }
 
 		// Read-only display — total advance taken by this labour

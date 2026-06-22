@@ -175,7 +175,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 		{
 			if (!IsLoggedIn()) return Json(new { success = false });
 
-			var total = await _ctx.LabourAdvances
+			var totaladvance = await _ctx.LabourAdvances
 				.Where(a => a.LabourId == labourId)
 				.SumAsync(a => (decimal?)(a.AdvanceAmount ?? 0)) ?? 0;
 
@@ -184,6 +184,12 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				.Select(l => l.LabourName)
 				.FirstOrDefaultAsync() ?? "";
 
+			// Sum all deductions already applied
+			var totalDeducted = await _ctx.AdvanceDeductions
+							.Where(d => d.LabourId == labourId)
+							.SumAsync(d => (decimal?)(d.Amount ?? 0)) ?? 0;
+
+			var total= Math.Max(0, totaladvance - totalDeducted);
 			return Json(new { success = true, total, labourName });
 		}
 	}

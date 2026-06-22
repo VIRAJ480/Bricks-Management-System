@@ -69,7 +69,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 		[HttpGet]
 		public async Task<IActionResult> Index(int? editId)
 		{
-			if (!IsLoggedIn()) return RedirectToAction("Index", "Login");
+			 if (!IsLoggedIn()) return RedirectToAction("Index", "Login");
 
 			var vm = new MaterialPurchaseVM
 			{

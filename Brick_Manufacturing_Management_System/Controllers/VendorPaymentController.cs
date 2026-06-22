@@ -22,13 +22,15 @@ namespace Brick_Manufacturing_Management_System.Controllers
 		private async Task PopulateDropdowns(VendorPaymentVM vm)
 		{
 			vm.VendorOptions = await _ctx.VendorMasters
+				.Where(v => v.Status == true)
 				.OrderBy(v => v.VendorName)
 				.Select(v => new SelectListItem
 				{
 					Value = v.VendorId.ToString(),
-					Text = v.VendorName ?? "—"
+					Text = v.VendorName
 				})
 				.ToListAsync();
+
 
 			vm.PaymentModeOptions = await _ctx.PaymentModes
 				.OrderBy(p => p.PaymentModeName)

@@ -17,14 +17,14 @@ namespace Brick_Manufacturing_Management_System.Models
 		public DateOnly? SalaryDate { get; set; } = DateOnly.FromDateTime(DateTime.Today);
 
 		[Required(ErrorMessage = "Daily wage is required.")]
-		[Range(0, 999999999.99, ErrorMessage = "Daily wage cannot be negative.")]
+		[Range(0.01, 999999999.99, ErrorMessage = "Daily wage must be greater than 0.")]
 		[Display(Name = "Daily Wage (₹)")]
-		public decimal? DailyWage { get; set; } = 0;
+		public decimal? DailyWage { get; set; }
 
 		[Required(ErrorMessage = "Working days is required.")]
-		[Range(0, 366, ErrorMessage = "Working days must be between 0 and 366.")]
+		[Range(1, 366, ErrorMessage = "Working days must be between 1 and 366.")]
 		[Display(Name = "Working Days")]
-		public int? WorkingDays { get; set; } = 0;
+		public int? WorkingDays { get; set; }
 
 		// Auto-calculated: DailyWage * WorkingDays
 		public decimal? TotalSalary { get; set; }
@@ -32,7 +32,7 @@ namespace Brick_Manufacturing_Management_System.Models
 		[Required(ErrorMessage = "Total expense is required.")]
 		[Range(0, 999999999.99, ErrorMessage = "Total expense cannot be negative.")]
 		[Display(Name = "Total Expense (₹)")]
-		public decimal? TotalExpense { get; set; } = 0;
+		public decimal? TotalExpense { get; set; }
 
 		// Auto-calculated: TotalSalary - TotalExpense
 		public decimal? FinalSalary { get; set; }

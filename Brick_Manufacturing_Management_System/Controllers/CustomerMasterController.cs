@@ -24,7 +24,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			try
 			{
 				return await _ctx.CustomerMasters
-					.OrderBy(c => c.CustomerName)
+					.OrderByDescending(c => c.CustomerId)
 					.Select(c => new CustomerMasterListItem
 					{
 						CustomerId = c.CustomerId,

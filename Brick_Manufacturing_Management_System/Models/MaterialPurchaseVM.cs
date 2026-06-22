@@ -21,11 +21,11 @@ namespace Brick_Manufacturing_Management_System.Models
 		public int? MaterialId { get; set; }
 
 		[Required(ErrorMessage = "Quantity is required.")]
-		[Range(0.01, 999999.99, ErrorMessage = "Quantity must be greater than 0.")]
+		[Range(typeof(decimal), "0.01", "100000", ErrorMessage = "Quantity must be between 0.01 and 1,00,000.")]
 		public decimal? Quantity { get; set; }
 
 		[Required(ErrorMessage = "Rate is required.")]
-		[Range(0.01, 999999.99, ErrorMessage = "Rate must be greater than 0.")]
+		[Range(typeof(decimal), "0.01", "100000", ErrorMessage = "Rate must be between 0.01 and 1,00,000.")]
 		public decimal? Rate { get; set; }
 
 		// Auto-calculated: Quantity × Rate

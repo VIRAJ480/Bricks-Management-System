@@ -20,3 +20,125 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* ── GLOBAL FORM FONT OVERRIDES ─────────────────────────────
+   Devanagari (Marathi) glyphs need more space to stay legible.
+   These rules override the tight per-view sizes for all forms.
+──────────────────────────────────────────────────────────── */
+
+/* Form section labels (PAYMENT DETAILS / AMOUNT etc.) */
+.form-sec-lbl {
+    font-size: 11px !important;
+    letter-spacing: 1.5px !important;
+}
+
+/* Field labels (Payment Date *, Vendor * etc.) */
+.fg label {
+    font-size: 12px !important;
+    letter-spacing: 1px !important;
+}
+
+/* Input & select fields */
+.fg input,
+.fg select {
+    font-size: 14px !important;
+}
+
+/* Form card header title */
+.fc-hdr h3 {
+    font-size: 20px !important;
+}
+
+/* Form card header subtitle */
+.fc-hdr p {
+    font-size: 12px !important;
+}
+
+/* Save / Update / Cancel buttons */
+.btn-save,
+.btn-cancel {
+    font-size: 14px !important;
+}
+
+/* Page header h2 */
+.pg-hdr h2 {
+    font-size: 30px !important;
+}
+
+/* Page header subtitle */
+.pg-hdr p {
+    font-size: 13px !important;
+}
+
+/* Table header columns */
+.ptbl thead th {
+    font-size: 11px !important;
+    letter-spacing: 1px !important;
+}
+
+/* Table body cells */
+.ptbl tbody td {
+    font-size: 13px !important;
+}
+
+/* Table card header title */
+.tc-hdr h3 {
+    font-size: 20px !important;
+}
+
+/* Table card header subtitle */
+.tc-hdr p {
+    font-size: 12px !important;
+}
+
+/* Chips (Total Paid, Records etc.) */
+.rchip {
+    font-size: 12px !important;
+}
+
+.rchip strong {
+    font-size: 15px !important;
+}
+
+/* Search input */
+.sw input {
+    font-size: 13px !important;
+}
+
+/* Pagination info */
+.pg-info {
+    font-size: 12px !important;
+}
+
+/* Rows label */
+.pg-size-wrap {
+    font-size: 12px !important;
+}
+
+/* Delete modal */
+.del-box h3 {
+    font-size: 22px !important;
+}
+
+.del-box p {
+    font-size: 13px !important;
+}
+
+.btn-dc {
+    font-size: 13px !important;
+}
+
+/* Sidebar nav items */
+.nav-item {
+    font-size: 14px !important;
+}
+
+/* Sidebar group labels */
+.nav-group-label {
+    font-size: 11px !important;
+}
+
+/* Toast alerts */
+.toast-alert {
+    font-size: 13px !important;
+}

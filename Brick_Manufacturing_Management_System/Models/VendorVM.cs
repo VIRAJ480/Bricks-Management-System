@@ -13,6 +13,7 @@ namespace Brick_Manufacturing_Management_System.Models
 		public string VendorName { get; set; } = string.Empty;
 
 		[StringLength(15)]
+		[Required(ErrorMessage = "Mobile Number is required.")]
 		[Display(Name = "Mobile Number")]
 		[RegularExpression(@"^[0-9]{10,15}$", ErrorMessage = "Enter a valid mobile number.")]
 		public string? MobileNumber { get; set; }
