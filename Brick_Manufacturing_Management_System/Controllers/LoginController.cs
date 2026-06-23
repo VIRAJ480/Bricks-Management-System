@@ -88,14 +88,14 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				.CountAsync();
 			ViewBag.LabourLedgerCount = await ctx.LabourMasters.CountAsync();
 			var breadBrickId = (await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Bread Brick" || b.BrickTypeName == "ब्रेड वीट")
+				.Where(b => b.BrickTypeName == "Bread Brick" || b.BrickTypeName == "ब्रेड विट")
 				.Select(b => b.BrickTypeId)
 				.FirstOrDefaultAsync()).ToString();
 			ViewBag.Breadbricks       = await ctx.BrickSales
 				.Where(s => s.BrickType == breadBrickId)
 				.SumAsync(s => (int?)s.Quantity) ?? 0;
 			var solidBrickId = (await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Solid Brick" || b.BrickTypeName== "ठोकळा वीट")
+				.Where(b => b.BrickTypeName == "Solid Brick" || b.BrickTypeName== "ठोकळा विट")
 				.Select(b => b.BrickTypeId)
 				.FirstOrDefaultAsync()).ToString();
 			ViewBag.Solidbricks       = await ctx.BrickSales
