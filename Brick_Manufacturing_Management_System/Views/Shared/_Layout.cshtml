@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] — Jyotirling Bricks Suppliers</title>
+    <title>@ViewData["Title"] — Jyotirling Brick Suppliers – Late Tanajirao Mane Brick Industry Group </title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         import url('d:\bricks factory\brick_manufacturing_management_system\brick_manufacturing_management_system\views\shared\_layout.cshtml.css');
@@ -208,73 +208,112 @@
             overflow-x: hidden;
             scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
+            transition: transform .28s cubic-bezier(.4,0,.2,1), box-shadow .28s ease;
         }
 
-            .sidebar::-webkit-scrollbar {
-                width: 4px;
-            }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-            .sidebar::-webkit-scrollbar-thumb {
-                background: var(--border);
-                border-radius: 2px;
-            }
+        .sidebar-inner { padding: 10px 8px 24px; }
 
-        .sidebar-inner {
-            padding: 12px 0 20px;
-        }
-
-        /* nav group */
-        .nav-group {
-            margin-bottom: 6px;
-        }
+        /* ── nav group label ── */
+        .nav-group { margin-bottom: 4px; }
 
         .nav-group-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.8px;
             text-transform: uppercase;
-            color: var(--text-dim);
-            padding: 14px 18px 6px;
+            color: #ffffff;
+            padding: 16px 12px 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
+        .nav-group-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+            margin-left: 4px;
+        }
+
+        /* ── nav item ── */
         .nav-item {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 9px 18px;
+            padding: 9px 12px;
+            margin: 2px 0;
             font-size: 13px;
             font-weight: 500;
             color: var(--text-sec);
             text-decoration: none;
             cursor: pointer;
-            border-radius: 0;
-            transition: background .15s, color .15s;
-            border-left: 3px solid transparent;
+            border-radius: 10px;
+            border: 1px solid transparent;
             position: relative;
+            transition: background .18s ease,
+                        color .18s ease,
+                        border-color .18s ease,
+                        transform .2s cubic-bezier(.34,1.56,.64,1),
+                        box-shadow .18s ease;
+            overflow: hidden;
         }
 
-            .nav-item:hover {
-                background: var(--bg-hover);
-                color: var(--text-pri);
-            }
+        /* shimmer sweep on hover */
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(224,123,57,.06) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform .4s ease;
+            pointer-events: none;
+            border-radius: 10px;
+        }
 
-            .nav-item.active {
-                background: var(--bg-active);
-                color: var(--accent);
-                border-left-color: var(--accent);
-                font-weight: 600;
-            }
+        .nav-item:hover::before { transform: translateX(100%); }
 
-            .nav-item .nav-icon {
-                font-size: 15px;
-                width: 20px;
-                text-align: center;
-                flex-shrink: 0;
-            }
+        .nav-item:hover {
+            background: var(--bg-hover);
+            color: var(--text-pri);
+            border-color: var(--border);
+            transform: translateX(4px);
+            box-shadow: 2px 0 12px rgba(0,0,0,.25);
+        }
 
-            .nav-item .nav-label {
-                flex: 1;
-            }
+        .nav-item:active { transform: translateX(2px) scale(.98); }
+
+        /* active state */
+        .nav-item.active {
+            background: rgba(224,123,57,.13);
+            color: var(--accent);
+            border-color: rgba(224,123,57,.28);
+            font-weight: 700;
+            box-shadow: inset 3px 0 0 var(--accent), 0 2px 12px rgba(224,123,57,.12);
+        }
+
+        .nav-item.active::before { display: none; }
+
+        /* icon */
+        .nav-item .nav-icon {
+            font-size: 16px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 7px;
+            flex-shrink: 0;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1), background .18s;
+        }
+
+        .nav-item:hover .nav-icon  { transform: rotate(-8deg) scale(1.18); background: rgba(224,123,57,.1); }
+        .nav-item.active .nav-icon { background: rgba(224,123,57,.15); }
+
+        .nav-item .nav-label { flex: 1; line-height: 1.2; }
 
         .nav-badge {
             font-size: 10px;
@@ -282,8 +321,37 @@
             background: var(--accent-dim);
             color: var(--accent);
             border-radius: 99px;
-            padding: 1px 7px;
+            padding: 2px 8px;
+            flex-shrink: 0;
         }
+
+        /* ── mobile overlay backdrop ── */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            z-index: 89;
+            backdrop-filter: blur(2px);
+        }
+
+        .sidebar-backdrop.show { display: block; }
+
+        /* mobile toggle */
+        .sidebar-toggle {
+            display: none;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-pri);
+            font-size: 18px;
+            padding: 5px 10px;
+            transition: border-color .2s, background .2s;
+            margin-left: 12px;
+        }
+
+        .sidebar-toggle:hover { border-color: var(--accent); background: rgba(224,123,57,.08); }
 
         /* ── MAIN CONTENT ── */
         .main-content {
@@ -294,137 +362,175 @@
             padding: 24px;
             scrollbar-width: thin;
             scrollbar-color: var(--border) transparent;
+            transition: margin-left .28s ease;
         }
 
-            .main-content::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .main-content::-webkit-scrollbar-thumb {
-                background: var(--border);
-                border-radius: 3px;
-            }
+        .main-content::-webkit-scrollbar { width: 6px; }
+        .main-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
         /* page header */
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
+        .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+        .page-title { font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:var(--text-pri); }
+        .page-breadcrumb { font-size:12px; color:var(--text-sec); margin-top:2px; }
+        .page-breadcrumb span { color:var(--accent); }
+
+        .card { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; }
+
+        .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:24px; }
+        .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:16px; position:relative; overflow:hidden; }
+        .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--accent),transparent); }
+        .stat-card .sc-label { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-sec); margin-bottom:6px; }
+        .stat-card .sc-value { font-family:'Rajdhani',sans-serif; font-size:26px; font-weight:700; color:var(--text-pri); }
+        .stat-card .sc-sub { font-size:11px; color:var(--text-sec); margin-top:2px; }
+
+        /* ── RESPONSIVE ── */
+        @@media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: none;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 8px 0 32px rgba(0,0,0,.5);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .stat-chip {
+                display: none;
+            }
+
+            .lang-selector label {
+                display: none;
+            }
         }
 
-        .page-title {
+        /* ── LOGOUT CONFIRMATION MODAL ── */
+        .logout-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.6);
+            backdrop-filter: blur(3px);
+            z-index: 600;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .logout-overlay.show {
+                display: flex;
+            }
+
+        .logout-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px 26px 22px;
+            width: 360px;
+            max-width: 90vw;
+            text-align: center;
+            box-shadow: 0 24px 60px rgba(0,0,0,.55);
+            animation: lgPop .22s ease;
+        }
+
+        @@keyframes lgPop {
+            from { transform: scale(.9); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .logout-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .logout-box h3 {
             font-family: 'Rajdhani', sans-serif;
             font-size: 22px;
             font-weight: 700;
             color: var(--text-pri);
+            margin: 0 0 6px;
         }
 
-        .page-breadcrumb {
-            font-size: 12px;
+        .logout-box p {
+            font-size: 13px;
             color: var(--text-sec);
-            margin-top: 2px;
+            line-height: 1.5;
+            margin: 0 0 20px;
         }
 
-            .page-breadcrumb span {
-                color: var(--accent);
-            }
+        .logout-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
 
-        /* cards */
-        .card {
-            background: var(--bg-card);
+        .lg-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all .18s;
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
         }
 
-        /* stat cards row */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 12px;
-            margin-bottom: 24px;
+        .lg-btn-cancel {
+            background: rgba(255,255,255,.05);
+            color: var(--text-sec);
         }
 
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .stat-card::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 2px;
-                background: linear-gradient(90deg, var(--accent), transparent);
-            }
-
-            .stat-card .sc-label {
-                font-size: 11px;
-                font-weight: 600;
-                letter-spacing: 1px;
-                text-transform: uppercase;
-                color: var(--text-sec);
-                margin-bottom: 6px;
-            }
-
-            .stat-card .sc-value {
-                font-family: 'Rajdhani', sans-serif;
-                font-size: 26px;
-                font-weight: 700;
+            .lg-btn-cancel:hover {
+                border-color: var(--text-sec);
                 color: var(--text-pri);
             }
 
-            .stat-card .sc-sub {
-                font-size: 11px;
-                color: var(--text-sec);
-                margin-top: 2px;
+        .lg-btn-confirm {
+            background: rgba(248,81,73,.15);
+            color: #f85149;
+            border-color: rgba(248,81,73,.35);
+        }
+
+            .lg-btn-confirm:hover {
+                background: rgba(248,81,73,.28);
             }
-
-        /* mobile toggle */
-        .sidebar-toggle {
-            display: none;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-pri);
-            font-size: 20px;
-            padding: 4px 12px;
-        }
-
-        media (max-width: 768px) {
-            .sidebar
-
-        {
-            transform: translateX(-100%);
-            transition: transform .25s ease;
-        }
-
-        .sidebar.open {
-            transform: translateX(0);
-        }
-
-        .main-content {
-            margin-left: 0;
-        }
-
-        .sidebar-toggle {
-            display: block;
-        }
-
-        .stat-chip {
-            display: none;
-        }
-
-        }
     </style>
     @await RenderSectionAsync("Styles", required: false)
+    <style>
+        /* ══ GLOBAL LEGIBILITY BOOST ══
+           Brighten & enlarge the small faint labels across every form/page.
+           Scoped to @@media screen so it never overrides print color rules. */
+        @@media screen {
+
+            /* Form field labels (Vendor Name *, Mobile Number *, GST Number, Address, Status …) */
+            .fg label,
+            .form-group > label {
+                color: #e6edf3 !important;
+                font-size: 11.5px !important;
+            }
+
+            /* Table column headers (VENDOR, MOBILE, GST NUMBER, ADDRESS, STATUS, ACTIONS …) */
+            thead th {
+                color: #d7dee6 !important;
+                font-size: 11px !important;
+            }
+
+            /* Summary chips / stat labels (Total, Active, Inactive …) */
+            .vchip, .rchip, .schip, .pchip, .stat-pill, .summary-chip {
+                color: #e6edf3 !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -434,8 +540,8 @@
         <div class="topbar-brand">
             <div class="brand-icon">🧱</div>
             <div class="brand-name">
-                <span data-i18n="brand.name">Jyotirling</span>
-                <small data-i18n="brand.sub">Bricks Suppliers</small>
+                <span data-i18n="brand.name">ज्योतिर्लिंग विट सप्लायर्स</span>
+                <small data-i18n="brand.sub">कै. तानाजीराव माने वीट उद्योग समूह</small>
             </div>
         </div>
 
@@ -467,9 +573,22 @@
                 @((Context.Session.GetString("Username") ?? "A").Substring(0, 1).ToUpper())
             </div>
 
-            <a href="/Login/Logout" class="btn-logout" data-i18n="topbar.logout">↩ Logout</a>
+            <a href="/Login/Logout" class="btn-logout" data-i18n="topbar.logout" onclick="event.preventDefault(); openLogoutModal();">↩ Logout</a>
         </div>
     </header>
+
+    <!-- ── LOGOUT CONFIRMATION MODAL ── -->
+    <div class="logout-overlay" id="logoutOverlay" onclick="if(event.target===this) closeLogoutModal()">
+        <div class="logout-box">
+            <div class="logout-icon">🚪</div>
+            <h3 data-i18n="logout.title">Log out?</h3>
+            <p data-i18n="logout.message">Are you sure you want to log out of your account?</p>
+            <div class="logout-footer">
+                <button type="button" class="lg-btn lg-btn-cancel" onclick="closeLogoutModal()" data-i18n="logout.no">No</button>
+                <a href="/Login/Logout" class="lg-btn lg-btn-confirm" data-i18n="logout.yes">Yes, Logout</a>
+            </div>
+        </div>
+    </div>
 
     <!-- ── SIDEBAR ── -->
     <nav class="sidebar" id="sidebar">
@@ -485,53 +604,38 @@
                 </a>
             </div>
 
-            <!-- VENDOR & MATERIAL -->
+            <!-- MASTERS -->
             <div class="nav-group">
-                <div class="nav-group-label" data-i18n="nav.vendorMat">Vendors & Materials</div>
+                <div class="nav-group-label" data-i18n="nav.grpMasters">Masters</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vendor" ? "active" : "")"
                    href="/Vendor/Index">
                     <span class="nav-icon">🏪</span>
                     <span class="nav-label" data-i18n="nav.vendorMaster">Vendor Master</span>
+                </a>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                   href="/LabourMaster/Index">
+                    <span class="nav-icon">👷</span>
+                    <span class="nav-label" data-i18n="nav.labourMaster">Labour Master</span>
+                </a>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
+                   href="/CustomerMaster/Index">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label" data-i18n="nav.customerMaster">Customer Master</span>
                 </a>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Material" ? "active" : "")"
                    href="/Material/Index">
                     <span class="nav-icon">📦</span>
                     <span class="nav-label" data-i18n="nav.materialMaster">Material Master</span>
                 </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Purchase" ? "active" : "")"
-                   href="/MaterialPurchase/Index">
-                    <span class="nav-icon">🛒</span>
-                    <span class="nav-label" data-i18n="nav.materialPurchase">Material Purchase</span>
-                </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vendor Payment" ? "active" : "")"
-                   href="/VendorPayment/Index">
-                    <span class="nav-icon">🛒</span>
-                    <span class="nav-label" data-i18n="nav.VendorPayment">Vendor Payment</span>
-                </a>
             </div>
 
             <!-- LABOUR -->
             <div class="nav-group">
-                <div class="nav-group-label" data-i18n="nav.labour">Labour Management</div>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                   href="/LabourMaster/Index">
-                    <span class="nav-icon">👷</span>
-                    <span class="nav-label" data-i18n="nav.labourMaster">Labour Master</span>
-                </a>
+                <div class="nav-group-label" data-i18n="nav.grpLabour">Labour</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Advance" ? "active" : "")"
                    href="/LabourAdvance/Index">
                     <span class="nav-icon">💰</span>
                     <span class="nav-label" data-i18n="nav.labourAdvance">Labour Advance</span>
-                </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Work" ? "active" : "")"
-                   href="/LabourWork/Index">
-                    <span class="nav-icon">📅</span>
-                    <span class="nav-label" data-i18n="nav.workEntry">Work Entry</span>
-                </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Expense" ? "active" : "")"
-                   href="/LabourExpense/Index">
-                    <span class="nav-icon">🧾</span>
-                    <span class="nav-label" data-i18n="nav.labourExpense">Labour Expense</span>
                 </a>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Labour" && ViewContext.RouteData.Values["action"]?.ToString() == "Deduction" ? "active" : "")"
                    href="/AdvanceDeduction/Index">
@@ -550,9 +654,24 @@
                 </a>
             </div>
 
-            <!-- PRODUCTION -->
+            <!-- MATERIAL & VENDOR PAYMENT -->
             <div class="nav-group">
-                <div class="nav-group-label" data-i18n="nav.production">Production</div>
+                <div class="nav-group-label" data-i18n="nav.grpMatVendorPay">Material & Vendor Payment</div>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Purchase" ? "active" : "")"
+                   href="/MaterialPurchase/Index">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-label" data-i18n="nav.materialPurchase">Material Purchase</span>
+                </a>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Vendor Payment" ? "active" : "")"
+                   href="/VendorPayment/Index">
+                    <span class="nav-icon">🛒</span>
+                    <span class="nav-label" data-i18n="nav.VendorPayment">Vendor Payment</span>
+                </a>
+            </div>
+
+            <!-- BRICKS -->
+            <div class="nav-group">
+                <div class="nav-group-label" data-i18n="nav.grpBricks">Bricks</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Production" ? "active" : "")"
                    href="/BrickProduction/Index">
                     <span class="nav-icon">🏭</span>
@@ -560,14 +679,9 @@
                 </a>
             </div>
 
-            <!-- SALES -->
+            <!-- BRICK SALES & CUSTOMER PAYMENT -->
             <div class="nav-group">
-                <div class="nav-group-label" data-i18n="nav.sales">Sales & Payments</div>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customer" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
-                   href="/CustomerMaster/Index">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-label" data-i18n="nav.customerMaster">Customer Master</span>
-                </a>
+                <div class="nav-group-label" data-i18n="nav.grpSalesCustPay">Brick Sales & Customer Payment</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")"
                    href="/BrickSales/Index">
                     <span class="nav-icon">🧱</span>
@@ -589,16 +703,21 @@
                     <span class="nav-icon">📋</span>
                     <span class="nav-label" data-i18n="nav.materialReport">Material Report</span>
                 </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Labour" ? "active" : "")"
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "CustomerSalesReport" ? "active" : "")"
+                   href="/CustomerSalesReport/Index">
+                    <span class="nav-icon">🧱</span>
+                    <span class="nav-label" data-i18n="nav.customerSalesReport">Customer Sales Report</span>
+                </a>
+            @*     <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Labour" ? "active" : "")"
                    href="/Report/Labour">
                     <span class="nav-icon">👷</span>
                     <span class="nav-label" data-i18n="nav.labourReport">Labour Report</span>
-                </a>
-                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Production" ? "active" : "")"
+                </a> *@
+                @* <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Production" ? "active" : "")"
                    href="/Report/Production">
                     <span class="nav-icon">🏭</span>
                     <span class="nav-label" data-i18n="nav.productionReport">Production Report</span>
-                </a>
+                </a> *@
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Sales" ? "active" : "")"
                    href="/SalesReport/Index">
                     <span class="nav-icon">📈</span>
@@ -616,7 +735,7 @@
                 </a>
             </div>
 
-            <!-- SYSTEM -->
+     @*        <!-- SYSTEM -->
             <div class="nav-group">
                 <div class="nav-group-label" data-i18n="nav.system">System</div>
                 <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")"
@@ -624,10 +743,13 @@
                     <span class="nav-icon">⚙️</span>
                     <span class="nav-label" data-i18n="nav.accountSettings">Account Settings</span>
                 </a>
-            </div>
+            </div> *@
 
         </div>
     </nav>
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
 
     <!-- ── MAIN CONTENT ── -->
     <main class="main-content">
@@ -649,8 +771,19 @@
     }
 
     <script>
+        function openLogoutModal() {
+            document.getElementById('logoutOverlay').classList.add('show');
+        }
+        function closeLogoutModal() {
+            document.getElementById('logoutOverlay').classList.remove('show');
+        }
+
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('open');
+            const sidebar  = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            const isOpen   = sidebar.classList.toggle('open');
+            backdrop.classList.toggle('show', isOpen);
+            document.body.style.overflow = isOpen ? 'hidden' : '';
         }
 
         // auto-dismiss toast
@@ -662,7 +795,7 @@
         }, 3500);
     </script>
 
-    <script src="~/js/i18n.js"></script>
+    <script src="~/js/i18n.js?v=5"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
