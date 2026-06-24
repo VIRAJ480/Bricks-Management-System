@@ -1,1 +1,34 @@
+# ── Visual Studio / Rider ──
 .vs/
+.idea/
+*.user
+
+# ── Build output ──
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+
+# ── Publish output ──
+publish/
+*.publishsettings
+PublishProfiles/
+
+# ── ASP.NET scoped CSS / static web assets (generated) ──
+*.razor.css.map
+**/staticwebassets/
+**/scopedcss/
+
+# ── Misc generated ──
+*.dll
+*.exe
+*.pdb
+*.cache
+project.lock.json
+*.nupkg
+
+# ── OS files ──
+Thumbs.db
+.DS_Store
