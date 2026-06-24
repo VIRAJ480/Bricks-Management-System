@@ -863,22 +863,22 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>BRICK SALES</h2>
+    <h2 data-i18n="sales.title">BRICK SALES</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Record and manage brick sales transactions
+        <span data-i18n="sales.subtitle">Record and manage brick sales transactions</span>
     </p>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success" style="margin-bottom:16px;">
+    <div class="alert alert-success" id="salesAlert" style="margin-bottom:16px;">
         <i class="fas fa-circle-check"></i> @TempData["Success"]
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger" style="margin-bottom:16px;">
+    <div class="alert alert-danger" id="salesAlert" style="margin-bottom:16px;">
         <i class="fas fa-circle-exclamation"></i> @TempData["Error"]
     </div>
 }
@@ -895,7 +895,7 @@
                 <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "sales.editSale" : "sales.newSale")'>
                     @(isEdit ? "EDIT SALE" : "NEW SALE")
                 </h3>
-                <p>@(isEdit ? "Update sale record" : "Record a brick sale")</p>
+                <p data-i18n='@(isEdit ? "sales.editSub" : "sales.newSub")'>@(isEdit ? "Update sale record" : "Record a brick sale")</p>
             </div>
         </div>
 
@@ -905,7 +905,7 @@
 
             <div class="fc-body">
 
-                <div class="form-sec-lbl" data-i18n="purchase.pricing">📋 Sale Details</div>
+                <div class="form-sec-lbl" data-i18n="sales.detailsLbl">📋 Sale Details</div>
 
                 <div class="fg">
                     <label data-i18n="sales.salesDate">Sales Date *</label>
@@ -937,20 +937,20 @@
                     <span asp-validation-for="BrickTypeId" class="verr show"></span>
                 </div>
 
-                <div class="form-sec-lbl" data-i18n="purchase.payment">💰 Pricing</div>
+                <div class="form-sec-lbl" data-i18n="sales.pricingLbl">💰 Pricing</div>
 
                 <div class="fg-row">
                     <div class="fg">
                         <label data-i18n="form.quantity">Quantity *</label>
-                        <input asp-for="Quantity" type="number" min="1" step="1"
-                               placeholder="0" id="fQty" oninput="calcTotal()" onwheel="this.blur()"
+                        <input asp-for="Quantity" type="number" min="1" step="1" max="99999999"
+                               placeholder="0" id="fQty" oninput="clampInput(this,99999999);calcTotal()" onwheel="this.blur()"
                                class="@(ViewData.ModelState["Quantity"]?.Errors.Count > 0 ? "err-field" : "")" />
                         <span asp-validation-for="Quantity" class="verr show"></span>
                     </div>
                     <div class="fg">
                         <label data-i18n="form.rate">Rate (₹) *</label>
-                        <input asp-for="Rate" type="number" step="0.01" min="0.01"
-                               placeholder="0.00" id="fRate" oninput="calcTotal()" onwheel="this.blur()"
+                        <input asp-for="Rate" type="number" step="0.01" min="0.01" max="999999.99"
+                               placeholder="0.00" id="fRate" oninput="clampInput(this,999999.99);calcTotal()" onwheel="this.blur()"
                                class="@(ViewData.ModelState["Rate"]?.Errors.Count > 0 ? "err-field" : "")" />
                         <span asp-validation-for="Rate" class="verr show"></span>
                     </div>
@@ -961,15 +961,15 @@
                     <input type="text" id="dispTotal" readonly placeholder="₹ 0.00"
                            value="@(Model.TotalAmount.HasValue && Model.TotalAmount > 0 ? "₹ " + Model.TotalAmount.Value.ToString("N2") : "")" />
                     <input type="hidden" asp-for="TotalAmount" id="fTotal" />
-                    <div class="calc-hint">🧮 Qty × Rate = <span id="calcHintVal">@(Model.TotalAmount?.ToString("N2") ?? "0.00")</span></div>
+                    <div class="calc-hint"><span data-i18n="sales.calcHint1">🧮 Qty × Rate =</span> <span id="calcHintVal">@(Model.TotalAmount?.ToString("N2") ?? "0.00")</span></div>
                 </div>
 
-                <div class="form-sec-lbl">💳 Payment</div>
+                <div class="form-sec-lbl" data-i18n="sales.paymentLbl">💳 Payment</div>
 
                 <div class="fg">
                     <label data-i18n="sales.paidAmount">Paid Amount (₹)</label>
-                    <input asp-for="PaidAmount" type="number" step="0.01" min="0"
-                           placeholder="0.00" id="fPaid" oninput="calcPending()" onwheel="this.blur()"
+                    <input asp-for="PaidAmount" type="number" step="0.01" min="0" max="1000000000"
+                           placeholder="0.00" id="fPaid" oninput="clampInput(this,1000000000);calcPending()" onwheel="this.blur()"
                            class="@(ViewData.ModelState["PaidAmount"]?.Errors.Count > 0 ? "err-field" : "")" />
                     <span asp-validation-for="PaidAmount" class="verr show"></span>
                 </div>
@@ -979,7 +979,7 @@
                     <input type="text" id="dispPending" readonly placeholder="₹ 0.00"
                            value="@(Model.PendingAmount.HasValue && Model.PendingAmount > 0 ? "₹ " + Model.PendingAmount.Value.ToString("N2") : "")" />
                     <input type="hidden" asp-for="PendingAmount" id="fPending" />
-                    <div class="calc-hint">🧮 Total − Paid = <span id="pendHintVal">@(Model.PendingAmount?.ToString("N2") ?? "0.00")</span></div>
+                    <div class="calc-hint"><span data-i18n="sales.calcHint2">🧮 Total − Paid =</span> <span id="pendHintVal">@(Model.PendingAmount?.ToString("N2") ?? "0.00")</span></div>
                 </div>
 
                 <div style="margin-top:6px;display:flex;flex-direction:column;gap:8px;">
@@ -1008,22 +1008,22 @@
                 <div class="tc-hdr-icon">🧱</div>
                 <div>
                     <h3 data-i18n="sales.salesList">Sales List</h3>
-                    <p>All recorded brick sales</p>
+                    <p data-i18n="sales.listSub">All recorded brick sales</p>
                 </div>
             </div>
             <span class="tc-badge">@totalRecords Sale@(totalRecords != 1 ? "s" : "")</span>
         </div>
 
         <div class="tc-chips">
-            <div class="rchip">Total &nbsp;<strong style="color:#e07b39;">₹@totalAmt.ToString("N2")</strong></div>
-            <div class="rchip">Paid &nbsp;<strong style="color:#22d3a4;">₹@totalPaid.ToString("N2")</strong></div>
-            <div class="rchip">Pending &nbsp;<strong style="color:#f85149;">₹@totalPend.ToString("N2")</strong></div>
+            <div class="rchip"><span data-i18n="sales.chipTotal">Total</span> &nbsp;<strong style="color:#e07b39;">₹@totalAmt.ToString("N2")</strong></div>
+            <div class="rchip"><span data-i18n="sales.chipPaid">Paid</span> &nbsp;<strong style="color:#22d3a4;">₹@totalPaid.ToString("N2")</strong></div>
+            <div class="rchip"><span data-i18n="sales.chipPending">Pending</span> &nbsp;<strong style="color:#f85149;">₹@totalPend.ToString("N2")</strong></div>
         </div>
 
         <div class="tc-search">
             <div class="sw">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search by customer, brick type…" oninput="filterTable()" />
+                <input type="text" id="searchInput" data-i18n-placeholder="sales.search" placeholder="Search by customer, brick type…" oninput="filterTable()" />
             </div>
         </div>
 
@@ -1223,6 +1223,12 @@
         assignPages();
         if (TOTAL_ROWS > 0) showPage(0);
 
+        /* ══ Clamp input to max allowed value ══ */
+        function clampInput(el, max) {
+            const val = parseFloat(el.value);
+            if (!isNaN(val) && val > max) el.value = max;
+        }
+
         /* ══ CALC TOTAL ══ */
         function calcTotal() {
             const qty  = parseFloat(document.getElementById('fQty').value)  || 0;
@@ -1246,6 +1252,35 @@
         }
 
         /* ══ RESET FORM ══ */
+        /* ── Auto-dismiss success/error alert after 3 seconds ── */
+        (function () {
+            var alertBox = document.getElementById('salesAlert');
+            if (alertBox) {
+                setTimeout(function () {
+                    alertBox.style.transition = 'opacity .5s ease';
+                    alertBox.style.opacity = '0';
+                    setTimeout(function () { alertBox.remove(); }, 500);
+                }, 3000);
+            }
+        })();
+
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('salesForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
+
         function resetForm() {
             document.getElementById('salesForm').reset();
             ['fTotal','fPending','dispTotal','dispPending'].forEach(id => {

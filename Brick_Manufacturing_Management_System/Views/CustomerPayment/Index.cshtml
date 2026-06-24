@@ -786,22 +786,22 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>CUSTOMER PAYMENTS</h2>
+    <h2 data-i18n="payment.title">CUSTOMER PAYMENTS</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Record and manage customer payment transactions
+        <span data-i18n="payment.subtitle">Record and manage customer payment transactions</span>
     </p>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="toast-alert toast-success">
+    <div class="toast-alert toast-success" id="payAlert">
         <i class="fas fa-circle-check"></i> @TempData["Success"]
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="toast-alert toast-error">
+    <div class="toast-alert toast-error" id="payAlert">
         <i class="fas fa-circle-exclamation"></i> @TempData["Error"]
     </div>
 }
@@ -818,7 +818,7 @@
                 <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "payment.editPayment" : "payment.newPayment")'>
                     @(isEdit ? "EDIT PAYMENT" : "NEW PAYMENT")
                 </h3>
-                <p>@(isEdit ? "Update payment record" : "Record a customer payment")</p>
+                <p data-i18n='@(isEdit ? "payment.editSub" : "payment.newSub")'>@(isEdit ? "Update payment record" : "Record a customer payment")</p>
             </div>
         </div>
 
@@ -828,7 +828,7 @@
 
             <div class="fc-body">
 
-                <div class="form-sec-lbl" data-i18n="purchase.pricing">📋 PAYMENT DETAILS</div>
+                <div class="form-sec-lbl" data-i18n="payment.detailsLbl">📋 PAYMENT DETAILS</div>
 
                 <div class="fg">
                     <label data-i18n="payment.paymentDate">Payment Date *</label>
@@ -849,17 +849,17 @@
                     <span asp-validation-for="CustomerId" class="verr show"></span>
                 </div>
 
-                <div class="form-sec-lbl">💰 AMOUNT</div>
+                <div class="form-sec-lbl" data-i18n="payment.amountLbl">💰 AMOUNT</div>
 
                 <div class="fg">
                     <label data-i18n="form.amount">Amount (₹) *</label>
-                    <input asp-for="Amount" type="number" step="0.01" min="0.01"
-                           placeholder="0.00" onwheel="this.blur()"
+                    <input asp-for="Amount" type="number" step="0.01" min="0.01" max="1000000000"
+                           placeholder="0.00" oninput="clampInput(this,1000000000)" onwheel="this.blur()"
                            class="@(ViewData.ModelState["Amount"]?.Errors.Count > 0 ? "err-field" : "")" />
                     <span asp-validation-for="Amount" class="verr show"></span>
                 </div>
 
-                <div class="form-sec-lbl">🏦 PAYMENT INFO</div>
+                <div class="form-sec-lbl" data-i18n="payment.payInfoLbl">🏦 PAYMENT INFO</div>
 
                 <div class="fg">
                     <label data-i18n="payment.paymentMode">Payment Mode *</label>
@@ -909,7 +909,7 @@
                 <div class="tc-hdr-icon">💳</div>
                 <div>
                     <h3 data-i18n="payment.paymentList">Payment List</h3>
-                    <p>All recorded customer payments</p>
+                    <p data-i18n="payment.listSub">All recorded customer payments</p>
                 </div>
             </div>
             <span class="tc-badge">@totalRecords Payment@(totalRecords != 1 ? "s" : "")</span>
@@ -917,10 +917,10 @@
 
         <div class="tc-chips">
             <div class="rchip">
-                Total Collected &nbsp;<strong style="color:#e07b39;">&#8377;@totalAmt.ToString("N2")</strong>
+                <span data-i18n="payment.totalCollected">Total Collected</span> &nbsp;<strong style="color:#e07b39;">&#8377;@totalAmt.ToString("N2")</strong>
             </div>
             <div class="rchip">
-                Records &nbsp;<strong style="color:#22d3a4;">@totalRecords</strong>
+                <span data-i18n="payment.records">Records</span> &nbsp;<strong style="color:#22d3a4;">@totalRecords</strong>
             </div>
         </div>
 
@@ -928,6 +928,7 @@
             <div class="sw">
                 <i class="fas fa-magnifying-glass"></i>
                 <input type="text" id="searchInput"
+                       data-i18n-placeholder="payment.search"
                        placeholder="Search by customer, mode, status..."
                        oninput="filterTable()" />
             </div>
@@ -1041,7 +1042,7 @@
 <!-- DELETE MODAL -->
 <div class="del-overlay" id="delOverlay">
     <div class="del-box">
-        <h3>&#9888;&#65039; Delete Payment?</h3>
+        <h3 data-i18n="payment.deleteTitle">⚠️ Delete Payment?</h3>
         <p>
             You are about to permanently delete the payment record for
             <strong id="delLabel" style="color:var(--accent);"></strong>.<br />
@@ -1124,6 +1125,41 @@
 
         assignPages();
         if (TOTAL_ROWS > 0) showPage(0);
+
+        /* ── Auto-dismiss success/error alert after 3 seconds ── */
+        (function () {
+            var alertBox = document.getElementById('payAlert');
+            if (alertBox) {
+                setTimeout(function () {
+                    alertBox.style.transition = 'opacity .5s ease';
+                    alertBox.style.opacity = '0';
+                    setTimeout(function () { alertBox.remove(); }, 500);
+                }, 3000);
+            }
+        })();
+
+        /* ── Clamp input to max allowed value ── */
+        function clampInput(el, max) {
+            var val = parseFloat(el.value);
+            if (!isNaN(val) && val > max) el.value = max;
+        }
+
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('payForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
 
         function resetForm() {
             document.getElementById('payForm').reset();

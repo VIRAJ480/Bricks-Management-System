@@ -1016,6 +1016,19 @@
             lbl.style.color = isOn ? '#22d3a4' : '#f85149';
         }
 
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        document.querySelectorAll('#matForm input, #matForm select').forEach(function(el) {
+            var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+            el.addEventListener(evt, function() {
+                this.classList.remove('err-field');
+                var fg = this.closest('.fg') || this.closest('.select-wrap')?.closest('.fg');
+                if (fg) {
+                    var errSpan = fg.querySelector('.verr');
+                    if (errSpan) errSpan.classList.remove('show');
+                }
+            });
+        });
+
         /* ── RESET FORM ── */
         function resetForm() {
             document.getElementById('matForm').reset();

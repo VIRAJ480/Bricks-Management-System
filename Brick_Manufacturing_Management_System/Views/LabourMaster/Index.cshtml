@@ -425,7 +425,7 @@
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <div class="page-ttl" data-i18n="nav.labourMaster">👷 Labour Master</div>
             <div class="lchips-left">
-                <div class="lchip">Total <strong>@total</strong></div>
+                <div class="lchip"><span data-i18n="common.total">Total</span> <strong>@total</strong></div>
             </div>
         </div>
         <div style="font-size:11px;color:var(--text-sec);">@DateTime.Now.ToString("dddd, dd MMM yyyy")</div>
@@ -513,7 +513,7 @@
                 <div class="ts-title" data-i18n="labour.labourList">Labour List</div>
                 <div class="search-wrap">
                     <span class="search-si">🔍</span>
-                    <input type="text" id="searchInput" data-i18n-placeholder="form.searchNameMobile" placeholder="Search by name or mobile…" oninput="filterTable()" />
+                    <input type="text" id="searchInput" data-i18n-placeholder="form.searchNameMobile" placeholder="Search by labour or type…" oninput="filterTable()" />
                 </div>
             </div>
 
@@ -689,6 +689,23 @@
     if (TOTAL_ROWS > 0) showPage(0);
 
     /* ── RESET FORM ── */
+    /* ── Clear validation error as soon as user interacts with a field ── */
+    (function () {
+        var f = document.getElementById('labourForm');
+        if (!f) return;
+        f.querySelectorAll('input, select, textarea').forEach(function (el) {
+            var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+            el.addEventListener(evt, function () {
+                this.classList.remove('err-field');
+                var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                if (fg) {
+                    var errSpan = fg.querySelector('.verr');
+                    if (errSpan) errSpan.classList.remove('show');
+                }
+            });
+        });
+    })();
+
     function resetForm() {
         document.getElementById('labourForm').reset();
         document.querySelectorAll('.verr').forEach(e => e.classList.remove('show'));

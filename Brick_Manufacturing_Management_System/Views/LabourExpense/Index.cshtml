@@ -738,8 +738,8 @@
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <div class="page-ttl" data-i18n="nav.labourExpense">💵 Labour Expense</div>
             <div class="lechips-left">
-                <div class="lechip">Records <strong>@total</strong></div>
-                <div class="lechip">Total <strong style="color:#f85149;">₹@totalAmt.ToString("N2")</strong></div>
+                <div class="lechip"><span data-i18n="common.records">Records</span> <strong>@total</strong></div>
+                <div class="lechip"><span data-i18n="common.total">Total</span> <strong style="color:#f85149;">₹@totalAmt.ToString("N2")</strong></div>
             </div>
         </div>
         <div style="font-size:11px;color:var(--text-sec);">@DateTime.Now.ToString("dddd, dd MMM yyyy")</div>
@@ -912,9 +912,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="tbl-summary">
-                                <td colspan="3" style="color:var(--text-sec);font-size:11px;letter-spacing:1px;text-transform:uppercase;">
-                                    Page Total
-                                </td>
+                                <td colspan="3" style="color:var(--text-sec);font-size:11px;letter-spacing:1px;text-transform:uppercase;" data-i18n="common.pageTotal">Page Total</td>
                                 <td><span class="amt-badge">₹@totalAmt.ToString("N2")</span></td>
                                 <td colspan="2"></td>
                             </tr>

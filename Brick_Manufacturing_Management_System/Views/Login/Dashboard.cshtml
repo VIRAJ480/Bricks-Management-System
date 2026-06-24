@@ -38,60 +38,247 @@
         .wb-chip { display:flex; align-items:center; gap:6px; background:rgba(224,123,57,.09); border:1px solid rgba(224,123,57,.18); border-radius:20px; padding:5px 13px; font-size:12px; color:var(--text-sec); }
         .wb-chip strong { color:var(--text-pri); }
 
-        .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(175px,1fr)); gap:14px; margin-bottom:26px; }
-        .sc { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:18px 18px 14px; position:relative; overflow:hidden; cursor:pointer; transition:transform .2s,box-shadow .2s; animation:fadeUp .4s both; }
-        .sc:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,.4); }
-        .sc::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--sc-color,var(--accent)); }
-        .sc-icon { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-bottom:12px; background:rgba(224,123,57,.1); }
-        .sc-val { font-family:'Rajdhani',sans-serif; font-size:32px; font-weight:700; color:var(--text-pri); line-height:1; }
-        .sc-lbl { font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--text-sec); margin-top:4px; }
-        .sc-link { display:inline-flex; align-items:center; gap:4px; margin-top:10px; font-size:11px; font-weight:600; color:var(--sc-color,var(--accent)); text-decoration:none; opacity:.7; transition:opacity .2s; }
-        .sc-link:hover { opacity:1; }
-        .c1{--sc-color:#e07b39} .c1 .sc-icon{background:rgba(224,123,57,.12)}
-        .c2{--sc-color:#f5c542} .c2 .sc-icon{background:rgba(245,197,66,.1)}
-        .c3{--sc-color:#22d3a4} .c3 .sc-icon{background:rgba(34,211,164,.1)}
-        .c4{--sc-color:#60a5fa} .c4 .sc-icon{background:rgba(96,165,250,.1)}
-        .c5{--sc-color:#a78bfa} .c5 .sc-icon{background:rgba(167,139,250,.1)}
-        .c6{--sc-color:#f472b6} .c6 .sc-icon{background:rgba(244,114,182,.1)}
-        .c7{--sc-color:#fb923c} .c7 .sc-icon{background:rgba(251,146,60,.1)}
-        .c8{--sc-color:#34d399} .c8 .sc-icon{background:rgba(52,211,153,.1)}
-        .c10 .sc-icon{background:rgba(255,0,0,.1)}
+        /* ══ STAT GRID ══ */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 26px;
+        }
 
-        .sec-hdr { display:flex; align-items:center; justify-content:space-between; margin:26px 0 12px; }
-        .sec-hdr h3 { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; letter-spacing:1.5px; color:var(--text-pri); display:flex; align-items:center; gap:8px; }
-        .sec-hdr h3 span { color:var(--accent); font-size:16px; }
-        .sec-hdr a { font-size:12px; color:var(--accent); text-decoration:none; font-weight:600; }
-        .sec-hdr a:hover { text-decoration:underline; }
+        .sc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 16px 14px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 130px;
+            animation: fadeUp .45s both;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1),
+                        box-shadow .22s ease,
+                        border-color .22s ease;
+        }
 
-        .panel { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-        .dtbl { width:100%; border-collapse:collapse; font-size:13px; }
-        .dtbl thead tr { background:rgba(224,123,57,.06); }
-        .dtbl th { padding:11px 14px; text-align:left; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-sec); font-weight:700; border-bottom:1px solid var(--border); }
-        .dtbl td { padding:11px 14px; border-bottom:1px solid var(--border); color:var(--text-pri); vertical-align:middle; }
-        .dtbl tbody tr:last-child td { border-bottom:none; }
-        .dtbl tbody tr:hover td { background:rgba(224,123,57,.04); }
+        /* glowing top stripe */
+        .sc::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--sc-color, var(--accent));
+            border-radius: 14px 14px 0 0;
+            transition: height .22s ease;
+        }
 
-        .bdg { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+        /* subtle bottom glow blob */
+        .sc::before {
+            content: '';
+            position: absolute;
+            bottom: -30px; right: -20px;
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--sc-color, var(--accent)) 0%, transparent 70%);
+            opacity: .07;
+            transition: opacity .22s, transform .22s;
+            pointer-events: none;
+        }
+
+        /* dancing hover */
+        .sc:hover {
+            transform: translateY(-6px) scale(1.025);
+            box-shadow: 0 16px 36px rgba(0,0,0,.45), 0 0 0 1px var(--sc-color, var(--accent));
+            border-color: var(--sc-color, var(--accent));
+        }
+
+        .sc:hover::after { height: 5px; }
+        .sc:hover::before { opacity: .14; transform: scale(1.2); }
+
+        /* active press */
+        .sc:active { transform: translateY(-2px) scale(1.01); }
+
+        .sc-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            background: rgba(224,123,57,.1);
+            margin-bottom: 10px;
+            transition: transform .22s cubic-bezier(.34,1.56,.64,1);
+            flex-shrink: 0;
+        }
+
+        .sc:hover .sc-icon { transform: rotate(-8deg) scale(1.15); }
+
+        .sc-val {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-pri);
+            line-height: 1;
+            word-break: break-all;
+            /* shrink font for long rupee values */
+        }
+
+        /* auto-shrink for long values via JS class */
+        .sc-val.val-sm  { font-size: 20px; }
+        .sc-val.val-xs  { font-size: 16px; }
+
+        .sc-lbl {
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #e6edf3;
+            margin-top: 5px;
+            line-height: 1.3;
+        }
+
+        .sc-link {
+            display: inline-flex; align-items: center; gap: 4px;
+            margin-top: 10px;
+            font-size: 11px; font-weight: 700;
+            color: var(--sc-color, var(--accent));
+            text-decoration: none;
+            opacity: .65;
+            transition: opacity .18s, gap .18s;
+        }
+
+        .sc-link:hover { opacity: 1; gap: 7px; }
+
+        /* colour themes */
+        .c1{--sc-color:#e07b39} .c1 .sc-icon{background:rgba(224,123,57,.13)}
+        .c2{--sc-color:#f5c542} .c2 .sc-icon{background:rgba(245,197,66,.12)}
+        .c3{--sc-color:#22d3a4} .c3 .sc-icon{background:rgba(34,211,164,.12)}
+        .c4{--sc-color:#60a5fa} .c4 .sc-icon{background:rgba(96,165,250,.12)}
+        .c5{--sc-color:#a78bfa} .c5 .sc-icon{background:rgba(167,139,250,.12)}
+        .c6{--sc-color:#f472b6} .c6 .sc-icon{background:rgba(244,114,182,.12)}
+        .c7{--sc-color:#fb923c} .c7 .sc-icon{background:rgba(251,146,60,.12)}
+        .c8{--sc-color:#34d399} .c8 .sc-icon{background:rgba(52,211,153,.12)}
+        .c10{--sc-color:#f85149} .c10 .sc-icon{background:rgba(248,81,73,.12)}
+
+        /* ══ SECTION HEADER ══ */
+        .sec-hdr {
+            display: flex; align-items: center; justify-content: space-between;
+            margin: 26px 0 12px;
+            flex-wrap: wrap; gap: 6px;
+        }
+        .sec-hdr h3 {
+            font-family: 'Rajdhani', sans-serif; font-size: 17px; font-weight: 700;
+            letter-spacing: 1.5px; color: var(--text-pri);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .sec-hdr h3 span { color: var(--accent); font-size: 16px; }
+        .sec-hdr a { font-size: 12px; color: var(--accent); text-decoration: none; font-weight: 700; white-space: nowrap; transition: gap .18s; }
+        .sec-hdr a:hover { text-decoration: underline; }
+
+        /* ══ PANEL (card wrapper) ══ */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: box-shadow .22s ease, border-color .22s ease;
+        }
+        .panel:hover {
+            box-shadow: 0 8px 28px rgba(0,0,0,.35);
+            border-color: rgba(224,123,57,.22);
+        }
+
+        /* ══ TABLE ══ */
+        .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .tbl-scroll::-webkit-scrollbar { height: 4px; }
+        .tbl-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .dtbl { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 480px; }
+        .dtbl thead tr { background: rgba(224,123,57,.06); }
+        .dtbl th {
+            padding: 10px 12px; text-align: left;
+            font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+            color: var(--text-sec); font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .dtbl td {
+            padding: 10px 12px; border-bottom: 1px solid var(--border);
+            color: var(--text-pri); vertical-align: middle;
+            max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .dtbl td.amt { white-space: nowrap; max-width: none; }
+        .dtbl tbody tr:last-child td { border-bottom: none; }
+        .dtbl tbody tr {
+            transition: background .15s, transform .15s;
+        }
+        .dtbl tbody tr:hover td { background: rgba(224,123,57,.05); }
+
+        /* ══ BADGES ══ */
+        .bdg { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:20px; font-size:10.5px; font-weight:700; white-space:nowrap; }
         .bdg-paid    { background:rgba(34,211,164,.14); color:#22d3a4; }
         .bdg-pending { background:rgba(245,197,66,.14); color:#f5c542; }
         .bdg-unpaid  { background:rgba(248,81,73,.14);  color:#f85149; }
         .bdg-active  { background:rgba(34,211,164,.14); color:#22d3a4; }
 
-        .av { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#e07b39,#7c3510); display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
-        .name-cell { display:flex; align-items:center; gap:9px; }
+        /* ══ AVATAR ══ */
+        .av { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,#e07b39,#7c3510); display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; color:#fff; flex-shrink:0; }
+        .name-cell { display:flex; align-items:center; gap:9px; min-width:0; }
+        .name-cell span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-        .qlist { display:flex; flex-direction:column; }
-        .qlist-item { display:flex; align-items:center; justify-content:space-between; padding:11px 16px; border-bottom:1px solid var(--border); transition:background .15s; }
-        .qlist-item:last-child { border-bottom:none; }
-        .qlist-item:hover { background:rgba(224,123,57,.04); }
-        .qlist-left { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-pri); }
-        .qlist-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:rgba(224,123,57,.1); }
+        /* ══ QLIST (Labour / Advance / Salary panels) ══ */
+        .qlist { display: flex; flex-direction: column; }
+        .qlist-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 16px; border-bottom: 1px solid var(--border);
+            gap: 10px;
+            transition: background .15s, transform .18s cubic-bezier(.34,1.56,.64,1);
+        }
+        .qlist-item:last-child { border-bottom: none; }
+        .qlist-item:hover { background: rgba(224,123,57,.05); transform: translateX(3px); }
+        .qlist-left { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-pri); min-width:0; flex:1; }
+        .qlist-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; background:rgba(224,123,57,.1); flex-shrink:0; }
         .qlist-sub { font-size:11px; color:var(--text-sec); margin-top:2px; }
 
-        .two-col   { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-        .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
-        @@media(max-width:1100px){ .three-col{grid-template-columns:1fr 1fr;} }
-        @@media(max-width:900px) { .two-col,.three-col{grid-template-columns:1fr;} }
+        /* alert items */
+        .alert-item {
+            display:flex; align-items:center; gap:12px; padding:12px 16px;
+            border-bottom:1px solid var(--border);
+            transition: background .15s, transform .18s cubic-bezier(.34,1.56,.64,1);
+        }
+        .alert-item:last-child { border-bottom:none; }
+        .alert-item:hover { background:rgba(248,81,73,.04); transform:translateX(3px); }
+        .alert-info .an { font-size:13px; font-weight:600; color:var(--text-pri); }
+        .alert-info .am { font-size:11px; color:var(--text-sec); margin-top:2px; }
+
+        /* ══ RESPONSIVE GRID LAYOUTS ══ */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 18px;
+        }
+
+        @@media (max-width: 1200px) {
+            .three-col { grid-template-columns: 1fr 1fr; }
+        }
+
+        @@media (max-width: 860px) {
+            .two-col   { grid-template-columns: 1fr; }
+            .three-col { grid-template-columns: 1fr; }
+        }
+
+        @@media (max-width: 600px) {
+            .welcome-banner { padding: 16px 18px; }
+            .wb-left h2 { font-size: 20px; }
+            .sec-hdr { margin: 18px 0 10px; }
+        }
 
         .alert-item { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); transition:background .15s; }
         .alert-item:last-child { border-bottom:none; }
@@ -101,18 +288,23 @@
         .alert-info .an { font-size:13px; font-weight:600; color:var(--text-pri); }
         .alert-info .am { font-size:11px; color:var(--text-sec); margin-top:2px; }
 
-        @@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-        .sc:nth-child(1){animation-delay:.04s} .sc:nth-child(2){animation-delay:.08s}
-        .sc:nth-child(3){animation-delay:.12s} .sc:nth-child(4){animation-delay:.16s}
-        .sc:nth-child(5){animation-delay:.20s} .sc:nth-child(6){animation-delay:.24s}
-        .sc:nth-child(7){animation-delay:.28s} .sc:nth-child(8){animation-delay:.32s}
+        @@keyframes fadeUp {
+            from { opacity:0; transform:translateY(16px) scale(.97); }
+            to   { opacity:1; transform:translateY(0)    scale(1);   }
+        }
+        .sc:nth-child(1){animation-delay:.04s} .sc:nth-child(2){animation-delay:.09s}
+        .sc:nth-child(3){animation-delay:.14s} .sc:nth-child(4){animation-delay:.19s}
+        .sc:nth-child(5){animation-delay:.24s} .sc:nth-child(6){animation-delay:.29s}
+        .sc:nth-child(7){animation-delay:.34s} .sc:nth-child(8){animation-delay:.39s}
+        .sc:nth-child(9){animation-delay:.44s} .sc:nth-child(10){animation-delay:.49s}
+        .sc:nth-child(11){animation-delay:.54s}
     </style>
 }
 
 <!-- WELCOME BANNER -->
 <div class="welcome-banner">
     <div class="wb-left">
-        <h2>Hello, <span>@username</span> 👋</h2>
+        <h2><span data-i18n="dash.hello">Hello,</span> <span>@username</span> 👋</h2>
         <p data-i18n="dash.overview">Here's your Brick Factory overview</p>
     </div>
     <div class="wb-chips">
@@ -153,12 +345,12 @@
         <div class="sc-lbl" data-i18n="dash.customers">Customers</div>
         <a class="sc-link" href="/CustomerMaster/Index" data-i18n="dash.viewAll">View All →</a>
     </div>
-    <div class="sc c7">
+ @*    <div class="sc c7">
         <div class="sc-icon">💰</div>
         <div class="sc-val">@ViewBag.LabourLedgerCount</div>
         <div class="sc-lbl" data-i18n="dash.LabourLedgerReport">Labour Ledger Report</div>
         <a class="sc-link" href="/LabourLedgerReport/Index" data-i18n="dash.report">Report →</a>
-    </div>
+    </div> *@
     <div class="sc c8">
         <div class="sc-icon">🕒</div>
         <div class="sc-val">₹@(((decimal)ViewBag.PendingPayments).ToString("N0"))</div>
@@ -189,6 +381,12 @@
         <div class="sc-lbl" data-i18n="dash.Solidbricks">Solid bricks</div>
         <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
     </div>
+    <div class="sc c2">
+        <div class="sc-icon">🧱</div>
+        <div class="sc-val">@ViewBag.Brokenbricks</div>
+        <div class="sc-lbl" data-i18n="dash.Brokenbricks">Broken bricks</div>
+        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
+    </div>
 </div>
 
 <!-- ROW 1: Recent Sales + Recent Purchases -->
@@ -201,11 +399,12 @@
             <a href="/BrickSales/Index" data-i18n="dash.viewAll">View All →</a>
         </div>
         <div class="panel">
+            <div class="tbl-scroll">
             <table class="dtbl">
                 <thead>
                     <tr>
                         <th data-i18n="dash.col.customer">Customer</th>
-                        <th data-i18n="dash.col.bricksQty">Bricks (Qty)</th>
+                        <th data-i18n="dash.col.bricksQty">Qty</th>
                         <th data-i18n="dash.col.rate">Rate</th>
                         <th data-i18n="dash.col.amount">Amount</th>
                         <th data-i18n="dash.col.status">Status</th>
@@ -222,15 +421,16 @@
                         string st = pending == 0 ? "Paid"     : (paid > 0 ? "Partial"     : "Pending");
                         string ac = pending == 0 ? "#22d3a4"  : (paid > 0 ? "#f5c542"     : "#f85149");
                         <tr>
-                            <td><div class="name-cell"><div class="av">@initials</div> @cname</div></td>
+                            <td><div class="name-cell"><div class="av">@initials</div><span>@cname</span></div></td>
                             <td>@(((int)(s.Quantity ?? 0)).ToString("N0"))</td>
-                            <td>₹@(((decimal)(s.Rate ?? 0)).ToString("N2"))</td>
-                            <td style="color:@ac;font-weight:700;">₹@(((decimal)(s.TotalAmount ?? 0)).ToString("N2"))</td>
+                            <td class="amt">₹@(((decimal)(s.Rate ?? 0)).ToString("N2"))</td>
+                            <td class="amt" style="color:@ac;font-weight:700;">₹@(((decimal)(s.TotalAmount ?? 0)).ToString("N2"))</td>
                             <td><span class="bdg @sc">@st</span></td>
                         </tr>
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 
@@ -241,6 +441,7 @@
             <a href="/MaterialPurchase/Index" data-i18n="dash.viewAll">View All →</a>
         </div>
         <div class="panel">
+            <div class="tbl-scroll">
             <table class="dtbl">
                 <thead>
                     <tr>
@@ -261,15 +462,16 @@
                         string ps = ppend == 0 ? "bdg-paid" : (ppaid > 0 ? "bdg-pending" : "bdg-unpaid");
                         string pt = ppend == 0 ? "Paid"     : (ppaid > 0 ? "Partial"     : "Due");
                         <tr>
-                            <td><div class="name-cell"><div class="av">@vi</div> @vname</div></td>
+                            <td><div class="name-cell"><div class="av">@vi</div><span>@vname</span></div></td>
                             <td>@((string)(p.MaterialName ?? "—"))</td>
                             <td>@(((decimal)(p.Quantity ?? 0)).ToString("N0"))</td>
-                            <td style="color:#e07b39;font-weight:700;">₹@(((decimal)(p.TotalAmount ?? 0)).ToString("N2"))</td>
+                            <td class="amt" style="color:#e07b39;font-weight:700;">₹@(((decimal)(p.TotalAmount ?? 0)).ToString("N2"))</td>
                             <td><span class="bdg @ps">@pt</span></td>
                         </tr>
                     }
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -343,6 +545,7 @@
             <a href="/BrickProduction/Index" data-i18n="common.all">All →</a>
         </div>
         <div class="panel">
+            <div class="tbl-scroll">
             <table class="dtbl">
                 <thead>
                     <tr>
@@ -364,6 +567,7 @@
                     }
                 </tbody>
             </table>
+            </div>
         </div>
 
         <div class="sec-hdr" style="margin-top:18px;">
@@ -439,3 +643,26 @@
     </div>
 
 </div>
+
+@section Scripts {
+    <script>
+        /* Auto-shrink long stat values so they never overflow the card */
+        document.querySelectorAll('.sc-val').forEach(function(el) {
+            var len = el.textContent.trim().length;
+            if (len > 10) el.classList.add('val-xs');
+            else if (len > 7) el.classList.add('val-sm');
+        });
+
+        /* Double-click anywhere on a stat card → navigate to its link.
+           The existing single-click "Review →" link keeps working unchanged. */
+        document.querySelectorAll('.sc').forEach(function(card) {
+            var link = card.querySelector('.sc-link');
+            if (!link) return;
+            card.addEventListener('dblclick', function(e) {
+                /* If the actual link was double-clicked, let it behave normally */
+                if (e.target.closest('.sc-link')) return;
+                window.location.href = link.href;
+            });
+        });
+    </script>
+}

@@ -6,9 +6,6 @@
     bool isEdit = Model.AdvanceId > 0;
     int total = Model.AdvanceList.Count;
     decimal grandTotal = Model.AdvanceList.Sum(a => a.AdvanceAmount);
-
-    int pageSize = 8;
-    int pageCount = (int)Math.Ceiling((double)total / pageSize);
 }
 
 @section Styles {
@@ -83,8 +80,20 @@
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            /* FIX: allow the whole panel to scroll so footer is always reachable */
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
         }
+
+            .form-side::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .form-side::-webkit-scrollbar-thumb {
+                background: var(--border);
+                border-radius: 2px;
+            }
 
         .fs-header {
             padding: 14px 16px;
@@ -98,6 +107,10 @@
             gap: 7px;
             flex-shrink: 0;
             background: rgba(224,123,57,.05);
+            /* FIX: stick to top when panel scrolls */
+            position: sticky;
+            top: 0;
+            z-index: 2;
         }
 
             .fs-header.add-hdr {
@@ -110,22 +123,13 @@
 
         .fs-body {
             flex: 1;
-            overflow-y: auto;
             padding: 14px 16px;
             display: flex;
             flex-direction: column;
             gap: 12px;
-            scrollbar-width: thin;
+            /* FIX: no overflow here — parent panel scrolls */
+            overflow: visible;
         }
-
-            .fs-body::-webkit-scrollbar {
-                width: 4px;
-            }
-
-            .fs-body::-webkit-scrollbar-thumb {
-                background: var(--border);
-                border-radius: 2px;
-            }
 
         .fs-footer {
             padding: 13px 16px;
@@ -636,6 +640,7 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            flex-wrap: wrap;
         }
 
         .pg-btn {
@@ -652,13 +657,14 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: all .2s;
+            transition: all .18s;
             padding: 0 8px;
         }
 
-            .pg-btn:hover:not(:disabled) {
+            .pg-btn:hover:not(:disabled):not(.pg-dots) {
                 border-color: var(--accent);
                 color: var(--accent);
+                background: rgba(224,123,57,.07);
             }
 
             .pg-btn.active {
@@ -666,12 +672,46 @@
                 color: #fff;
                 border-color: var(--accent);
                 font-weight: 700;
+                box-shadow: 0 2px 8px rgba(224,123,57,.4);
             }
 
             .pg-btn:disabled {
-                opacity: .35;
+                opacity: .3;
                 cursor: not-allowed;
             }
+
+            .pg-btn.pg-dots {
+                border-color: transparent;
+                cursor: default;
+                color: var(--text-sec);
+                letter-spacing: 1px;
+            }
+
+        .pg-size-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-sec);
+        }
+
+            .pg-size-wrap select {
+                background: rgba(255,255,255,.04);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                color: var(--text-pri);
+                font-size: 11px;
+                font-family: 'Nunito', sans-serif;
+                padding: 4px 8px;
+                outline: none;
+                cursor: pointer;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+
+                .pg-size-wrap select:focus {
+                    border-color: var(--accent);
+                }
 
         /* DELETE MODAL */
         .del-overlay {
@@ -766,11 +806,11 @@
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
             <div class="page-ttl" data-i18n="nav.labourAdvance">💰 Labour Advance</div>
             <div class="achips-left">
-                <div class="achip">Records <strong>@total</strong></div>
-                <div class="achip">Total Disbursed <strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
+                <div class="achip"><span data-i18n="advance.records">Records</span> <strong>@total</strong></div>
+                <div class="achip"><span data-i18n="advance.totalDisbursed">Total Disbursed</span> <strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
             </div>
         </div>
-        <div style="font-size:11px;color:var(--text-sec);">@DateTime.Now.ToString("dddd, dd MMM yyyy")</div>
+        <div id="localeDateDisplay" style="font-size:11px;color:var(--text-sec);"></div>
     </div>
 
     <!-- SPLIT LAYOUT -->
@@ -784,11 +824,11 @@
 
             @if (TempData["Success"] != null)
             {
-                <div class="alert alert-success">✅ @TempData["Success"]</div>
+                <div class="alert alert-success" id="advAlert">✅ @TempData["Success"]</div>
             }
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-danger">⚠️ @TempData["Error"]</div>
+                <div class="alert alert-danger" id="advAlert">⚠️ @TempData["Error"]</div>
             }
 
             <form asp-action="Save" asp-controller="LabourAdvance" method="post" novalidate id="advForm">
@@ -878,13 +918,13 @@
                 <div class="ts-title" data-i18n="advance.advanceRecords">Advance Records</div>
                 <div class="search-wrap">
                     <span class="search-si">🔍</span>
-                    <input type="text" id="searchInput" placeholder="Search by labour or type…" oninput="filterTable()" />
+                    <input type="text" id="searchInput" data-i18n-placeholder="advance.search" placeholder="Search by labour or type…" oninput="filterTable()" />
                 </div>
             </div>
 
             <div class="ts-summary">
-                <div class="schip">Total Records &nbsp;<strong>@total</strong></div>
-                <div class="schip">Total Disbursed &nbsp;<strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
+                <div class="schip"><span data-i18n="advance.totalRecords">Total Records</span> &nbsp;<strong>@total</strong></div>
+                <div class="schip"><span data-i18n="advance.totalDisbursed">Total Disbursed</span> &nbsp;<strong style="color:var(--accent);">₹@grandTotal.ToString("N2")</strong></div>
             </div>
 
             <div class="ts-body">
@@ -954,29 +994,24 @@
                 }
             </div>
 
-            <!-- ══ PAGINATION (matches MaterialPurchase style) ══ -->
+            <!-- ══ PAGINATION (MaterialPurchase style) ══ -->
             @if (Model.AdvanceList.Any())
             {
                 <div class="ts-pagination">
                     <div class="pg-info">
-                        Showing <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, total)</span>
-                        of <span>@total</span> records
+                        Showing <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(5, total)</span>
+                        of <span id="pgTotal">@total</span> records
                     </div>
-                    <div class="pg-btns">
-                        <button class="pg-btn" id="pgPrev" onclick="changePage(currentPage - 1)" disabled>&#8249;</button>
-                        @for (int i = 0; i < pageCount; i++)
-                        {
-                            <button class="pg-btn @(i == 0 ? "active" : "")"
-                                    id="pgBtn@(i)"
-                                    onclick="changePage(@i)">
-                                @(i + 1)
-                            </button>
-                        }
-                        <button class="pg-btn" id="pgNext"
-                                onclick="changePage(currentPage + 1)"
-                                @(pageCount <= 1 ? "disabled" : "")>
-                            &#8250;
-                        </button>
+                    <div class="pg-btns" id="pgBtns"></div>
+                    <div class="pg-size-wrap">
+                        Rows:
+                        <select id="pgSizeSelect" onchange="changePageSize(+this.value)">
+                            <option value="5" selected>5</option>
+                            <option value="8">8</option>
+                            <option value="15">15</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
                     </div>
                 </div>
             }
@@ -1007,46 +1042,76 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const PAGE_SIZE  = @pageSize;
         const TOTAL_ROWS = @total;
-        const PAGE_COUNT = @pageCount;
-        let currentPage  = 0;
-        let isSearching  = false;
+        let pageSize    = 5;
+        let currentPage = 0;
+        let isSearching = false;
 
-        /* ── Assign page numbers ── */
-        (function assignPages() {
-            const rows = Array.from(document.querySelectorAll('#advBody tr'));
-            rows.forEach((r, i) => { r.dataset.page = Math.floor(i / PAGE_SIZE); });
-        })();
+        function getPageCount() { return Math.max(1, Math.ceil(TOTAL_ROWS / pageSize)); }
+
+        function assignPages() {
+            document.querySelectorAll('#advBody tr').forEach((r, i) => {
+                r.dataset.page = Math.floor(i / pageSize);
+            });
+        }
+
+        function renderPagination() {
+            const pc  = getPageCount();
+            const box = document.getElementById('pgBtns');
+            box.innerHTML = '';
+
+            function btn(label, page, cls) {
+                const b = document.createElement('button');
+                b.className = 'pg-btn' + (cls ? ' ' + cls : '');
+                b.innerHTML = label;
+                if (page !== null) b.onclick = () => changePage(page);
+                else b.disabled = true;
+                return b;
+            }
+
+            const prev = btn('&#8249;', currentPage - 1);
+            prev.disabled = currentPage === 0;
+            box.appendChild(prev);
+
+            /* sliding window: always show first, last, and ±2 around current */
+            const show = new Set([0, pc - 1]);
+            for (let i = Math.max(0, currentPage - 2); i <= Math.min(pc - 1, currentPage + 2); i++) show.add(i);
+            let prev_p = -1;
+            [...show].sort((a, b) => a - b).forEach(p => {
+                if (p - prev_p > 1) box.appendChild(btn('…', null, 'pg-dots'));
+                box.appendChild(btn(p + 1, p, p === currentPage ? 'active' : ''));
+                prev_p = p;
+            });
+
+            const next = btn('&#8250;', currentPage + 1);
+            next.disabled = currentPage >= pc - 1;
+            box.appendChild(next);
+        }
 
         function showPage(p) {
-            if (isSearching) return;
             currentPage = p;
-            const rows = Array.from(document.querySelectorAll('#advBody tr'));
-            rows.forEach(r => r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p));
-
-            const from = p * PAGE_SIZE + 1;
-            const to   = Math.min((p + 1) * PAGE_SIZE, TOTAL_ROWS);
-            const fromEl = document.getElementById('pgFrom');
-            const toEl   = document.getElementById('pgTo');
-            if (fromEl) fromEl.textContent = from;
-            if (toEl)   toEl.textContent   = to;
-
-            for (let i = 0; i < PAGE_COUNT; i++) {
-                const btn = document.getElementById('pgBtn' + i);
-                if (btn) btn.classList.toggle('active', i === p);
-            }
-            const prevBtn = document.getElementById('pgPrev');
-            const nextBtn = document.getElementById('pgNext');
-            if (prevBtn) prevBtn.disabled = (p === 0);
-            if (nextBtn) nextBtn.disabled = (p >= PAGE_COUNT - 1);
+            document.querySelectorAll('#advBody tr').forEach(r => {
+                r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p);
+            });
+            document.getElementById('pgFrom').textContent  = p * pageSize + 1;
+            document.getElementById('pgTo').textContent    = Math.min((p + 1) * pageSize, TOTAL_ROWS);
+            document.getElementById('pgTotal').textContent = TOTAL_ROWS;
+            renderPagination();
         }
 
         function changePage(p) {
-            if (p < 0 || p >= PAGE_COUNT) return;
+            if (p < 0 || p >= getPageCount()) return;
             showPage(p);
         }
 
+        function changePageSize(val) {
+            pageSize = val;
+            currentPage = 0;
+            assignPages();
+            showPage(0);
+        }
+
+        assignPages();
         if (TOTAL_ROWS > 0) showPage(0);
 
         /* ── FETCH LABOUR TOTAL (AJAX) ── */
@@ -1072,6 +1137,35 @@
         })();
 
         /* ── RESET ── */
+        /* ── Auto-dismiss success/error alert after 3 seconds ── */
+        (function () {
+            var alertBox = document.getElementById('advAlert');
+            if (alertBox) {
+                setTimeout(function () {
+                    alertBox.style.transition = 'opacity .5s ease';
+                    alertBox.style.opacity = '0';
+                    setTimeout(function () { alertBox.remove(); }, 500);
+                }, 3000);
+            }
+        })();
+
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('advForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
+
         function resetForm() {
             document.getElementById('advForm').reset();
             document.getElementById('labourPreview').classList.remove('show');
@@ -1086,7 +1180,8 @@
             isSearching = q.length > 0;
 
             if (!isSearching) {
-                showPage(currentPage);
+                assignPages();
+                showPage(0);
                 document.getElementById('noSearch').style.display = 'none';
                 return;
             }
@@ -1099,6 +1194,10 @@
                 if (match) vis++;
             });
             document.getElementById('noSearch').style.display = vis === 0 ? 'block' : 'none';
+            document.getElementById('pgFrom').textContent  = vis > 0 ? 1 : 0;
+            document.getElementById('pgTo').textContent    = vis;
+            document.getElementById('pgTotal').textContent = vis;
+            document.getElementById('pgBtns').innerHTML    = '';
         }
 
         /* ── DELETE MODAL ── */
@@ -1117,9 +1216,31 @@
         /* ── SCROLL EDITING ROW INTO VIEW ── */
         const editRow = document.querySelector('.editing-row');
         if (editRow) {
-            const editPage = parseInt(editRow.dataset.page) || 0;
-            showPage(editPage);
+            changePage(parseInt(editRow.dataset.page) || 0);
             setTimeout(() => editRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
+
+        /* ── LOCALE DATE DISPLAY ── */
+        (function renderLocaleDate() {
+            const lang = localStorage.getItem('brickErpLang') || 'en';
+            const locale = lang === 'mr' ? 'mr-IN' : 'en-IN';
+            const el = document.getElementById('localeDateDisplay');
+            if (el) {
+                el.textContent = new Date().toLocaleDateString(locale, {
+                    weekday: 'long', day: '2-digit', month: 'short', year: 'numeric'
+                });
+            }
+        })();
+
+        /* Re-render date when language changes */
+        document.addEventListener('brickErpLangChanged', function(e) {
+            const locale = e.detail === 'mr' ? 'mr-IN' : 'en-IN';
+            const el = document.getElementById('localeDateDisplay');
+            if (el) {
+                el.textContent = new Date().toLocaleDateString(locale, {
+                    weekday: 'long', day: '2-digit', month: 'short', year: 'numeric'
+                });
+            }
+        });
     </script>
 }

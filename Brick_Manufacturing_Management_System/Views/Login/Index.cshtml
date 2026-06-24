@@ -50,7 +50,10 @@
                 content: '';
                 position: absolute;
                 inset: 0;
-                background: radial-gradient(ellipse 60% 50% at 80% 20%, rgba(224,123,57,0.08) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 10% 80%, rgba(224,123,57,0.05) 0%, transparent 55%);
+                background: radial-gradient(ellipse 55% 45% at 78% 18%, rgba(224,123,57,0.16) 0%, transparent 60%),
+                            radial-gradient(ellipse 45% 45% at 12% 82%, rgba(96,165,250,0.08) 0%, transparent 58%),
+                            radial-gradient(ellipse 40% 40% at 50% 50%, rgba(224,123,57,0.05) 0%, transparent 60%);
+                animation: bgPulse 12s ease-in-out infinite;
             }
 
             /* brick grid pattern */
@@ -58,10 +61,15 @@
                 content: '';
                 position: absolute;
                 inset: 0;
-                background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+                background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
                 background-size: 40px 20px;
                 mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
             }
+
+        @@keyframes bgPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: .75; transform: scale(1.05); }
+        }
 
         .floating-brick {
             position: absolute;
@@ -70,27 +78,11 @@
             animation: floatUp 8s infinite ease-in;
         }
 
-        keyframes floatUp {
-            0%
-
-        {
-            opacity: 0;
-            transform: translateY(0) rotate(0deg);
-        }
-
-        10% {
-            opacity: 0.15;
-        }
-
-        90% {
-            opacity: 0.05;
-        }
-
-        100% {
-            opacity: 0;
-            transform: translateY(-120vh) rotate(180deg);
-        }
-
+        @@keyframes floatUp {
+            0%   { opacity: 0;    transform: translateY(0) rotate(0deg); }
+            10%  { opacity: 0.18; }
+            90%  { opacity: 0.06; }
+            100% { opacity: 0;    transform: translateY(-120vh) rotate(180deg); }
         }
 
         /* ── center layout ── */
@@ -106,29 +98,44 @@
 
         /* ── card ── */
         .login-card {
+            position: relative;
             width: 100%;
             max-width: 420px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            background: linear-gradient(160deg, rgba(28,33,40,0.92) 0%, rgba(18,22,28,0.95) 100%);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
             padding: 36px 32px 32px;
-            box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(224,123,57,0.06);
-            animation: cardIn .5s cubic-bezier(.22,.68,0,1.2) both;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(224,123,57,0.05);
+            animation: cardIn .55s cubic-bezier(.22,.68,0,1.2) both;
         }
 
-        keyframes cardIn {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(24px) scale(0.97);
+        /* animated gradient glow border */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 20px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(224,123,57,0.6), rgba(224,123,57,0) 40%, rgba(224,123,57,0) 60%, rgba(240,160,96,0.5));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: .8;
+            animation: borderGlow 6s linear infinite;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        @@keyframes borderGlow {
+            0%   { filter: hue-rotate(0deg);   opacity: .55; }
+            50%  { opacity: .9; }
+            100% { filter: hue-rotate(0deg);   opacity: .55; }
         }
 
+        @@keyframes cardIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         /* ── brand ── */
@@ -140,16 +147,28 @@
         }
 
         .brand-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #e07b39, #b85a1e);
-            border-radius: 10px;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #f0a060, #e07b39 45%, #b85a1e);
+            background-size: 200% 200%;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 4px 16px rgba(224,123,57,0.4);
+            font-size: 23px;
+            box-shadow: 0 6px 20px rgba(224,123,57,0.45);
             flex-shrink: 0;
+            animation: iconShimmer 5s ease infinite, iconFloat 4s ease-in-out infinite;
+        }
+
+        @@keyframes iconShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50%      { background-position: 100% 50%; }
+        }
+
+        @@keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-4px); }
         }
 
         .brand-text {
@@ -172,10 +191,14 @@
         /* ── heading ── */
         .login-heading {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 700;
-            color: var(--text-pri);
+            background: linear-gradient(90deg, #ffffff 0%, #f0a060 60%, #e07b39 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 4px;
+            letter-spacing: .5px;
         }
 
         .login-sub {
@@ -223,16 +246,16 @@
 
         .form-input {
             width: 100%;
-            background: var(--bg-dark);
+            background: rgba(13,17,23,0.7);
             border: 1px solid var(--border);
-            border-radius: 9px;
-            padding: 11px 14px 11px 40px;
+            border-radius: 10px;
+            padding: 12px 14px 12px 40px;
             color: var(--text-pri);
             font-family: 'Nunito', sans-serif;
             font-size: 14px;
             font-weight: 500;
             outline: none;
-            transition: border-color .2s, box-shadow .2s;
+            transition: border-color .2s, box-shadow .2s, background .2s;
         }
 
             .form-input::placeholder {
@@ -241,7 +264,8 @@
 
             .form-input:focus {
                 border-color: var(--accent);
-                box-shadow: 0 0 0 3px rgba(224,123,57,0.12);
+                background: rgba(224,123,57,0.05);
+                box-shadow: 0 0 0 3px rgba(224,123,57,0.15);
             }
 
                 .form-input:focus + .input-icon,
@@ -311,11 +335,14 @@
 
         /* ── submit ── */
         .btn-login {
+            position: relative;
+            overflow: hidden;
             width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #e07b39, #c96820);
+            padding: 14px;
+            background: linear-gradient(135deg, #f0a060, #e07b39 50%, #c96820);
+            background-size: 200% 200%;
             border: none;
-            border-radius: 10px;
+            border-radius: 11px;
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
             font-size: 16px;
@@ -326,18 +353,35 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: opacity .2s, transform .15s, box-shadow .2s;
-            box-shadow: 0 4px 20px rgba(224,123,57,0.3);
+            transition: transform .15s, box-shadow .25s, background-position .4s;
+            box-shadow: 0 6px 22px rgba(224,123,57,0.35);
         }
 
-            .btn-login:hover {
-                opacity: 0.92;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 28px rgba(224,123,57,0.45);
+            /* shine sweep */
+            .btn-login::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: -120%;
+                width: 60%;
+                height: 100%;
+                background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+                transform: skewX(-20deg);
+                transition: left .55s ease;
             }
 
+            .btn-login:hover {
+                transform: translateY(-2px);
+                background-position: 100% 50%;
+                box-shadow: 0 10px 32px rgba(224,123,57,0.55);
+            }
+
+                .btn-login:hover::after {
+                    left: 130%;
+                }
+
             .btn-login:active {
-                transform: translateY(0);
+                transform: translateY(0) scale(.99);
             }
 
             .btn-login.loading {
@@ -355,13 +399,8 @@
             animation: spin .7s linear infinite;
         }
 
-        keyframes spin {
-            to
-
-        {
-            transform: rotate(360deg);
-        }
-
+        @@keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* ── server error banner ── */
@@ -450,14 +489,6 @@
                         <button type="button" class="pw-toggle" onclick="togglePw()" title="Show/Hide password">👁</button>
                     </div>
                     <div class="field-error" id="err-password">Please enter your password.</div>
-                </div>
-
-                <!-- Remember me -->
-                <div class="form-row">
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="RememberMe" />
-                        Remember me
-                    </label>
                 </div>
 
                 <!-- Submit -->

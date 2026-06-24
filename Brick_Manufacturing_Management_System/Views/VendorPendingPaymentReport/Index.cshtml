@@ -489,10 +489,10 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>VENDOR PENDING PAYMENT REPORT</h2>
+    <h2 data-i18n="vpendrpt.title">VENDOR PENDING PAYMENT REPORT</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        <span>Track outstanding and partially paid vendor balances</span>
+        <span data-i18n="vpendrpt.subtitle">Track outstanding and partially paid vendor balances</span>
     </p>
 </div>
 
@@ -501,35 +501,35 @@
     <div class="stat-card">
         <div class="stat-icon orange">🏭</div>
         <div class="stat-info">
-            <p>Vendors Due</p>
+            <p data-i18n="vpendrpt.statVendorsDue">Vendors Due</p>
             <h3>@totalCount</h3>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon red">⚠️</div>
         <div class="stat-info">
-            <p>Fully Pending</p>
+            <p data-i18n="vpendrpt.statPending">Fully Pending</p>
             <h3>@pendingCount</h3>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon amber">🕐</div>
         <div class="stat-info">
-            <p>Partial</p>
+            <p data-i18n="vpendrpt.statPartial">Partial</p>
             <h3>@partialCount</h3>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon green">💰</div>
         <div class="stat-info">
-            <p>Total Paid</p>
+            <p data-i18n="vpendrpt.statTotalPaid">Total Paid</p>
             <h3>₹@totalPaid.ToString("N0")</h3>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon purple">📄</div>
         <div class="stat-info">
-            <p>Total Outstanding</p>
+            <p data-i18n="vpendrpt.statOutstanding">Total Outstanding</p>
             <h3>₹@totalDue.ToString("N0")</h3>
         </div>
     </div>
@@ -541,8 +541,8 @@
         <div class="tc-hdr-left">
             <div class="tc-hdr-icon">🏭</div>
             <div>
-                <h3>Vendor Outstanding Payments</h3>
-                <p>Vendors with pending or partial balance</p>
+                <h3 data-i18n="vpendrpt.tableTitle">Vendor Outstanding Payments</h3>
+                <p data-i18n="vpendrpt.tableSub">Vendors with pending or partial balance</p>
             </div>
         </div>
         <span class="tc-badge">@totalCount Record@(totalCount != 1 ? "s" : "")</span>
@@ -554,6 +554,7 @@
             <span class="sw-icon">🔍</span>
             <input type="text" id="searchInput"
                    placeholder="Search by vendor name…"
+                   data-i18n-placeholder="vpendrpt.search"
                    oninput="onSearch()" />
         </div>
     </div>
@@ -565,12 +566,12 @@
                 <thead>
                     <tr>
                         <th style="width:50px;">#</th>
-                        <th>Vendor</th>
-                        <th>Total Purchase</th>
-                        <th>Paid</th>
-                        <th>Remaining</th>
-                        <th style="min-width:140px;">Progress</th>
-                        <th>Status</th>
+                        <th data-i18n="vpendrpt.col.vendor">Vendor</th>
+                        <th data-i18n="vpendrpt.col.totalPurchase">Total Purchase</th>
+                        <th data-i18n="vpendrpt.col.paid">Paid</th>
+                        <th data-i18n="vpendrpt.col.remaining">Remaining</th>
+                        <th style="min-width:140px;" data-i18n="vpendrpt.col.progress">Progress</th>
+                        <th data-i18n="vpendrpt.col.status">Status</th>
                     </tr>
                 </thead>
                 <tbody id="reportBody">

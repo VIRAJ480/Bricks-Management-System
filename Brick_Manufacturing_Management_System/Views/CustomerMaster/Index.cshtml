@@ -788,10 +788,10 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>CUSTOMER MASTER</h2>
+    <h2 data-i18n="customer.title">CUSTOMER MASTER</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Manage all registered customers
+        <span data-i18n="customer.subtitle">Manage all registered customers</span>
     </p>
 </div>
 
@@ -807,7 +807,7 @@
                 <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "customer.editCustomer" : "customer.addCustomer")'>
                     @(isEdit ? "EDIT CUSTOMER" : "ADD CUSTOMER")
                 </h3>
-                <p>@(isEdit ? "Update customer details" : "Register a new customer")</p>
+                <p data-i18n='@(isEdit ? "customer.editSub" : "customer.newSub")'>@(isEdit ? "Update customer details" : "Register a new customer")</p>
             </div>
         </div>
 
@@ -819,7 +819,7 @@
 
             <div class="fc-body">
 
-                <div class="form-sec-lbl" data-i18n="purchase.pricing">👤 Customer Details</div>
+                <div class="form-sec-lbl" data-i18n="customer.detailsLbl">👤 Customer Details</div>
 
                 <!-- Customer Name -->
                 <div class="fg">
@@ -833,7 +833,7 @@
 
                 <!-- Mobile Number -->
                 <div class="fg">
-                    <label data-i18n="form.mobileNumber">Mobile Number</label>
+                    <label data-i18n="form.mobileNumber">Mobile Number *</label>
                     <input asp-for="MobileNumber"
                            placeholder="9876543210"
                            maxlength="15"
@@ -877,20 +877,20 @@
                 <div class="tc-hdr-icon">👤</div>
                 <div>
                     <h3 data-i18n="customer.customerList">Customer List</h3>
-                    <p>All registered customers</p>
+                    <p data-i18n="customer.listSub">All registered customers</p>
                 </div>
             </div>
             <span class="tc-badge">@totalRec Customer@(totalRec != 1 ? "s" : "")</span>
         </div>
 
         <div class="tc-chips">
-            <div class="rchip">Total Customers &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong></div>
+            <div class="rchip"><span data-i18n="customer.totalCustomers">Total Customers</span> &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong></div>
         </div>
 
         <div class="tc-search">
             <div class="sw">
                 <i class="fas fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Search by name or mobile…" oninput="filterTable()" />
+                <input type="text" id="searchInput" data-i18n-placeholder="customer.search" placeholder="Search by customer name…" oninput="filterTable()" />
             </div>
         </div>
 
@@ -1084,6 +1084,23 @@
         if (TOTAL_ROWS > 0) showPage(0);
 
         /* ── Reset form ── */
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('custForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
+
         function resetForm() {
             document.getElementById('custForm').reset();
             document.querySelectorAll('.verr').forEach(e => e.classList.remove('show'));

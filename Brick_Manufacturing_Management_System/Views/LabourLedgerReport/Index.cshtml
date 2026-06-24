@@ -572,10 +572,10 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>LABOUR LEDGER REPORT</h2>
+    <h2 data-i18n="nav.labourLedger">LABOUR LEDGER REPORT</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Advance &amp; salary summary for a selected labour over a date range
+        <span data-i18n="ledger.subtitle">Advance &amp; salary summary for a selected labour over a date range</span>
     </p>
 </div>
 
@@ -586,8 +586,8 @@
         <div class="fc-hdr">
             <div class="fc-hdr-icon">📋</div>
             <div>
-                <h3>FILTER</h3>
-                <p>Select labour &amp; date range</p>
+                <h3 data-i18n="ledger.filterTitle">FILTER</h3>
+                <p data-i18n="ledger.filterSub">Select labour &amp; date range</p>
             </div>
         </div>
 
@@ -598,7 +598,7 @@
 
                 <!-- Labour -->
                 <div class="fg">
-                    <label>Labour *</label>
+                    <label data-i18n="form.labour">Labour *</label>
                     <div class="select-wrap">
                         <select asp-for="LabourId"
                                 asp-items="Model.LabourOptions"
@@ -614,7 +614,7 @@
 
                 <!-- From Date -->
                 <div class="fg">
-                    <label>From Date *</label>
+                    <label data-i18n="ledger.fromDate">From Date *</label>
                     <input asp-for="FromDate"
                            type="date"
                            value="@Model.FromDate?.ToString("yyyy-MM-dd")"
@@ -627,7 +627,7 @@
 
                 <!-- To Date -->
                 <div class="fg">
-                    <label>To Date *</label>
+                    <label data-i18n="ledger.toDate">To Date *</label>
                     <input asp-for="ToDate"
                            type="date"
                            value="@Model.ToDate?.ToString("yyyy-MM-dd")"
@@ -638,7 +638,7 @@
                     }
                 </div>
 
-                <button type="submit" class="btn-show">
+                <button type="submit" class="btn-show" data-i18n="ledger.showReport">
                     🔍 Show Report
                 </button>
 
@@ -654,9 +654,8 @@
             <!-- ── Idle: form not yet submitted ── -->
             <div class="idle-state">
                 <span class="idle-icon">📊</span>
-                <h4>No Report Yet</h4>
-                Select a labour and date range,<br />
-                then click <strong style="color:var(--accent);">Show Report</strong>.
+                <h4 data-i18n="ledger.noReport">No Report Yet</h4>
+                <span data-i18n="ledger.noReportHint">Select a labour and date range, then click Show Report.</span>
             </div>
         }
         else if (Model.Result == null)
@@ -666,7 +665,7 @@
                 <div class="rc-hdr-left">
                     <div class="rc-hdr-icon">📊</div>
                     <div>
-                        <h3>Labour Ledger</h3>
+                        <h3 data-i18n="ledger.labourLedger">Labour Ledger</h3>
                         <p>
                             <span class="date-chip">
                                 📅 <strong>@Model.FromDate?.ToString("dd MMM yyyy")</strong>
@@ -679,7 +678,7 @@
             </div>
             <div class="no-data">
                 <span class="nd-icon">🔍</span>
-                No records found for the selected labour and date range.
+                <span data-i18n="ledger.noData">No records found for the selected labour and date range.</span>
             </div>
         }
         else
@@ -710,8 +709,8 @@
             </div>
 
             <!-- Print-only header (hidden on screen) -->
-            <div id="printHeader" style="display:none;">
-                Jyotirling Bricks Suppliers — Labour Ledger Report
+            <div id="printHeader" style="display:none;" data-i18n="ledger.printHeader">
+                ज्योतिर्लिंग विट सप्लायर्स — कामगार खातेवही अहवाल
             </div>
             <div id="printHeaderBar" style="display:none;"></div>
 
@@ -721,41 +720,41 @@
                 <div class="section-block">
                     <div class="sec-hdr advance">
                         <div class="sec-hdr-dot blue"></div>
-                        <span>ADVANCE SECTION</span>
+                        <span data-i18n="ledger.advSection">ADVANCE SECTION</span>
                     </div>
                     <div class="ledger-rows">
 
                         <div class="lr">
                             <div class="lr-label">
-                                <span class="lr-icon">💼</span> Initial Advance
+                                <span class="lr-icon">💼</span> <span data-i18n="ledger.initialAdv">Initial Advance</span>
                             </div>
                             <div class="lr-value val-blue">₹@r.InitialAdvance.ToString("N2")</div>
                         </div>
 
                         <div class="lr">
                             <div class="lr-label">
-                                <span class="lr-icon">➕</span> Additional Advance
+                                <span class="lr-icon">➕</span> <span data-i18n="ledger.additionalAdv">Additional Advance</span>
                             </div>
                             <div class="lr-value val-blue">₹@r.AdditionalAdvance.ToString("N2")</div>
                         </div>
 
                         <div class="lr divider">
                             <div class="lr-label">
-                                <span class="lr-icon">🟰</span> Total Advance
+                                <span class="lr-icon">🟰</span> <span data-i18n="ledger.totalAdv">Total Advance</span>
                             </div>
                             <div class="lr-value val-accent">₹@r.TotalAdvance.ToString("N2")</div>
                         </div>
 
                         <div class="lr">
                             <div class="lr-label">
-                                <span class="lr-icon">➖</span> Deduction
+                                <span class="lr-icon">➖</span> <span data-i18n="ledger.deduction">Deduction</span>
                             </div>
                             <div class="lr-value val-red">₹@r.TotalDeduction.ToString("N2")</div>
                         </div>
 
                         <div class="lr divider">
                             <div class="lr-label">
-                                <span class="lr-icon">💰</span> Advance Balance
+                                <span class="lr-icon">💰</span> <span data-i18n="ledger.advBalance">Advance Balance</span>
                             </div>
                             <div class="lr-value @(r.AdvanceBalance > 0 ? "val-yellow" : "val-green")">
                                 ₹@r.AdvanceBalance.ToString("N2")
@@ -769,27 +768,27 @@
                 <div class="section-block">
                     <div class="sec-hdr salary">
                         <div class="sec-hdr-dot green"></div>
-                        <span>SALARY SECTION</span>
+                        <span data-i18n="ledger.salSection">SALARY SECTION</span>
                     </div>
                     <div class="ledger-rows">
 
                         <div class="lr">
                             <div class="lr-label">
-                                <span class="lr-icon">🛠️</span> Salary Earned
+                                <span class="lr-icon">🛠️</span> <span data-i18n="ledger.salaryEarned">Salary Earned</span>
                             </div>
                             <div class="lr-value val-green">₹@r.SalaryEarned.ToString("N2")</div>
                         </div>
 
                         <div class="lr">
                             <div class="lr-label">
-                                <span class="lr-icon">📉</span> Expense
+                                <span class="lr-icon">📉</span> <span data-i18n="ledger.expense">Expense</span>
                             </div>
                             <div class="lr-value val-red">₹@r.TotalExpense.ToString("N2")</div>
                         </div>
 
                         <div class="lr divider">
                             <div class="lr-label">
-                                <span class="lr-icon">🟰</span> Final Salary
+                                <span class="lr-icon">🟰</span> <span data-i18n="ledger.finalSalary">Final Salary</span>
                             </div>
                             <div class="lr-value @(r.FinalSalary >= 0 ? "val-accent" : "val-red")">
                                 ₹@r.FinalSalary.ToString("N2")
@@ -798,7 +797,7 @@
 
                         <div class="lr divider">
                             <div class="lr-label">
-                                <span class="lr-icon">✅</span> Paid Amount
+                                <span class="lr-icon">✅</span> <span data-i18n="ledger.paidAmount">Paid Amount</span>
                             </div>
                             <div class="lr-value val-green">₹@r.PaidAmount.ToString("N2")</div>
                         </div>
@@ -816,4 +815,22 @@
 </div><!-- /split -->
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('filterForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
+    </script>
 }

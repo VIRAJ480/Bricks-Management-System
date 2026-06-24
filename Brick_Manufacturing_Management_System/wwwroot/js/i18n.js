@@ -25,6 +25,10 @@ const TRANSLATIONS = {
     "topbar.todayBricks":   { en: "Today's Bricks",         mr: "आजच्या विटा" },
     "topbar.pendingAmt":    { en: "Pending Amt",            mr: "बाकी रक्कम" },
     "topbar.logout":        { en: "↩ Logout",               mr: "↩ बाहेर पडा" },
+    "logout.title":         { en: "Log out?",               mr: "बाहेर पडायचे?" },
+    "logout.message":       { en: "Are you sure you want to log out of your account?", mr: "तुम्हाला खात्यातून बाहेर पडायचे आहे का?" },
+    "logout.no":            { en: "No",                     mr: "नाही" },
+    "logout.yes":           { en: "Yes, Logout",            mr: "होय, बाहेर पडा" },
     "lang.label":           { en: "🌐 Language",            mr: "🌐 भाषा" },
 
     // ── SIDEBAR GROUP LABELS ─────────────────────────────────

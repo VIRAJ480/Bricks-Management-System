@@ -796,7 +796,7 @@
                     <h2 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "work.editEntry" : "work.workEntry")'>
                         @(isEdit ? "EDIT ENTRY" : "WORK ENTRY")
                     </h2>
-                    <p>@(isEdit ? "Update work record" : "Record labour work days")</p>
+                    <p data-i18n='@(isEdit ? "work.editSub" : "work.newSub")'>@(isEdit ? "Update work record" : "Record labour work days")</p>
                 </div>
             </div>
         </div>
@@ -898,15 +898,15 @@
                 <div class="rp-icon">👷</div>
                 <div>
                     <h2 data-i18n="work.workRecords">WORK RECORDS</h2>
-                    <p>All labour work entries</p>
+                    <p data-i18n="work.listSub">All labour work entries</p>
                 </div>
             </div>
             <div class="rec-badge">@totalRec Records</div>
         </div>
 
         <div class="rp-chips">
-            <div class="rchip">Entries &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong></div>
-            <div class="rchip">Total Salary &nbsp;<strong style="color:#e07b39;">₹@totalSal.ToString("N2")</strong></div>
+            <div class="rchip"><span data-i18n="work.entries">Entries</span> &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong></div>
+            <div class="rchip"><span data-i18n="work.totalSalaryChip">Total Salary</span> &nbsp;<strong style="color:#e07b39;">₹@totalSal.ToString("N2")</strong></div>
         </div>
 
         <div class="rp-search">
@@ -980,9 +980,7 @@
                     </tbody>
                     <tfoot>
                         <tr class="tbl-summary">
-                            <td colspan="5" style="color:var(--text-sec);font-size:11px;letter-spacing:1px;text-transform:uppercase;">
-                                Page Total
-                            </td>
+                            <td colspan="5" style="color:var(--text-sec);font-size:11px;letter-spacing:1px;text-transform:uppercase;" data-i18n="common.pageTotal">Page Total</td>
                             <td><span class="amt-salary">₹@totalSal.ToString("N2")</span></td>
                             <td></td>
                         </tr>

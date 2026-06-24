@@ -785,22 +785,22 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>VENDOR PAYMENTS</h2>
+    <h2 data-i18n="nav.VendorPayment">VENDOR PAYMENTS</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Record and manage vendor payment transactions
+        <span data-i18n="vendorpay.subtitle">Record and manage vendor payment transactions</span>
     </p>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="toast-alert toast-success">
+    <div class="toast-alert toast-success" id="pageToast">
         <i class="fas fa-circle-check"></i> @TempData["Success"]
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="toast-alert toast-error">
+    <div class="toast-alert toast-error" id="pageToast">
         <i class="fas fa-circle-exclamation"></i> @TempData["Error"]
     </div>
 }
@@ -814,10 +814,10 @@
                 @(isEdit ? "✏️" : "🏭")
             </div>
             <div>
-                <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")">
+                <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n="@(isEdit ? "vendorpay.editPayment" : "vendorpay.newPayment")">
                     @(isEdit ? "EDIT PAYMENT" : "NEW PAYMENT")
                 </h3>
-                <p>@(isEdit ? "Update vendor payment record" : "Record a vendor payment")</p>
+                <p data-i18n="@(isEdit ? "vendorpay.editSub" : "vendorpay.newSub")">@(isEdit ? "Update vendor payment record" : "Record a vendor payment")</p>
             </div>
         </div>
 
@@ -827,10 +827,10 @@
 
             <div class="fc-body">
 
-                <div class="form-sec-lbl">📋 PAYMENT DETAILS</div>
+                <div class="form-sec-lbl" data-i18n="vendorpay.detailsLbl">📋 PAYMENT DETAILS</div>
 
                 <div class="fg">
-                    <label>Payment Date *</label>
+                    <label data-i18n="vendorpay.paymentDate">Payment Date *</label>
                     <input asp-for="PaymentDate" type="date"
                            value="@Model.PaymentDate?.ToString("yyyy-MM-dd")"
                            class="@(ViewData.ModelState["PaymentDate"]?.Errors.Count > 0 ? "err-field" : "")" />
@@ -838,7 +838,7 @@
                 </div>
 
                 <div class="fg">
-                    <label>Vendor *</label>
+                    <label data-i18n="vendorpay.vendor">Vendor *</label>
                     <div class="select-wrap">
                         <select asp-for="VendorId" asp-items="Model.VendorOptions"
                                 class="@(ViewData.ModelState["VendorId"]?.Errors.Count > 0 ? "err-field" : "")">
@@ -848,20 +848,20 @@
                     <span asp-validation-for="VendorId" class="verr show"></span>
                 </div>
 
-                <div class="form-sec-lbl">💰 AMOUNT</div>
+                <div class="form-sec-lbl" data-i18n="vendorpay.amountLbl">💰 AMOUNT</div>
 
                 <div class="fg">
-                    <label>Amount (₹) *</label>
+                    <label data-i18n="vendorpay.amount">Amount (₹) *</label>
                     <input asp-for="Amount" type="number" step="0.01" min="0.01"
                            placeholder="0.00" onwheel="this.blur()"
                            class="@(ViewData.ModelState["Amount"]?.Errors.Count > 0 ? "err-field" : "")" />
                     <span asp-validation-for="Amount" class="verr show"></span>
                 </div>
 
-                <div class="form-sec-lbl">🏦 PAYMENT INFO</div>
+                <div class="form-sec-lbl" data-i18n="vendorpay.payInfoLbl">🏦 PAYMENT INFO</div>
 
                 <div class="fg">
-                    <label>Payment Mode *</label>
+                    <label data-i18n="vendorpay.paymentMode">Payment Mode *</label>
                     <div class="select-wrap">
                         <select asp-for="PaymentModeId" asp-items="Model.PaymentModeOptions"
                                 class="@(ViewData.ModelState["PaymentModeId"]?.Errors.Count > 0 ? "err-field" : "")">
@@ -872,7 +872,7 @@
                 </div>
 
                 <div class="fg">
-                    <label>Payment Status *</label>
+                    <label data-i18n="vendorpay.paymentStatus">Payment Status *</label>
                     <div class="select-wrap">
                         <select asp-for="StatusId" asp-items="Model.StatusOptions"
                                 class="@(ViewData.ModelState["StatusId"]?.Errors.Count > 0 ? "err-field" : "")">
@@ -883,16 +883,16 @@
                 </div>
 
                 <div style="margin-top:6px;display:flex;flex-direction:column;gap:8px;">
-                    <button type="submit" class="btn-save @(isEdit ? "btn-save-edit" : "btn-save-add")">
+                    <button type="submit" class="btn-save @(isEdit ? "btn-save-edit" : "btn-save-add")" data-i18n="@(isEdit ? "vendorpay.updateBtn" : "vendorpay.saveBtn")">
                         @(isEdit ? "💾 Update Payment" : "+ Save Payment")
                     </button>
                     @if (isEdit)
                     {
-                        <a href="/VendorPayment/Index" class="btn-cancel">&#8634; Cancel Edit</a>
+                        <a href="/VendorPayment/Index" class="btn-cancel" data-i18n="vendorpay.cancelEdit">&#8634; Cancel Edit</a>
                     }
                     else
                     {
-                        <button type="button" class="btn-cancel" onclick="resetForm()">&#8634; Reset</button>
+                        <button type="button" class="btn-cancel" onclick="resetForm()" data-i18n="vendorpay.reset">&#8634; Reset</button>
                     }
                 </div>
 
@@ -907,8 +907,8 @@
             <div class="tc-hdr-left">
                 <div class="tc-hdr-icon">🏭</div>
                 <div>
-                    <h3>Payment List</h3>
-                    <p>All recorded vendor payments</p>
+                    <h3 data-i18n="vendorpay.listTitle">Payment List</h3>
+                    <p data-i18n="vendorpay.listSub">All recorded vendor payments</p>
                 </div>
             </div>
             <span class="tc-badge">@totalRecords Payment@(totalRecords != 1 ? "s" : "")</span>
@@ -916,10 +916,10 @@
 
         <div class="tc-chips">
             <div class="rchip">
-                Total Paid &nbsp;<strong style="color:#e07b39;">&#8377;@totalAmt.ToString("N2")</strong>
+                <span data-i18n="vendorpay.totalPaid">Total Paid</span> &nbsp;<strong style="color:#e07b39;">&#8377;@totalAmt.ToString("N2")</strong>
             </div>
             <div class="rchip">
-                Records &nbsp;<strong style="color:#22d3a4;">@totalRecords</strong>
+                <span data-i18n="vendorpay.records">Records</span> &nbsp;<strong style="color:#22d3a4;">@totalRecords</strong>
             </div>
         </div>
 
@@ -928,6 +928,7 @@
                 <i class="fas fa-magnifying-glass"></i>
                 <input type="text" id="searchInput"
                        placeholder="Search by vendor, mode, status..."
+                       data-i18n-placeholder="vendorpay.search"
                        oninput="filterTable()" />
             </div>
         </div>
@@ -936,7 +937,7 @@
         {
             <div class="empty-state">
                 <span class="es-icon">🏭</span>
-                No vendor payment records yet.<br />Add your first payment using the form.
+                <span data-i18n="vendorpay.empty">No vendor payment records yet. Add your first payment using the form.</span>
             </div>
         }
         else
@@ -945,13 +946,13 @@
                 <table class="ptbl" id="payTable">
                     <thead>
                         <tr>
-                            <th style="width:46px;">#</th>
-                            <th>Date</th>
-                            <th>Vendor</th>
-                            <th>Amount</th>
-                            <th>Mode</th>
-                            <th>Status</th>
-                            <th style="width:120px;text-align:center;">Actions</th>
+                            <th style="width:46px;" data-i18n="vendorpay.col.no">#</th>
+                            <th data-i18n="vendorpay.col.date">Date</th>
+                            <th data-i18n="vendorpay.col.vendor">Vendor</th>
+                            <th data-i18n="vendorpay.col.amount">Amount</th>
+                            <th data-i18n="vendorpay.col.mode">Mode</th>
+                            <th data-i18n="vendorpay.col.status">Status</th>
+                            <th style="width:120px;text-align:center;" data-i18n="vendorpay.col.actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="payBody">
@@ -1011,12 +1012,12 @@
 
             <div class="tc-pagination">
                 <div class="pg-info">
-                    Showing <span id="pgFrom">1</span>&#8211;<span id="pgTo">@Math.Min(pageSize, totalRecords)</span>
-                    of <span id="pgTotal">@totalRecords</span> records
+                    <span data-i18n="vendorpay.showing">Showing</span> <span id="pgFrom">1</span>&#8211;<span id="pgTo">@Math.Min(pageSize, totalRecords)</span>
+                    <span data-i18n="vendorpay.of">of</span> <span id="pgTotal">@totalRecords</span> <span data-i18n="vendorpay.recordsLbl">records</span>
                 </div>
                 <div class="pg-btns" id="pgBtns"></div>
                 <div class="pg-size-wrap">
-                    Rows:
+                    <span data-i18n="vendorpay.rows">Rows:</span>
                     <select id="pgSizeSelect" onchange="changePageSize(+this.value)">
                         <option value="5" selected>5</option>
                         <option value="8">8</option>
@@ -1031,7 +1032,7 @@
         <div id="noSearch">
             <i class="fas fa-magnifying-glass"
                style="font-size:22px;margin-bottom:8px;display:block;opacity:.4;"></i>
-            No records match your search.
+            <span data-i18n="vendorpay.noSearch">No records match your search.</span>
         </div>
 
     </div><!-- /table-card -->
@@ -1040,17 +1041,17 @@
 <!-- DELETE MODAL -->
 <div class="del-overlay" id="delOverlay">
     <div class="del-box">
-        <h3>&#9888;&#65039; Delete Payment?</h3>
+        <h3 data-i18n="vendorpay.deleteTitle">&#9888;&#65039; Delete Payment?</h3>
         <p>
-            You are about to permanently delete the payment record for
+            <span data-i18n="vendorpay.deleteMsg">You are about to permanently delete the payment record for</span>
             <strong id="delLabel" style="color:var(--accent);"></strong>.<br />
-            This action cannot be undone.
+            <span data-i18n="vendorpay.deleteWarn">This action cannot be undone.</span>
         </p>
         <div class="del-footer">
-            <button type="button" class="btn-dc btn-dc-cancel" onclick="closeDel()">Cancel</button>
+            <button type="button" class="btn-dc btn-dc-cancel" onclick="closeDel()" data-i18n="common.cancel">Cancel</button>
             <form id="delForm" method="post" style="margin:0;">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn-dc btn-dc-del">Yes, Delete</button>
+                <button type="submit" class="btn-dc btn-dc-del" data-i18n="common.yesDelete">Yes, Delete</button>
             </form>
         </div>
     </div>
@@ -1059,6 +1060,18 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script type="text/javascript">
+        /* Auto-dismiss the success/error toast after 5 seconds */
+        (function () {
+            var pageToast = document.getElementById('pageToast');
+            if (pageToast) {
+                setTimeout(function () {
+                    pageToast.style.transition = 'opacity .3s ease';
+                    pageToast.style.opacity = '0';
+                    setTimeout(function () { pageToast.remove(); }, 500);
+                }, 5000);
+            }
+        })();
+
         var TOTAL_ROWS = @totalRecords;
         var pageSize    = 5;
         var currentPage = 0;
@@ -1123,6 +1136,23 @@
 
         assignPages();
         if (TOTAL_ROWS > 0) showPage(0);
+
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('payForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
 
         function resetForm() {
             document.getElementById('payForm').reset();

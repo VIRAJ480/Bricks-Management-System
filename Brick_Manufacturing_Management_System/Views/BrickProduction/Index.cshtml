@@ -759,20 +759,20 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2>BRICK PRODUCTION</h2>
+    <h2 data-i18n="prod.title">BRICK PRODUCTION</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        Record daily brick production entries
+        <span data-i18n="prod.subtitle">Record daily brick production entries</span>
     </p>
 </div>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">✅ @TempData["Success"]</div>
+    <div class="alert alert-success" id="prodAlert">✅ @TempData["Success"]</div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">❌ @TempData["Error"]</div>
+    <div class="alert alert-danger" id="prodAlert">❌ @TempData["Error"]</div>
 }
 
 <div class="split">
@@ -787,7 +787,7 @@
                 <h3 class="@(isEdit ? "edit-ttl" : "add-ttl")" data-i18n='@(isEdit ? "prod.editEntry" : "prod.newEntry")'>
                     @(isEdit ? "EDIT ENTRY" : "NEW ENTRY")
                 </h3>
-                <p>@(isEdit ? "Update production record" : "Record today's production")</p>
+                <p data-i18n='@(isEdit ? "prod.editSub" : "prod.newSub")'>@(isEdit ? "Update production record" : "Record today's production")</p>
             </div>
         </div>
 
@@ -797,7 +797,7 @@
 
             <div class="fc-body">
 
-                <div class="form-sec-lbl" data-i18n="purchase.pricing">🧱 Production Details</div>
+                <div class="form-sec-lbl" data-i18n="prod.detailsLbl">🧱 Production Details</div>
 
                 <div class="fg">
                     <label data-i18n="prod.productionDate">Production Date *</label>
@@ -852,21 +852,22 @@
                 <div class="tc-hdr-icon">🧱</div>
                 <div>
                     <h3 data-i18n="prod.productionRecords">Production Records</h3>
-                    <p>All daily production entries</p>
+                    <p data-i18n="prod.listSub">All daily production entries</p>
                 </div>
             </div>
             <span class="tc-badge">@totalRecords Record@(totalRecords != 1 ? "s" : "")</span>
         </div>
 
         <div class="tc-chips">
-            <div class="rchip">Total Records &nbsp;<strong style="color:#e07b39;">@totalRecords</strong></div>
-            <div class="rchip">Total Bricks &nbsp;<strong style="color:#a78bfa;">@totalQty.ToString("N0")</strong></div>
+            <div class="rchip"><span data-i18n="prod.totalRecords">Total Records</span> &nbsp;<strong style="color:#e07b39;">@totalRecords</strong></div>
+            <div class="rchip"><span data-i18n="prod.totalBricks">Total Bricks</span> &nbsp;<strong style="color:#a78bfa;">@totalQty.ToString("N0")</strong></div>
         </div>
 
         <div class="tc-search">
             <div class="sw">
                 <i class="fas fa-magnifying-glass"></i>
                 <input type="text" id="searchInput"
+                       data-i18n-placeholder="prod.search"
                        placeholder="Search by brick type or date…"
                        oninput="filterTable()" />
             </div>
@@ -1045,6 +1046,35 @@
         if (TOTAL_ROWS > 0) showPage(0);
 
         /* ── Reset form ── */
+        /* ── Auto-dismiss success/error alert after 3.5 seconds ── */
+        (function () {
+            var alertBox = document.getElementById('prodAlert');
+            if (alertBox) {
+                setTimeout(function () {
+                    alertBox.style.transition = 'opacity .5s ease';
+                    alertBox.style.opacity = '0';
+                    setTimeout(function () { alertBox.remove(); }, 500);
+                }, 3500);
+            }
+        })();
+
+        /* ── Clear validation error as soon as user interacts with a field ── */
+        (function () {
+            var f = document.getElementById('prodForm');
+            if (!f) return;
+            f.querySelectorAll('input, select, textarea').forEach(function (el) {
+                var evt = (el.tagName === 'SELECT' || el.type === 'date') ? 'change' : 'input';
+                el.addEventListener(evt, function () {
+                    this.classList.remove('err-field');
+                    var fg = this.closest('.fg') || (this.closest('.select-wrap') && this.closest('.select-wrap').closest('.fg'));
+                    if (fg) {
+                        var errSpan = fg.querySelector('.verr');
+                        if (errSpan) errSpan.classList.remove('show');
+                    }
+                });
+            });
+        })();
+
         function resetForm() {
             document.getElementById('prodForm').reset();
             document.querySelectorAll('.verr').forEach(e => e.classList.remove('show'));

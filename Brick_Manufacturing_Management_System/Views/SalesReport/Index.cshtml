@@ -102,6 +102,7 @@
                 outline: none;
                 transition: border-color .2s, background .2s;
                 width: 100%;
+                box-sizing: border-box;
                 -webkit-appearance: none;
                 appearance: none;
                 color-scheme: dark;
@@ -335,6 +336,9 @@
                 display: block;
             }
 
+        /* ══ PRINT HEADER (hidden on screen, shown on print) ══ */
+        .sr-print-header { display: none; }
+
         /* ══ PRINT ══ */
         @@media print {
             /* 1. Force white page */
@@ -382,18 +386,32 @@
                 width: 100% !important;
                 margin: 0 !important;
             }
-                /* 6. Print header — company name + report title */
-                .sr-report-card::before {
-                    content: "Jyotirling Bricks Suppliers";
-                    display: block;
-                    font-family: 'Rajdhani', sans-serif;
-                    font-size: 22px;
-                    font-weight: 700;
-                    text-align: center;
-                    color: #111111;
-                    padding: 24px 0 4px;
-                    letter-spacing: 1px;
-                }
+            /* 6. Print header — company name + report title */
+            .sr-print-header {
+                display: block !important;
+                text-align: center;
+                padding: 24px 0 0;
+            }
+
+            .sr-print-company {
+                font-family: 'Rajdhani', sans-serif;
+                font-size: 22px;
+                font-weight: 700;
+                color: #111111;
+                letter-spacing: 1px;
+            }
+
+            .sr-print-sub {
+                font-size: 13px;
+                color: #555555;
+                margin-bottom: 4px;
+            }
+
+            .sr-print-bar {
+                height: 2px;
+                background: #e07b39;
+                margin: 6px 20px 16px;
+            }
 
                 .sr-report-card::after {
                     content: "";
@@ -466,24 +484,27 @@
                 <p data-i18n="salesrpt.filterSub">Select date range to view revenue summary</p>
             </div>
         </div>
-        <form asp-action="Generate" method="post" novalidate>
+        <form asp-action="Generate" method="post" novalidate id="srForm" onsubmit="return validateDates()">
             @Html.AntiForgeryToken()
             <div class="sr-filter-body">
 
                 <div class="sr-fg">
                     <label data-i18n="salesrpt.fromDate">From Date</label>
-                    <input type="date" name="FromDate"
+                    <input type="date" name="FromDate" id="srFromDate"
                            value="@Model.FromDate.ToString("yyyy-MM-dd")" required />
                 </div>
 
                 <div class="sr-fg">
                     <label data-i18n="salesrpt.toDate">To Date</label>
-                    <input type="date" name="ToDate"
+                    <input type="date" name="ToDate" id="srToDate"
                            value="@Model.ToDate.ToString("yyyy-MM-dd")" required />
                 </div>
 
                 <button type="submit" class="btn-generate" data-i18n="salesrpt.generate">🔍 Generate</button>
 
+            </div>
+            <div id="srDateErr" style="display:none; color:#f85149; font-size:12px; font-weight:600; padding:0 0 12px 0;">
+                ⚠️ From Date must be earlier than or equal to To Date.
             </div>
         </form>
     </div>
@@ -512,6 +533,11 @@
 
         <!-- ══ REPORT SUMMARY ══ -->
         <div class="sr-report-card" id="printArea">
+            <div class="sr-print-header">
+                <div class="sr-print-company" data-i18n="brand.name">Jyotirling</div>
+                <div class="sr-print-sub" data-i18n="brand.sub">Bricks Suppliers</div>
+                <div class="sr-print-bar"></div>
+            </div>
             <div class="sr-report-hdr">
                 <div class="sr-report-hdr-left">
                     <div class="sr-report-icon">📄</div>
@@ -574,3 +600,27 @@
     }
 
 </div>
+
+@section Scripts {
+    <script>
+        function validateDates() {
+            var from = document.getElementById('srFromDate').value;
+            var to   = document.getElementById('srToDate').value;
+            var errBox = document.getElementById('srDateErr');
+            if (from && to && from > to) {
+                errBox.style.display = 'block';
+                return false;   // block submit
+            }
+            errBox.style.display = 'none';
+            return true;
+        }
+
+        /* Hide the error as soon as the user changes either date */
+        ['srFromDate', 'srToDate'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.addEventListener('change', function () {
+                document.getElementById('srDateErr').style.display = 'none';
+            });
+        });
+    </script>
+}
