@@ -1158,9 +1158,9 @@
             if (pgBtns)  pgBtns.innerHTML   = '';
         }
 
-        /* ── Reset filter ── */
+        /* ── Reset filter — reload a fresh page (clears form + report) ── */
         function resetFilter() {
-            document.getElementById('filterForm').reset();
+            window.location.href = '/MaterialReport/Index';
         }
 
         /* ── Print — show all rows, print, restore pagination ── */

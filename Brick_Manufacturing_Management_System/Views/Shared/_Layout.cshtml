@@ -708,6 +708,16 @@
                     <span class="nav-icon">🧱</span>
                     <span class="nav-label" data-i18n="nav.customerSalesReport">Customer Sales Report</span>
                 </a>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "CustomerSpecificReport" ? "active" : "")"
+                   href="/CustomerSpecificReport/Index">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label" data-i18n="nav.customerSpecificReport">Customer Specific Report</span>
+                </a>
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "VendorSpecificMaterialPurchase" ? "active" : "")"
+                   href="/VendorSpecificMaterialPurchase/Index">
+                    <span class="nav-icon">🏭</span>
+                    <span class="nav-label" data-i18n="nav.vendorSpecificReport">Vendor Specific Purchase Report</span>
+                </a>
             @*     <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Report" && ViewContext.RouteData.Values["action"]?.ToString() == "Labour" ? "active" : "")"
                    href="/Report/Labour">
                     <span class="nav-icon">👷</span>
@@ -795,7 +805,7 @@
         }, 3500);
     </script>
 
-    <script src="~/js/i18n.js?v=5"></script>
+    <script src="~/js/i18n.js?v=7"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

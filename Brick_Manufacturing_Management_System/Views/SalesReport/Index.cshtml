@@ -139,6 +139,29 @@
                 transform: scale(.97);
             }
 
+        .btn-reset-filter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            background: transparent;
+            color: var(--text-sec);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            cursor: pointer;
+            transition: all .2s;
+            white-space: nowrap;
+            height: 42px;
+        }
+
+            .btn-reset-filter:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
         /* ══ KPI GRID ══ */
         .sr-kpi-grid {
             display: grid;
@@ -502,6 +525,8 @@
 
                 <button type="submit" class="btn-generate" data-i18n="salesrpt.generate">🔍 Generate</button>
 
+                <button type="button" class="btn-reset-filter" onclick="resetFilter()" data-i18n="matrpt.reset">↺ Reset</button>
+
             </div>
             <div id="srDateErr" style="display:none; color:#f85149; font-size:12px; font-weight:600; padding:0 0 12px 0;">
                 ⚠️ From Date must be earlier than or equal to To Date.
@@ -603,6 +628,11 @@
 
 @section Scripts {
     <script>
+        /* ── Reset filter — reload a fresh page (clears form + report) ── */
+        function resetFilter() {
+            window.location.href = '/SalesReport/Index';
+        }
+
         function validateDates() {
             var from = document.getElementById('srFromDate').value;
             var to   = document.getElementById('srToDate').value;

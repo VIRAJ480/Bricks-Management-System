@@ -1,12 +1,12 @@
-@model Brick_Manufacturing_Management_System.Models.CustomerSalesReportVM
+@model Brick_Manufacturing_Management_System.Models.VendorSpecificMaterialPurchaseVM
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Customer Sales Report";
+    ViewData["Title"] = "Vendor Specific Purchase Report";
 
     bool hasData = Model.ReportData != null && Model.ReportData.Any();
     int totalRec = hasData ? Model.ReportData!.Count : 0;
 
-    int pageSize = 10; 
+    int pageSize = 10;
     int pageCount = (int)Math.Ceiling((double)totalRec / pageSize);
 }
 
@@ -129,7 +129,8 @@
                 color: var(--text-sec);
             }
 
-            .fg input[type="date"] {
+            .fg input[type="date"],
+            .fg select {
                 background: rgba(255,255,255,.04);
                 border: 1px solid var(--border);
                 border-radius: 8px;
@@ -146,9 +147,15 @@
                 color-scheme: dark;
             }
 
-                .fg input[type="date"]:focus {
+                .fg input[type="date"]:focus,
+                .fg select:focus {
                     border-color: var(--accent);
                     background: rgba(224,123,57,.04);
+                }
+
+                .fg select option {
+                    background: #0d1117;
+                    color: var(--text-pri);
                 }
 
         .btn-generate {
@@ -299,6 +306,15 @@
                 .rchip.gross-chip strong {
                     color: var(--accent);
                     font-size: 16px;
+                }
+
+            .rchip.cust-chip {
+                border-color: rgba(96,165,250,.35);
+                background: rgba(96,165,250,.06);
+            }
+
+                .rchip.cust-chip strong {
+                    color: #60a5fa;
                 }
 
         /* Search */
@@ -455,7 +471,7 @@
             font-family: 'Nunito', sans-serif;
         }
 
-        /* Customer / brick-type chips */
+        /* Vendor / material chips */
         .vendor-pill {
             display: inline-flex;
             align-items: center;
@@ -689,6 +705,16 @@
                 letter-spacing: 1px;
             }
 
+            #printVendor {
+                display: block !important;
+                text-align: center;
+                font-family: 'Nunito', sans-serif;
+                font-size: 13px;
+                font-weight: 700;
+                color: #c96a28;
+                padding: 2px 0 6px;
+            }
+
             #printHeaderBar {
                 display: block !important;
                 height: 2px;
@@ -739,6 +765,15 @@
 
             .rchip.gross-chip strong {
                 color: #c96a28 !important;
+            }
+
+            .rchip.cust-chip {
+                background: rgba(96,165,250,.08) !important;
+                border-color: rgba(96,165,250,.4) !important;
+            }
+
+            .rchip.cust-chip strong {
+                color: #2563eb !important;
             }
 
             .tbl-wrap {
@@ -817,10 +852,10 @@
 
 <!-- PAGE HEADER -->
 <div class="pg-hdr">
-    <h2 data-i18n="custrpt.title">🧱 CUSTOMER SALES REPORT</h2>
+    <h2 data-i18n="vsrpt.title">📦 VENDOR SPECIFIC PURCHASE REPORT</h2>
     <p>
         <i class="fas fa-circle" style="font-size:8px;color:#22d3a4;"></i>
-        <span data-i18n="custrpt.subtitle">Filter by date range and generate customer sales summary</span>
+        <span data-i18n="vsrpt.subtitle">Select a vendor and date range to generate their purchase report</span>
     </p>
 </div>
 
@@ -843,9 +878,28 @@
         <div class="alert alert-success">✅ @TempData["Success"]</div>
     }
 
-    <form asp-action="Index" asp-controller="CustomerSalesReport" method="post" id="filterForm">
+    <form asp-action="Index" asp-controller="VendorSpecificMaterialPurchase" method="post" id="filterForm">
         @Html.AntiForgeryToken()
         <div class="filter-body">
+
+            <!-- Vendor -->
+            <div class="fg">
+                <label data-i18n="vsrpt.vendor">Vendor *</label>
+                <select name="VendorId">
+                    <option value="" data-i18n="vsrpt.selectVendor">— Select Vendor —</option>
+                    @foreach (var opt in Model.VendorOptions)
+                    {
+                        if (Model.VendorId != null && opt.Value == Model.VendorId.ToString())
+                        {
+                            <option value="@opt.Value" selected>@opt.Text</option>
+                        }
+                        else
+                        {
+                            <option value="@opt.Value">@opt.Text</option>
+                        }
+                    }
+                </select>
+            </div>
 
             <!-- From Date -->
             <div class="fg">
@@ -884,23 +938,29 @@
     <div id="printHeader" style="display:none;">
         <span data-i18n="brand.name">Jyotirling</span> <span data-i18n="brand.sub">Bricks Suppliers</span>
         &nbsp;&mdash;&nbsp;
-        <span data-i18n="custrpt.title">Customer Sales Report</span>
+        <span data-i18n="vsrpt.title">Vendor Specific Purchase Report</span>
+    </div>
+    <div id="printVendor" style="display:none;">
+        @if (!string.IsNullOrEmpty(Model.VendorName))
+        {
+            <span><span data-i18n="vsrpt.vendor">Vendor</span>: @Model.VendorName@(Model.FromDate.HasValue && Model.ToDate.HasValue ? $"  ({Model.FromDate.Value:dd MMM yyyy} – {Model.ToDate.Value:dd MMM yyyy})" : "")</span>
+        }
     </div>
     <div id="printHeaderBar" style="display:none;"></div>
 
     <div class="tc-hdr">
         <div class="tc-hdr-left">
-            <div class="tc-hdr-icon">🧱</div>
+            <div class="tc-hdr-icon">📦</div>
             <div>
-                <h3 data-i18n="custrpt.records">Sales Records</h3>
+                <h3 data-i18n="matrpt.records">Purchase Records</h3>
                 <p>
-                    @if (Model.FromDate.HasValue && Model.ToDate.HasValue && hasData)
+                    @if (hasData && !string.IsNullOrEmpty(Model.VendorName))
                     {
-                        @($"{Model.FromDate.Value:dd MMM yyyy}  →  {Model.ToDate.Value:dd MMM yyyy}")
+                        @($"{Model.VendorName}  •  {Model.FromDate!.Value:dd MMM yyyy}  →  {Model.ToDate!.Value:dd MMM yyyy}")
                     }
                     else
                     {
-                        <span data-i18n="matrpt.selectRange">Select a date range and click Generate</span>
+                        <span data-i18n="vsrpt.selectHint">Select a vendor and date range, then click Generate</span>
                     }
                 </p>
             </div>
@@ -920,6 +980,9 @@
     {
         <!-- Summary chips -->
         <div class="tc-chips">
+            <div class="rchip cust-chip">
+                <span data-i18n="vsrpt.vendor">Vendor</span> &nbsp;<strong>🏭 @Model.VendorName</strong>
+            </div>
             <div class="rchip">
                 <span data-i18n="matrpt.totalRecords">Total Records</span> &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong>
             </div>
@@ -939,8 +1002,8 @@
             <div class="sw">
                 <i class="fas fa-magnifying-glass"></i>
                 <input type="text" id="searchInput"
-                       placeholder="Search by customer, brick type, date…"
-                       data-i18n-placeholder="custrpt.search"
+                       placeholder="Search by vendor, material, date…"
+                       data-i18n-placeholder="matrpt.search"
                        oninput="filterTable()" />
             </div>
         </div>
@@ -950,9 +1013,9 @@
                 <thead>
                     <tr>
                         <th style="width:40px;" data-i18n="matrpt.col.no">#</th>
-                        <th data-i18n="custrpt.col.date">Sales Date</th>
-                        <th data-i18n="custrpt.col.customer">Customer</th>
-                        <th data-i18n="custrpt.col.brickType">Brick Type</th>
+                        <th data-i18n="matrpt.col.date">Purchase Date</th>
+                        <th data-i18n="matrpt.col.vendor">Vendor</th>
+                        <th data-i18n="matrpt.col.material">Material</th>
                         <th class="text-right" data-i18n="matrpt.col.qty">Qty</th>
                         <th class="text-right" data-i18n="matrpt.col.rate">Rate (₹)</th>
                         <th class="text-right" data-i18n="matrpt.col.total">Total Amount (₹)</th>
@@ -966,18 +1029,18 @@
                     {
                         srNo++;
                         <tr id="row-@srNo"
-                            data-search="@row.CustomerName.ToLower() @row.BrickTypeName.ToLower() @row.SalesDate.ToString("dd MMM yyyy").ToLower() @row.SalesDate.ToString("yyyy-MM-dd")">
+                            data-search="@row.VendorName.ToLower() @row.MaterialName.ToLower() @row.PurchaseDate.ToString("dd MMM yyyy").ToLower() @row.PurchaseDate.ToString("yyyy-MM-dd")">
                             <td style="color:var(--text-sec);font-size:11px;">@srNo</td>
                             <td>
                                 <span class="date-badge">
-                                    📅 @row.SalesDate.ToString("dd MMM yyyy")
+                                    📅 @row.PurchaseDate.ToString("dd MMM yyyy")
                                 </span>
                             </td>
                             <td>
-                                <span class="vendor-pill">👤 @row.CustomerName</span>
+                                <span class="vendor-pill">🏭 @row.VendorName</span>
                             </td>
                             <td>
-                                <span class="material-pill">🧱 @row.BrickTypeName</span>
+                                <span class="material-pill">🧱 @row.MaterialName</span>
                             </td>
                             <td class="text-right" style="font-weight:600;">
                                 @row.Quantity.ToString("N2")
@@ -1027,13 +1090,13 @@
     {
         <div class="empty-state">
             <span class="es-icon">📋</span>
-            @if (Model.FromDate == null)
+            @if (Model.VendorId == null)
             {
-                <span data-i18n="custrpt.emptyDefault">Select a date range above and click <strong>Generate Report</strong> to view sales data.</span>
+                <span data-i18n="vsrpt.emptyDefault">Select a vendor and date range above, then click <strong>Generate Report</strong>.</span>
             }
             else
             {
-                <span data-i18n="custrpt.emptyNoData">No sales records found for the selected date range.</span>
+                <span data-i18n="vsrpt.emptyNoData">No purchase records found for this vendor in the selected date range.</span>
             }
         </div>
     }
@@ -1138,7 +1201,7 @@
 
         /* ── Reset filter — reload a fresh page (clears form + report) ── */
         function resetFilter() {
-            window.location.href = '/CustomerSalesReport/Index';
+            window.location.href = '/VendorSpecificMaterialPurchase/Index';
         }
 
         /* ── Print — show all rows, print, restore pagination ── */

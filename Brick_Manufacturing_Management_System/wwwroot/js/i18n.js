@@ -63,6 +63,8 @@ const TRANSLATIONS = {
     "nav.customerPayment": { en: "Customer Payment", mr: "कस्टमर पेमेंट्स" },
     "nav.materialReport":   { en: "Material Report",        mr: "साहित्य अहवाल" },
     "nav.customerSalesReport": { en: "Customer Sales Report", mr: "ग्राहक विक्री अहवाल" },
+    "nav.customerSpecificReport": { en: "Customer Specific Report", mr: "ग्राहकनिहाय अहवाल" },
+    "nav.vendorSpecificReport": { en: "Vendor Specific Purchase Report", mr: "विक्रेतानिहाय खरेदी अहवाल" },
     "nav.labourReport":     { en: "Labour Report",          mr: "कामगार अहवाल" },
     "nav.productionReport": { en: "Production Report",      mr: "उत्पादन अहवाल" },
     "nav.salesReport":      { en: "Sales Report",           mr: "विक्री अहवाल" },
@@ -190,6 +192,24 @@ const TRANSLATIONS = {
     "custrpt.search":       { en: "Search by customer, brick type, date…", mr: "ग्राहक, विटांचा प्रकार, तारीखाने शोधा…" },
     "custrpt.emptyDefault": { en: "Select a date range above and click Generate Report to view sales data.", mr: "वरील तारीख श्रेणी निवडा आणि विक्री डेटा पाहण्यासाठी अहवाल तयार करा क्लिक करा." },
     "custrpt.emptyNoData":  { en: "No sales records found for the selected date range.", mr: "निवडलेल्या तारीख श्रेणीसाठी कोणत्याही विक्री नोंदी आढळल्या नाहीत." },
+
+    // ── VENDOR SPECIFIC PURCHASE REPORT ──────────────────────
+    "vsrpt.title":          { en: "📦 VENDOR SPECIFIC PURCHASE REPORT", mr: "📦 विक्रेतानिहाय खरेदी अहवाल" },
+    "vsrpt.subtitle":       { en: "Select a vendor and date range to generate their purchase report", mr: "विक्रेता आणि तारीख श्रेणी निवडून त्यांचा खरेदी अहवाल तयार करा" },
+    "vsrpt.vendor":         { en: "Vendor",                 mr: "विक्रेता" },
+    "vsrpt.selectVendor":   { en: "— Select Vendor —",      mr: "— विक्रेता निवडा —" },
+    "vsrpt.selectHint":     { en: "Select a vendor and date range, then click Generate", mr: "विक्रेता आणि तारीख श्रेणी निवडा, मग तयार करा क्लिक करा" },
+    "vsrpt.emptyDefault":   { en: "Select a vendor and date range above, then click Generate Report.", mr: "वरील विक्रेता आणि तारीख श्रेणी निवडा, मग अहवाल तयार करा क्लिक करा." },
+    "vsrpt.emptyNoData":    { en: "No purchase records found for this vendor in the selected date range.", mr: "निवडलेल्या तारीख श्रेणीत या विक्रेत्याच्या कोणत्याही खरेदी नोंदी आढळल्या नाहीत." },
+
+    // ── CUSTOMER SPECIFIC REPORT ─────────────────────────────
+    "csrpt.title":          { en: "👤 CUSTOMER SPECIFIC REPORT", mr: "👤 ग्राहकनिहाय अहवाल" },
+    "csrpt.subtitle":       { en: "Select a customer and date range to generate their sales report", mr: "ग्राहक आणि तारीख श्रेणी निवडून त्यांचा विक्री अहवाल तयार करा" },
+    "csrpt.customer":       { en: "Customer",                 mr: "ग्राहक" },
+    "csrpt.selectCustomer": { en: "— Select Customer —",      mr: "— ग्राहक निवडा —" },
+    "csrpt.selectHint":     { en: "Select a customer and date range, then click Generate", mr: "ग्राहक आणि तारीख श्रेणी निवडा, मग तयार करा क्लिक करा" },
+    "csrpt.emptyDefault":   { en: "Select a customer and date range above, then click Generate Report.", mr: "वरील ग्राहक आणि तारीख श्रेणी निवडा, मग अहवाल तयार करा क्लिक करा." },
+    "csrpt.emptyNoData":    { en: "No sales records found for this customer in the selected date range.", mr: "निवडलेल्या तारीख श्रेणीत या ग्राहकाच्या कोणत्याही विक्री नोंदी आढळल्या नाहीत." },
 
     // ── SALES REPORT ─────────────────────────────────────────
     "salesrpt.hint":        { en: "● Filter by date range to view sales revenue summary", mr: "● महसूल सारांश पाहण्यासाठी तारीख श्रेणीनुसार फिल्टर करा" },
