@@ -210,6 +210,10 @@ const TRANSLATIONS = {
     "csrpt.selectHint":     { en: "Select a customer and date range, then click Generate", mr: "ग्राहक आणि तारीख श्रेणी निवडा, मग तयार करा क्लिक करा" },
     "csrpt.emptyDefault":   { en: "Select a customer and date range above, then click Generate Report.", mr: "वरील ग्राहक आणि तारीख श्रेणी निवडा, मग अहवाल तयार करा क्लिक करा." },
     "csrpt.emptyNoData":    { en: "No sales records found for this customer in the selected date range.", mr: "निवडलेल्या तारीख श्रेणीत या ग्राहकाच्या कोणत्याही विक्री नोंदी आढळल्या नाहीत." },
+    "csrpt.totalPaid":      { en: "✅ Total Paid",          mr: "✅ एकूण भरले" },
+    "csrpt.remaining":      { en: "⏳ Remaining",           mr: "⏳ उर्वरित" },
+    "csrpt.totalPaidLbl":   { en: "✅ TOTAL PAID",          mr: "✅ एकूण भरले" },
+    "csrpt.remainingLbl":   { en: "⏳ REMAINING",           mr: "⏳ उर्वरित" },
 
     // ── SALES REPORT ─────────────────────────────────────────
     "salesrpt.hint":        { en: "● Filter by date range to view sales revenue summary", mr: "● महसूल सारांश पाहण्यासाठी तारीख श्रेणीनुसार फिल्टर करा" },
@@ -679,7 +683,7 @@ function changeLanguage(lang) {
  */
 document.addEventListener('DOMContentLoaded', function () {
     // Version bump — clears stale localStorage cache when translations change
-    const I18N_VERSION = '3';
+    const I18N_VERSION = '4';
     if (localStorage.getItem('brickErpLangVer') !== I18N_VERSION) {
         localStorage.removeItem('brickErpLang');
         localStorage.setItem('brickErpLangVer', I18N_VERSION);

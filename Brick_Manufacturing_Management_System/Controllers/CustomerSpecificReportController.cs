@@ -1,122 +1,135 @@
+using Brick_Manufacturing_Management_System.DBContext;
+using Brick_Manufacturing_Management_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Brick_Manufacturing_Management_System.Models;
-using Brick_Manufacturing_Management_System.DBContext;
 
 namespace Brick_Manufacturing_Management_System.Controllers
 {
 	public class CustomerSpecificReportController : Controller
 	{
-		private readonly BrickErpdbContext _db;
+		private readonly BrickErpdbContext _ctx;
 
-		public CustomerSpecificReportController(BrickErpdbContext db)
+		public CustomerSpecificReportController(BrickErpdbContext context)
 		{
-			_db = db;
+			_ctx = context;
 		}
 
 		private bool IsLoggedIn() =>
 			HttpContext.Session.GetString("Username") != null;
 
-		private List<SelectListItem> GetCustomerOptions() =>
-			_db.CustomerMasters
+		private async Task<List<SelectListItem>> GetCustomerOptionsAsync()
+		{
+			return await _ctx.CustomerMasters
 				.OrderBy(c => c.CustomerName)
 				.Select(c => new SelectListItem
 				{
 					Value = c.CustomerId.ToString(),
 					Text = c.CustomerName
 				})
-				.ToList();
+				.ToListAsync();
+		}
 
-		// GET: /CustomerSpecificReport/Index
-		public IActionResult Index()
+		[HttpGet]
+		public async Task<IActionResult> Index()
 		{
 			if (!IsLoggedIn()) return RedirectToAction("Index", "Login");
 
 			var vm = new CustomerSpecificReportVM
 			{
-				FromDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1),
-				ToDate = DateTime.Today,
-				CustomerOptions = GetCustomerOptions()
+				CustomerOptions = await GetCustomerOptionsAsync()
 			};
 			return View(vm);
 		}
 
-		// POST: /CustomerSpecificReport/Index
 		[HttpPost]
 		[ValidateAntiForgeryToken]
-		public IActionResult Index(CustomerSpecificReportVM vm)
+		public async Task<IActionResult> Index(CustomerSpecificReportVM form)
 		{
 			if (!IsLoggedIn()) return RedirectToAction("Index", "Login");
 
-			vm.CustomerOptions = GetCustomerOptions();
+			var vm = new CustomerSpecificReportVM
+			{
+				CustomerOptions = await GetCustomerOptionsAsync(),
+				CustomerId = form.CustomerId,
+				FromDate = form.FromDate,
+				ToDate = form.ToDate
+			};
 
-			if (vm.CustomerId == null || vm.CustomerId == 0)
+			// ── Validation ───────────────────────────────────────────────
+			if (form.CustomerId == null)
 			{
 				TempData["Error"] = "Please select a customer.";
 				return View(vm);
 			}
-
-			if (vm.FromDate == null || vm.ToDate == null)
+			if (form.FromDate == null || form.ToDate == null)
 			{
 				TempData["Error"] = "Please select both From Date and To Date.";
 				return View(vm);
 			}
-
-			if (vm.FromDate > vm.ToDate)
+			if (form.FromDate > form.ToDate)
 			{
-				TempData["Error"] = "From Date cannot be greater than To Date.";
+				TempData["Error"] = "From Date cannot be later than To Date.";
 				return View(vm);
 			}
 
-			try
+			// Convert DateTime → DateOnly for comparison with SalesDate column
+			var fromDate = DateOnly.FromDateTime(form.FromDate.Value);
+			var toDate = DateOnly.FromDateTime(form.ToDate.Value);
+
+			// ── 1. Fetch brick sales (raw — all fields nullable) ──────────
+			var rawSales = await _ctx.BrickSales
+				.Where(s => s.CustomerId == form.CustomerId
+						 && s.SalesDate != null
+						 && s.SalesDate >= fromDate
+						 && s.SalesDate <= toDate)
+				.Join(_ctx.CustomerMasters,
+					  s => s.CustomerId,
+					  c => c.CustomerId,
+					  (s, c) => new
+					  {
+						  SalesDate = s.SalesDate,          // DateOnly?
+						  CustomerName = c.CustomerName,
+						  BrickTypeName = s.BrickType ?? string.Empty,
+						  Quantity = (decimal)(s.Quantity ?? 0),
+						  Rate = s.Rate ?? 0m,
+						  TotalAmount = s.TotalAmount ?? 0m
+					  })
+				.OrderBy(r => r.SalesDate)
+				.ToListAsync();
+
+			// ── Map to VM rows in memory (safe .Value.ToDateTime here) ────
+			vm.ReportData = rawSales.Select(s => new CustomerSpecificReportRow
 			{
-				DateOnly fromD = DateOnly.FromDateTime(vm.FromDate.Value.Date);
-				DateOnly toD = DateOnly.FromDateTime(vm.ToDate.Value.Date);
+				SalesDate = s.SalesDate!.Value.ToDateTime(TimeOnly.MinValue),
+				CustomerName = s.CustomerName,
+				BrickTypeName = s.BrickTypeName,
+				Quantity = s.Quantity,
+				Rate = s.Rate,
+				TotalAmount = s.TotalAmount,
+				Gross = s.TotalAmount
+			}).ToList();
 
-				// Selected customer name (shown in report / print)
-				vm.CustomerName = _db.CustomerMasters
-					.Where(c => c.CustomerId == vm.CustomerId)
-					.Select(c => c.CustomerName)
-					.FirstOrDefault() ?? "—";
+			vm.GrossTotal = vm.ReportData.Sum(r => r.TotalAmount);
 
-				// Brick type id → name lookup
-				var brickTypes = _db.BrickTypes
-					.ToDictionary(b => b.BrickTypeId.ToString(), b => b.BrickTypeName);
+			vm.CustomerName = vm.ReportData.FirstOrDefault()?.CustomerName
+						   ?? await _ctx.CustomerMasters
+								   .Where(c => c.CustomerId == form.CustomerId)
+								   .Select(c => c.CustomerName)
+								   .FirstOrDefaultAsync();
 
-				var sales = _db.BrickSales
-					.Include(s => s.Customer)
-					.Where(s => s.CustomerId == vm.CustomerId
-								&& s.SalesDate >= fromD && s.SalesDate <= toD)
-					.OrderBy(s => s.SalesDate)
-					.ThenBy(s => s.SalesId)
-					.ToList();
+			// ── 2. Fetch Paid & Remaining from PendingPayment stored proc ──
+			var allPending = await _ctx.Database
+				.SqlQueryRaw<PendingPaymentsVM>("EXEC sp_GetPendingCustomerPayments")
+				.ToListAsync();
 
-				var rows = sales.Select(s => new CustomerSpecificReportRow
-				{
-					SalesDate     = s.SalesDate.HasValue
-						? s.SalesDate.Value.ToDateTime(TimeOnly.MinValue)
-						: DateTime.Today,
-					CustomerName  = s.Customer != null ? (s.Customer.CustomerName ?? "—") : "—",
-					BrickTypeName = (s.BrickType != null && brickTypes.ContainsKey(s.BrickType))
-						? brickTypes[s.BrickType]
-						: (s.BrickType ?? "—"),
-					Quantity      = s.Quantity ?? 0,
-					Rate          = s.Rate ?? 0,
-					TotalAmount   = s.TotalAmount ?? 0
-				}).ToList();
+			var customerPending = allPending
+				.FirstOrDefault(p => p.CustomerId == form.CustomerId);
 
-				decimal gross = rows.Sum(r => r.TotalAmount);
-				foreach (var r in rows) r.Gross = gross;
+			vm.TotalPaid = customerPending?.TotalPaid ?? 0;
+			vm.RemainingAmount = customerPending?.RemainingAmount ?? 0;
 
-				vm.ReportData = rows;
-				vm.GrossTotal = gross;
-			}
-			catch (Exception ex)
-			{
-				TempData["Error"] = "Error fetching report: " + ex.Message;
-			}
-
+			TempData["Success"] = $"Report generated — {vm.ReportData.Count} record(s) found.";
 			return View(vm);
 		}
 	}

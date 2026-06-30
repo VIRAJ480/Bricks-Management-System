@@ -82,7 +82,6 @@
             margin: 0;
         }
 
-        /* Alert banners */
         .alert {
             padding: 10px 16px;
             border-radius: 8px;
@@ -105,7 +104,6 @@
             color: #f85149;
         }
 
-        /* Filter body */
         .filter-body {
             padding: 18px 20px 20px;
             display: flex;
@@ -129,8 +127,7 @@
                 color: var(--text-sec);
             }
 
-            .fg input[type="date"],
-            .fg select {
+            .fg input[type="date"], .fg select {
                 background: rgba(255,255,255,.04);
                 border: 1px solid var(--border);
                 border-radius: 8px;
@@ -147,8 +144,7 @@
                 color-scheme: dark;
             }
 
-                .fg input[type="date"]:focus,
-                .fg select:focus {
+                .fg input[type="date"]:focus, .fg select:focus {
                     border-color: var(--accent);
                     background: rgba(224,123,57,.04);
                 }
@@ -317,6 +313,27 @@
                     color: #60a5fa;
                 }
 
+            /* ── NEW: paid / remaining chips ── */
+            .rchip.paid-chip {
+                border-color: rgba(34,211,164,.35);
+                background: rgba(34,211,164,.06);
+            }
+
+                .rchip.paid-chip strong {
+                    color: #22d3a4;
+                    font-size: 16px;
+                }
+
+            .rchip.due-chip {
+                border-color: rgba(248,81,73,.35);
+                background: rgba(248,81,73,.06);
+            }
+
+                .rchip.due-chip strong {
+                    color: #f85149;
+                    font-size: 16px;
+                }
+
         /* Search */
         .tc-search {
             padding: 10px 20px;
@@ -457,7 +474,36 @@
                     text-align: right;
                 }
 
-        /* Amount pill */
+                /* ── NEW: payment summary footer row ── */
+                .ptbl tfoot td.pay-lbl {
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 12px;
+                    letter-spacing: 1px;
+                    text-align: right;
+                    color: var(--text-sec);
+                }
+
+                .ptbl tfoot td.pay-val-paid {
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 14px;
+                    color: #22d3a4;
+                    text-align: right;
+                }
+
+                .ptbl tfoot td.pay-val-due {
+                    font-family: 'Rajdhani', sans-serif;
+                    font-size: 14px;
+                    color: #f85149;
+                    text-align: right;
+                }
+
+            .ptbl tfoot tr.pay-row td {
+                border-top: 1px solid var(--border);
+                background: rgba(255,255,255,.02);
+                padding: 8px 13px;
+            }
+
+        /* Pill styles */
         .amt-pill {
             display: inline-flex;
             align-items: center;
@@ -471,7 +517,6 @@
             font-family: 'Nunito', sans-serif;
         }
 
-        /* Customer / brick-type chips */
         .vendor-pill {
             display: inline-flex;
             align-items: center;
@@ -498,7 +543,6 @@
             font-family: 'Nunito', sans-serif;
         }
 
-        /* Date badge */
         .date-badge {
             font-family: 'Nunito', sans-serif;
             font-size: 11px;
@@ -654,6 +698,7 @@
                 color: var(--accent);
             }
 
+        /* ══ PRINT STYLES ══ */
         @@media print {
             * {
                 -webkit-print-color-adjust: exact;
@@ -667,13 +712,7 @@
                 height: auto !important;
             }
 
-            .topbar,
-            .sidebar,
-            .filter-card,
-            .tc-search,
-            .tc-pagination,
-            .btn-print,
-            .pg-hdr {
+            .topbar, .sidebar, .filter-card, .tc-search, .tc-pagination, .btn-print, .pg-hdr {
                 display: none !important;
             }
 
@@ -727,13 +766,13 @@
                 border-bottom: 1px solid #dddddd !important;
             }
 
-            .tc-hdr h3 {
-                color: #111111 !important;
-            }
+                .tc-hdr h3 {
+                    color: #111111 !important;
+                }
 
-            .tc-hdr p {
-                color: #555555 !important;
-            }
+                .tc-hdr p {
+                    color: #555555 !important;
+                }
 
             .tc-hdr-icon {
                 background: rgba(224,123,57,.15) !important;
@@ -754,27 +793,45 @@
                 color: #333333 !important;
             }
 
-            .rchip strong {
-                color: #111111 !important;
-            }
+                .rchip strong {
+                    color: #111111 !important;
+                }
 
-            .rchip.gross-chip {
-                background: rgba(224,123,57,.08) !important;
-                border-color: rgba(224,123,57,.4) !important;
-            }
+                .rchip.gross-chip {
+                    background: rgba(224,123,57,.08) !important;
+                    border-color: rgba(224,123,57,.4) !important;
+                }
 
-            .rchip.gross-chip strong {
-                color: #c96a28 !important;
-            }
+                    .rchip.gross-chip strong {
+                        color: #c96a28 !important;
+                    }
 
-            .rchip.cust-chip {
-                background: rgba(96,165,250,.08) !important;
-                border-color: rgba(96,165,250,.4) !important;
-            }
+                .rchip.cust-chip {
+                    background: rgba(96,165,250,.08) !important;
+                    border-color: rgba(96,165,250,.4) !important;
+                }
 
-            .rchip.cust-chip strong {
-                color: #2563eb !important;
-            }
+                    .rchip.cust-chip strong {
+                        color: #2563eb !important;
+                    }
+                /* ── print: paid / remaining chips ── */
+                .rchip.paid-chip {
+                    background: rgba(34,211,164,.08) !important;
+                    border-color: rgba(34,211,164,.4) !important;
+                }
+
+                    .rchip.paid-chip strong {
+                        color: #0a9e7a !important;
+                    }
+
+                .rchip.due-chip {
+                    background: rgba(248,81,73,.08) !important;
+                    border-color: rgba(248,81,73,.4) !important;
+                }
+
+                    .rchip.due-chip strong {
+                        color: #c0392b !important;
+                    }
 
             .tbl-wrap {
                 overflow: visible !important;
@@ -787,40 +844,57 @@
                 table-layout: fixed !important;
             }
 
-            .ptbl thead th {
-                background: #f5f5f5 !important;
-                color: #555555 !important;
-                border-bottom: 1px solid #dddddd !important;
-                white-space: normal !important;
-                font-size: 9px !important;
-                padding: 6px 6px !important;
-            }
+                .ptbl thead th {
+                    background: #f5f5f5 !important;
+                    color: #555555 !important;
+                    border-bottom: 1px solid #dddddd !important;
+                    white-space: normal !important;
+                    font-size: 9px !important;
+                    padding: 6px !important;
+                }
 
-            .ptbl tbody td {
-                color: #111111 !important;
-                border-bottom: 1px solid #eeeeee !important;
-                padding: 6px 6px !important;
-                word-break: break-word !important;
-            }
+                .ptbl tbody td {
+                    color: #111111 !important;
+                    border-bottom: 1px solid #eeeeee !important;
+                    padding: 6px !important;
+                    word-break: break-word !important;
+                }
 
-            .ptbl tbody tr.hidden-row {
-                display: table-row !important;
-            }
+                .ptbl tbody tr.hidden-row {
+                    display: table-row !important;
+                }
 
-            .ptbl tbody tr:hover td {
-                background: transparent !important;
-            }
+                .ptbl tbody tr:hover td {
+                    background: transparent !important;
+                }
 
-            .ptbl tfoot td {
-                background: rgba(224,123,57,.06) !important;
-                border-top: 2px solid rgba(224,123,57,.4) !important;
-                padding: 6px 6px !important;
-            }
+                .ptbl tfoot td {
+                    background: rgba(224,123,57,.06) !important;
+                    border-top: 2px solid rgba(224,123,57,.4) !important;
+                    padding: 6px !important;
+                }
 
-            .ptbl tfoot td.gross-lbl,
-            .ptbl tfoot td.gross-val {
-                color: #c96a28 !important;
-            }
+                    .ptbl tfoot td.gross-lbl, .ptbl tfoot td.gross-val {
+                        color: #c96a28 !important;
+                    }
+                /* ── print: payment summary footer ── */
+                .ptbl tfoot tr.pay-row td {
+                    background: #fafafa !important;
+                    border-top: 1px solid #eeeeee !important;
+                    padding: 6px !important;
+                }
+
+                .ptbl tfoot td.pay-lbl {
+                    color: #555555 !important;
+                }
+
+                .ptbl tfoot td.pay-val-paid {
+                    color: #0a9e7a !important;
+                }
+
+                .ptbl tfoot td.pay-val-due {
+                    color: #c0392b !important;
+                }
 
             .amt-pill {
                 background: rgba(34,211,164,.1) !important;
@@ -846,7 +920,6 @@
                 border-color: #dddddd !important;
             }
         }
-
     </style>
 }
 
@@ -904,29 +977,23 @@
             <!-- From Date -->
             <div class="fg">
                 <label data-i18n="matrpt.fromDate">From Date *</label>
-                <input type="date"
-                       name="FromDate"
-                       value="@(Model.FromDate.HasValue? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")"
-                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <input type="date" name="FromDate"
+                       value="@(Model.FromDate.HasValue? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")" />
             </div>
 
             <!-- To Date -->
             <div class="fg">
                 <label data-i18n="matrpt.toDate">To Date *</label>
-                <input type="date"
-                       name="ToDate"
-                       value="@(Model.ToDate.HasValue? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")"
-                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <input type="date" name="ToDate"
+                       value="@(Model.ToDate.HasValue? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")" />
             </div>
 
-            <!-- Generate -->
             <button type="submit" class="btn-generate" data-i18n="matrpt.generate">
                 🔍 Generate Report
             </button>
-
-            <!-- Reset -->
-            <button type="button" class="btn-reset-filter" onclick="resetFilter()" data-i18n="matrpt.reset">↺ Reset</button>
-
+            <button type="button" class="btn-reset-filter" onclick="resetFilter()" data-i18n="matrpt.reset">
+                ↺ Reset
+            </button>
         </div>
     </form>
 </div>
@@ -934,7 +1001,7 @@
 <!-- ════ RESULTS TABLE CARD ════ -->
 <div class="table-card">
 
-    <!-- Print-only header (translated by i18n.js) -->
+    <!-- Print-only header -->
     <div id="printHeader" style="display:none;">
         <span data-i18n="brand.name">Jyotirling</span> <span data-i18n="brand.sub">Bricks Suppliers</span>
         &nbsp;&mdash;&nbsp;
@@ -943,8 +1010,13 @@
     <div id="printCustomer" style="display:none;">
         @if (!string.IsNullOrEmpty(Model.CustomerName))
         {
-            <span><span data-i18n="csrpt.customer">Customer</span>: @Model.CustomerName@(Model.FromDate.HasValue && Model.ToDate.HasValue ? $"  ({Model.FromDate.Value:dd MMM yyyy} – {Model.ToDate.Value:dd MMM yyyy})" : "")</span>
-        }
+            <span>
+                <span data-i18n="csrpt.customer">Customer</span>: @Model.CustomerName
+                @(Model.FromDate.HasValue && Model.ToDate.HasValue
+                            ? $"  ({Model.FromDate.Value:dd MMM yyyy} – {Model.ToDate.Value:dd MMM yyyy})"
+                            : "")
+        </span>
+                }
     </div>
     <div id="printHeaderBar" style="display:none;"></div>
 
@@ -978,22 +1050,35 @@
 
     @if (hasData)
     {
-        <!-- Summary chips -->
+        <!-- ════ SUMMARY CHIPS ════ -->
         <div class="tc-chips">
             <div class="rchip cust-chip">
-                <span data-i18n="csrpt.customer">Customer</span> &nbsp;<strong>👤 @Model.CustomerName</strong>
+                <span data-i18n="csrpt.customer">Customer</span>&nbsp;
+                <strong>👤 @Model.CustomerName</strong>
             </div>
             <div class="rchip">
-                <span data-i18n="matrpt.totalRecords">Total Records</span> &nbsp;<strong style="color:var(--text-pri);">@totalRec</strong>
+                <span data-i18n="matrpt.totalRecords">Total Records</span>&nbsp;
+                <strong style="color:var(--text-pri);">@totalRec</strong>
             </div>
             <div class="rchip">
-                <span data-i18n="matrpt.period">Period</span> &nbsp;
+                <span data-i18n="matrpt.period">Period</span>&nbsp;
                 <strong style="color:var(--text-pri);">
                     @Model.FromDate!.Value.ToString("dd MMM") – @Model.ToDate!.Value.ToString("dd MMM yyyy")
                 </strong>
             </div>
             <div class="rchip gross-chip">
-                <span data-i18n="matrpt.grossTotal">💰 Gross Total</span> &nbsp;<strong>₹ @Model.GrossTotal.ToString("N2")</strong>
+                <span data-i18n="matrpt.grossTotal">💰 Gross Total</span>&nbsp;
+                <strong>₹ @Model.GrossTotal.ToString("N2")</strong>
+            </div>
+
+            @* NEW: Paid & Remaining chips from Pending Payment Report *@
+            <div class="rchip paid-chip">
+                <span data-i18n="csrpt.totalPaid">✅ Total Paid</span>&nbsp;
+                <strong>₹ @Model.TotalPaid.ToString("N2")</strong>
+            </div>
+            <div class="rchip due-chip">
+                <span data-i18n="csrpt.remaining">⏳ Remaining</span>&nbsp;
+                <strong>₹ @Model.RemainingAmount.ToString("N2")</strong>
             </div>
         </div>
 
@@ -1031,33 +1116,32 @@
                         <tr id="row-@srNo"
                             data-search="@row.CustomerName.ToLower() @row.BrickTypeName.ToLower() @row.SalesDate.ToString("dd MMM yyyy").ToLower() @row.SalesDate.ToString("yyyy-MM-dd")">
                             <td style="color:var(--text-sec);font-size:11px;">@srNo</td>
-                            <td>
-                                <span class="date-badge">
-                                    📅 @row.SalesDate.ToString("dd MMM yyyy")
-                                </span>
-                            </td>
-                            <td>
-                                <span class="vendor-pill">👤 @row.CustomerName</span>
-                            </td>
-                            <td>
-                                <span class="material-pill">🧱 @row.BrickTypeName</span>
-                            </td>
-                            <td class="text-right" style="font-weight:600;">
-                                @row.Quantity.ToString("N2")
-                            </td>
-                            <td class="text-right" style="color:var(--text-sec);">
-                                ₹ @row.Rate.ToString("N2")
-                            </td>
-                            <td class="text-right">
-                                <span class="amt-pill">₹ @row.TotalAmount.ToString("N2")</span>
-                            </td>
+                            <td><span class="date-badge">📅 @row.SalesDate.ToString("dd MMM yyyy")</span></td>
+                            <td><span class="vendor-pill">👤 @row.CustomerName</span></td>
+                            <td><span class="material-pill">🧱 @row.BrickTypeName</span></td>
+                            <td class="text-right" style="font-weight:600;">@row.Quantity.ToString("N2")</td>
+                            <td class="text-right" style="color:var(--text-sec);">₹ @row.Rate.ToString("N2")</td>
+                            <td class="text-right"><span class="amt-pill">₹ @row.TotalAmount.ToString("N2")</span></td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
+                    <!-- Existing gross total row -->
                     <tr>
                         <td colspan="6" class="gross-lbl" data-i18n="matrpt.grossLbl">GROSS TOTAL</td>
                         <td class="gross-val">₹ @Model.GrossTotal.ToString("N2")</td>
+                    </tr>
+
+                    @* NEW: Paid row *@
+                    <tr class="pay-row">
+                        <td colspan="6" class="pay-lbl" data-i18n="csrpt.totalPaidLbl">✅ TOTAL PAID</td>
+                        <td class="pay-val-paid">₹ @Model.TotalPaid.ToString("N2")</td>
+                    </tr>
+
+                    @* NEW: Remaining row *@
+                    <tr class="pay-row">
+                        <td colspan="6" class="pay-lbl" data-i18n="csrpt.remainingLbl">⏳ REMAINING</td>
+                        <td class="pay-val-due">₹ @Model.RemainingAmount.ToString("N2")</td>
                     </tr>
                 </tfoot>
             </table>
@@ -1071,8 +1155,11 @@
         <!-- PAGINATION -->
         <div class="tc-pagination">
             <div class="pg-info">
-                <span data-i18n="matrpt.showing">Showing</span> <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, totalRec)</span>
-                <span data-i18n="matrpt.of">of</span> <span id="pgTotal">@totalRec</span> <span data-i18n="matrpt.recordsLbl">records</span>
+                <span data-i18n="matrpt.showing">Showing</span>
+                <span id="pgFrom">1</span>–<span id="pgTo">@Math.Min(pageSize, totalRec)</span>
+                <span data-i18n="matrpt.of">of</span>
+                <span id="pgTotal">@totalRec</span>
+                <span data-i18n="matrpt.recordsLbl">records</span>
             </div>
             <div class="pg-btns" id="pgBtns"></div>
             <div class="pg-size-wrap">
@@ -1199,12 +1286,10 @@
             if (pgBtns)  pgBtns.innerHTML   = '';
         }
 
-        /* ── Reset filter — reload a fresh page (clears form + report) ── */
         function resetFilter() {
             window.location.href = '/CustomerSpecificReport/Index';
         }
 
-        /* ── Print — show all rows, print, restore pagination ── */
         function printReport() {
             const rows = document.querySelectorAll('#rptBody tr');
             rows.forEach(r => r.classList.remove('hidden-row'));

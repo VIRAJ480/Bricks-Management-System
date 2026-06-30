@@ -874,8 +874,7 @@
                 <label data-i18n="matrpt.fromDate">From Date *</label>
                 <input type="date"
                        name="FromDate"
-                       value="@(Model.FromDate.HasValue? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")"
-                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                       value="@(Model.FromDate.HasValue? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")" />
             </div>
 
             <!-- To Date -->
@@ -883,8 +882,7 @@
                 <label data-i18n="matrpt.toDate">To Date *</label>
                 <input type="date"
                        name="ToDate"
-                       value="@(Model.ToDate.HasValue? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")"
-                       max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                       value="@(Model.ToDate.HasValue? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")" />
             </div>
 
             <!-- Generate -->
