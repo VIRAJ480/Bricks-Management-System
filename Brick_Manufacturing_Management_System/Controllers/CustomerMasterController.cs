@@ -91,6 +91,17 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			if (!ModelState.IsValid)
 				return View("Index", model);
 
+			// Duplicate name check
+			bool dupName = await _ctx.CustomerMasters.AnyAsync(c =>
+				c.CustomerName.ToLower() == model.CustomerName.Trim().ToLower() &&
+				c.CustomerId != model.CustomerId);
+
+			if (dupName)
+			{
+				ModelState.AddModelError("CustomerName", "या नावाचा कस्टमर आधीपासून आहे.");
+				return View("Index", model);
+			}
+
 			try
 			{
 				if (model.CustomerId == 0)

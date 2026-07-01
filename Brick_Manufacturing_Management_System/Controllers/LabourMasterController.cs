@@ -60,6 +60,17 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			if (!ModelState.IsValid)
 				return View("Index", model);
 
+			// Duplicate name check
+			bool dupName = await _ctx.LabourMasters.AnyAsync(l =>
+				l.LabourName.ToLower() == model.LabourName.Trim().ToLower() &&
+				l.LabourId != model.LabourId);
+
+			if (dupName)
+			{
+				ModelState.AddModelError("LabourName", "या नावाचा मजूर आधीपासून आहे.");
+				return View("Index", model);
+			}
+
 			// Duplicate mobile check
 			if (!string.IsNullOrWhiteSpace(model.MobileNumber))
 			{

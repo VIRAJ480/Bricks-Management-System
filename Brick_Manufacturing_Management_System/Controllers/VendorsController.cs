@@ -60,6 +60,17 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			if (!ModelState.IsValid)
 				return View("Index", model);
 
+			// Duplicate name check
+			bool dupName = await _ctx.VendorMasters.AnyAsync(v =>
+				v.VendorName.ToLower() == model.VendorName.Trim().ToLower() &&
+				v.VendorId != model.VendorId);
+
+			if (dupName)
+			{
+				ModelState.AddModelError("VendorName", "A vendor with this name already exists.");
+				return View("Index", model);
+			}
+
 			// Duplicate GST check
 			if (!string.IsNullOrWhiteSpace(model.GSTNumber))
 			{
