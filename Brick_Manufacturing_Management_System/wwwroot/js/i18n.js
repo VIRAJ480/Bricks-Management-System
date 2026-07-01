@@ -61,7 +61,7 @@ const TRANSLATIONS = {
     "nav.customerMaster": { en: "Customer Master", mr: "कस्टमर मास्टर" },
     "nav.brickSales":       { en: "Brick Sales",            mr: "विटा विक्री" },
     "nav.customerPayment": { en: "Customer Payment", mr: "कस्टमर पेमेंट्स" },
-    "nav.materialReport":   { en: "Material Report",        mr: "साहित्य अहवाल" },
+    "nav.materialReport":{ en: "Material Purchase Report", mr: "साहित्य खरेदी अहवाल" },
     "nav.customerSalesReport": { en: "Customer Sales Report", mr: "ग्राहक विक्री अहवाल" },
     "nav.customerSpecificReport": { en: "Customer Specific Report", mr: "ग्राहकनिहाय अहवाल" },
     "nav.vendorSpecificReport": { en: "Vendor Specific Purchase Report", mr: "विक्रेतानिहाय खरेदी अहवाल" },
