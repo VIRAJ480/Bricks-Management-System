@@ -512,6 +512,10 @@
                 display: none;
             }
 
+            .atbl tbody tr.search-hidden {
+                display: none;
+            }
+
         .av {
             width: 28px;
             height: 28px;
@@ -1042,29 +1046,50 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const TOTAL_ROWS = @total;
         let pageSize    = 5;
         let currentPage = 0;
-        let isSearching = false;
 
-        function getPageCount() { return Math.max(1, Math.ceil(TOTAL_ROWS / pageSize)); }
-
-        function assignPages() {
-            document.querySelectorAll('#advBody tr').forEach((r, i) => {
-                r.dataset.page = Math.floor(i / pageSize);
-            });
+        function getAllRows() {
+            return Array.from(document.querySelectorAll('#advBody tr'));
         }
 
-        function renderPagination() {
-            const pc  = getPageCount();
+        function getVisibleRows() {
+            return getAllRows().filter(r => !r.classList.contains('search-hidden'));
+        }
+
+        function showPage(p) {
+            const visible = getVisibleRows();
+            const total   = visible.length;
+            const pages   = Math.max(1, Math.ceil(total / pageSize));
+            if (p >= pages) p = pages - 1;
+            if (p < 0)      p = 0;
+            currentPage = p;
+
+            // hide all, then show only current page slice
+            getAllRows().forEach(r => r.classList.add('hidden-row'));
+            visible.forEach((r, i) => {
+                r.classList.toggle('hidden-row', Math.floor(i / pageSize) !== p);
+            });
+
+            const from = total === 0 ? 0 : p * pageSize + 1;
+            const to   = Math.min((p + 1) * pageSize, total);
+            document.getElementById('pgFrom').textContent  = from;
+            document.getElementById('pgTo').textContent    = to;
+            document.getElementById('pgTotal').textContent = total;
+
+            renderPagination(pages);
+        }
+
+        function renderPagination(pc) {
             const box = document.getElementById('pgBtns');
+            if (!box) return;
             box.innerHTML = '';
 
             function btn(label, page, cls) {
                 const b = document.createElement('button');
                 b.className = 'pg-btn' + (cls ? ' ' + cls : '');
                 b.innerHTML = label;
-                if (page !== null) b.onclick = () => changePage(page);
+                if (page !== null) b.onclick = () => showPage(page);
                 else b.disabled = true;
                 return b;
             }
@@ -1073,7 +1098,6 @@
             prev.disabled = currentPage === 0;
             box.appendChild(prev);
 
-            /* sliding window: always show first, last, and ±2 around current */
             const show = new Set([0, pc - 1]);
             for (let i = Math.max(0, currentPage - 2); i <= Math.min(pc - 1, currentPage + 2); i++) show.add(i);
             let prev_p = -1;
@@ -1088,31 +1112,14 @@
             box.appendChild(next);
         }
 
-        function showPage(p) {
-            currentPage = p;
-            document.querySelectorAll('#advBody tr').forEach(r => {
-                r.classList.toggle('hidden-row', parseInt(r.dataset.page) !== p);
-            });
-            document.getElementById('pgFrom').textContent  = p * pageSize + 1;
-            document.getElementById('pgTo').textContent    = Math.min((p + 1) * pageSize, TOTAL_ROWS);
-            document.getElementById('pgTotal').textContent = TOTAL_ROWS;
-            renderPagination();
-        }
-
-        function changePage(p) {
-            if (p < 0 || p >= getPageCount()) return;
-            showPage(p);
-        }
+        function changePage(p) { showPage(p); }
 
         function changePageSize(val) {
             pageSize = val;
-            currentPage = 0;
-            assignPages();
             showPage(0);
         }
 
-        assignPages();
-        if (TOTAL_ROWS > 0) showPage(0);
+        showPage(0);
 
         /* ── FETCH LABOUR TOTAL (AJAX) ── */
         async function fetchLabourTotal(labourId) {
@@ -1176,28 +1183,16 @@
         /* ── SEARCH ── */
         function filterTable() {
             const q    = document.getElementById('searchInput').value.toLowerCase().trim();
-            const rows = Array.from(document.querySelectorAll('#advBody tr'));
-            isSearching = q.length > 0;
+            const rows = getAllRows();
 
-            if (!isSearching) {
-                assignPages();
-                showPage(0);
-                document.getElementById('noSearch').style.display = 'none';
-                return;
-            }
-
-            let vis = 0;
             rows.forEach(r => {
                 const haystack = (r.dataset.search || '') + ' ' + r.textContent.toLowerCase();
-                const match    = haystack.includes(q);
-                r.classList.toggle('hidden-row', !match);
-                if (match) vis++;
+                r.classList.toggle('search-hidden', q.length > 0 && !haystack.includes(q));
             });
-            document.getElementById('noSearch').style.display = vis === 0 ? 'block' : 'none';
-            document.getElementById('pgFrom').textContent  = vis > 0 ? 1 : 0;
-            document.getElementById('pgTo').textContent    = vis;
-            document.getElementById('pgTotal').textContent = vis;
-            document.getElementById('pgBtns').innerHTML    = '';
+
+            const vis = getVisibleRows().length;
+            document.getElementById('noSearch').style.display = (q.length > 0 && vis === 0) ? 'block' : 'none';
+            showPage(0);
         }
 
         /* ── DELETE MODAL ── */
@@ -1216,7 +1211,9 @@
         /* ── SCROLL EDITING ROW INTO VIEW ── */
         const editRow = document.querySelector('.editing-row');
         if (editRow) {
-            changePage(parseInt(editRow.dataset.page) || 0);
+            const allRows = getAllRows();
+            const idx = allRows.indexOf(editRow);
+            if (idx >= 0) showPage(Math.floor(idx / pageSize));
             setTimeout(() => editRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 

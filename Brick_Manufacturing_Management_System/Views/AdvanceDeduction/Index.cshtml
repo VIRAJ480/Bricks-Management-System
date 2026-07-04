@@ -1331,12 +1331,11 @@
             setTimeout(() => editRow.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
         }
 
-        /* ── Init balance hint if editing ── */
+        /* ── Init balance hint if editing or labour pre-selected ── */
         (function initEdit() {
             const labourSel = document.getElementById('selLabour');
             if (labourSel && labourSel.value) {
-                // Already have balance from server — just sync the hint
-                calcBalance();
+                fetchAdvanceInfo(labourSel.value);
             }
         })();
     </script>

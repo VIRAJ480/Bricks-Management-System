@@ -188,8 +188,17 @@ namespace Brick_Manufacturing_Management_System.Controllers
 			await PopulateDropdowns(model);
 			model.DeductionList = await GetDeductionList();
 
-			if (model.LabourId.HasValue)
-				model.CurrentAdvance = await GetLabourAdvance(model.LabourId.Value);
+				if (model.LabourId.HasValue)
+			{
+				var totalAdv = await _ctx.LabourAdvances
+					.Where(a => a.LabourId == model.LabourId)
+					.SumAsync(a => (decimal?)(a.AdvanceAmount ?? 0)) ?? 0;
+				var totalDed = await _ctx.AdvanceDeductions
+					.Where(d => d.LabourId == model.LabourId)
+					.SumAsync(d => (decimal?)(d.Amount ?? 0)) ?? 0;
+				model.CurrentAdvance  = totalAdv;
+				model.AdvanceBalance  = Math.Max(0, totalAdv - totalDed);
+			}
 
 			if (!ModelState.IsValid)
 				return View("Index", model);

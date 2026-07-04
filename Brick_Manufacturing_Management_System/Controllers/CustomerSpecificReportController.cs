@@ -88,26 +88,30 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					  c => c.CustomerId,
 					  (s, c) => new
 					  {
-						  SalesDate = s.SalesDate,          // DateOnly?
+						  SalesDate    = s.SalesDate,
 						  CustomerName = c.CustomerName,
-						  BrickTypeName = s.BrickType ?? string.Empty,
-						  Quantity = (decimal)(s.Quantity ?? 0),
-						  Rate = s.Rate ?? 0m,
-						  TotalAmount = s.TotalAmount ?? 0m
+						  BrickTypeRaw = s.BrickType ?? string.Empty,
+						  Quantity     = (decimal)(s.Quantity ?? 0),
+						  Rate         = s.Rate ?? 0m,
+						  TotalAmount  = s.TotalAmount ?? 0m
 					  })
 				.OrderBy(r => r.SalesDate)
 				.ToListAsync();
 
+			// Load brick type lookup (id → name) to resolve BrickTypeRaw
+			var brickTypeMap = await _ctx.BrickTypes
+				.ToDictionaryAsync(b => b.BrickTypeId.ToString(), b => b.BrickTypeName);
+
 			// ── Map to VM rows in memory (safe .Value.ToDateTime here) ────
 			vm.ReportData = rawSales.Select(s => new CustomerSpecificReportRow
 			{
-				SalesDate = s.SalesDate!.Value.ToDateTime(TimeOnly.MinValue),
-				CustomerName = s.CustomerName,
-				BrickTypeName = s.BrickTypeName,
-				Quantity = s.Quantity,
-				Rate = s.Rate,
-				TotalAmount = s.TotalAmount,
-				Gross = s.TotalAmount
+				SalesDate     = s.SalesDate!.Value.ToDateTime(TimeOnly.MinValue),
+				CustomerName  = s.CustomerName,
+				BrickTypeName = brickTypeMap.TryGetValue(s.BrickTypeRaw, out var name) ? name : s.BrickTypeRaw,
+				Quantity      = s.Quantity,
+				Rate          = s.Rate,
+				TotalAmount   = s.TotalAmount,
+				Gross         = s.TotalAmount
 			}).ToList();
 
 			vm.GrossTotal = vm.ReportData.Sum(r => r.TotalAmount);
