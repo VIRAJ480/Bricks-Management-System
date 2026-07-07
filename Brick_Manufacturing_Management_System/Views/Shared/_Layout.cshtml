@@ -677,6 +677,12 @@
                     <span class="nav-icon">🏭</span>
                     <span class="nav-label" data-i18n="nav.brickProduction">Brick Production</span>
                 </a>
+
+                <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "BricksType" ? "active" : "")"
+                   href="/BricksType/Index">
+                    <span class="nav-icon">🏭</span>
+                    <span class="nav-label" data-i18n="nav.BricksType">Bricks Type</span>
+                </a>
             </div>
 
             <!-- BRICK SALES & CUSTOMER PAYMENT -->

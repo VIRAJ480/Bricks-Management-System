@@ -52,9 +52,9 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					SalesDate    = s.SalesDate ?? DateOnly.FromDateTime(DateTime.Today),
 					CustomerName = s.Customer != null ? s.Customer.CustomerName ?? "—" : "—",
 					BrickTypeName = _ctx.BrickTypes
-						.Where(b => b.BrickTypeId.ToString() == s.BrickType)
+						.Where(b => b.BrickTypeId == s.BrickTypeId)
 						.Select(b => b.BrickTypeName)
-						.FirstOrDefault() ?? s.BrickType ?? "—",
+						.FirstOrDefault() ?? "—",
 					Quantity     = s.Quantity ?? 0,
 					Rate         = s.Rate ?? 0,
 					TotalAmount  = s.TotalAmount ?? 0,
@@ -85,7 +85,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					vm.SalesId       = entity.SalesId;
 					vm.SalesDate     = entity.SalesDate;
 					vm.CustomerId    = entity.CustomerId;
-					vm.BrickTypeId   = int.TryParse(entity.BrickType, out int btId) ? btId : null;
+					vm.BrickTypeId   = entity.BrickTypeId;
 					vm.Quantity      = entity.Quantity;
 					vm.Rate          = entity.Rate;
 					vm.TotalAmount   = entity.TotalAmount;
@@ -132,7 +132,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				{
 					SalesDate     = salesDate,
 					CustomerId    = model.CustomerId,
-					BrickType     = model.BrickTypeId.ToString(),
+					BrickTypeId   = model.BrickTypeId,
 					Quantity      = (int)qty,
 					Rate          = rate,
 					TotalAmount   = total,
@@ -154,7 +154,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 				entity.SalesDate     = salesDate;
 				entity.CustomerId    = model.CustomerId;
-				entity.BrickType     = model.BrickTypeId.ToString();
+				entity.BrickTypeId   = model.BrickTypeId;
 				entity.Quantity      = (int)qty;
 				entity.Rate          = rate;
 				entity.TotalAmount   = total;

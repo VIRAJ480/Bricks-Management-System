@@ -90,7 +90,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 					  {
 						  SalesDate    = s.SalesDate,
 						  CustomerName = c.CustomerName,
-						  BrickTypeRaw = s.BrickType ?? string.Empty,
+						  BrickTypeRaw = s.BrickTypeId ?? 0,
 						  Quantity     = (decimal)(s.Quantity ?? 0),
 						  Rate         = s.Rate ?? 0m,
 						  TotalAmount  = s.TotalAmount ?? 0m
@@ -100,14 +100,14 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 			// Load brick type lookup (id → name) to resolve BrickTypeRaw
 			var brickTypeMap = await _ctx.BrickTypes
-				.ToDictionaryAsync(b => b.BrickTypeId.ToString(), b => b.BrickTypeName);
+				.ToDictionaryAsync(b => b.BrickTypeId, b => b.BrickTypeName);
 
 			// ── Map to VM rows in memory (safe .Value.ToDateTime here) ────
 			vm.ReportData = rawSales.Select(s => new CustomerSpecificReportRow
 			{
 				SalesDate     = s.SalesDate!.Value.ToDateTime(TimeOnly.MinValue),
 				CustomerName  = s.CustomerName,
-				BrickTypeName = brickTypeMap.TryGetValue(s.BrickTypeRaw, out var name) ? name : s.BrickTypeRaw,
+				BrickTypeName = brickTypeMap.TryGetValue(s.BrickTypeRaw, out var name) ? name : "—",
 				Quantity      = s.Quantity,
 				Rate          = s.Rate,
 				TotalAmount   = s.TotalAmount,

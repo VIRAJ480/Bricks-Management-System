@@ -11,7 +11,7 @@ public partial class BrickSale
 
     public int? CustomerId { get; set; }
 
-    public string? BrickType { get; set; }
+    public int? BrickTypeId { get; set; }
 
     public int? Quantity { get; set; }
 

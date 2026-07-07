@@ -56,7 +56,7 @@ namespace Brick_Manufacturing_Management_System.Controllers
 
 				// Brick type id → name lookup
 				var brickTypes = _db.BrickTypes
-					.ToDictionary(b => b.BrickTypeId.ToString(), b => b.BrickTypeName);
+					.ToDictionary(b => b.BrickTypeId, b => b.BrickTypeName);
 
 				var sales = _db.BrickSales
 					.Include(s => s.Customer)
@@ -71,9 +71,9 @@ namespace Brick_Manufacturing_Management_System.Controllers
 						? s.SalesDate.Value.ToDateTime(TimeOnly.MinValue)
 						: DateTime.Today,
 					CustomerName  = s.Customer != null ? (s.Customer.CustomerName ?? "—") : "—",
-					BrickTypeName = (s.BrickType != null && brickTypes.ContainsKey(s.BrickType))
-						? brickTypes[s.BrickType]
-						: (s.BrickType ?? "—"),
+					BrickTypeName = (s.BrickTypeId != null && brickTypes.ContainsKey(s.BrickTypeId.Value))
+						? brickTypes[s.BrickTypeId.Value]
+						: "—",
 					Quantity      = s.Quantity ?? 0,
 					Rate          = s.Rate ?? 0,
 					TotalAmount   = s.TotalAmount ?? 0

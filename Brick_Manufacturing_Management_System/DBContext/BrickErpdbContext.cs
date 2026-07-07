@@ -105,7 +105,6 @@ public partial class BrickErpdbContext : DbContext
         {
             entity.HasKey(e => e.SalesId).HasName("PK__BrickSal__C952FB325014C4DC");
 
-            entity.Property(e => e.BrickType).HasMaxLength(50);
             entity.Property(e => e.PaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.PendingAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.Rate).HasColumnType("decimal(18, 2)");

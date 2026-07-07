@@ -87,26 +87,26 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				.Where(s => s.SalesDate >= firstOfMonth && s.SalesDate <= today)
 				.CountAsync();
 			ViewBag.LabourLedgerCount = await ctx.LabourMasters.CountAsync();
-			var breadBrickId = (await ctx.BrickTypes
+			var breadBrickId = await ctx.BrickTypes
 				.Where(b => b.BrickTypeName == "Bread Brick" || b.BrickTypeName == "ब्रेड विट")
-				.Select(b => b.BrickTypeId)
-				.FirstOrDefaultAsync()).ToString();
-			ViewBag.Breadbricks       = await ctx.BrickSales
-				.Where(s => s.BrickType == breadBrickId)
+				.Select(b => (int?)b.BrickTypeId)
+				.FirstOrDefaultAsync();
+			ViewBag.Breadbricks = await ctx.BrickSales
+				.Where(s => s.BrickTypeId == breadBrickId)
 				.SumAsync(s => (int?)s.Quantity) ?? 0;
-			var solidBrickId = (await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Solid Brick" || b.BrickTypeName== "ठोकळा विट")
-				.Select(b => b.BrickTypeId)
-				.FirstOrDefaultAsync()).ToString();
-			ViewBag.Solidbricks       = await ctx.BrickSales
-				.Where(s => s.BrickType == solidBrickId)
+			var solidBrickId = await ctx.BrickTypes
+				.Where(b => b.BrickTypeName == "Solid Brick" || b.BrickTypeName == "ठोकळा विट")
+				.Select(b => (int?)b.BrickTypeId)
+				.FirstOrDefaultAsync();
+			ViewBag.Solidbricks = await ctx.BrickSales
+				.Where(s => s.BrickTypeId == solidBrickId)
 				.SumAsync(s => (int?)s.Quantity) ?? 0;
-			var Brokenbricksid = (await ctx.BrickTypes
-		.Where(b => b.BrickTypeName == "Broken bricks" || b.BrickTypeName == "तुकडा विट")
-		.Select(b => b.BrickTypeId)
-		.FirstOrDefaultAsync()).ToString();
+			var Brokenbricksid = await ctx.BrickTypes
+				.Where(b => b.BrickTypeName == "Broken bricks" || b.BrickTypeName == "तुकडा विट")
+				.Select(b => (int?)b.BrickTypeId)
+				.FirstOrDefaultAsync();
 			ViewBag.Brokenbricks = await ctx.BrickSales
-				.Where(s => s.BrickType == Brokenbricksid)
+				.Where(s => s.BrickTypeId == Brokenbricksid)
 				.SumAsync(s => (int?)s.Quantity) ?? 0;
 
 			// Pending Payments — replicate sp_GetPendingCustomerPayments logic

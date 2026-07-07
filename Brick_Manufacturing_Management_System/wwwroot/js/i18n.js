@@ -71,6 +71,7 @@ const TRANSLATIONS = {
     "nav.pendingPayments":  { en: "Customer Pending Payments",       mr: "प्रलंबित देयके" },
     "nav.accountSettings": { en: "Account Settings", mr: "खाते सेटिंग्ज" },
     "nav.VendorPayment": { en: "Vendor Payment", mr: "व्हेंडर पेमेंट" },
+    "nav.BricksType":    { en: "Bricks Type",    mr: "विटांचा प्रकार" },
    
 
     // ── DASHBOARD — WELCOME BANNER ───────────────────────────
@@ -612,6 +613,19 @@ const TRANSLATIONS = {
     "vendorpay.rows": { en: "Rows", mr: "रोज़" },
     "vendorpay.search": { en: "Search by vendor, mode, status...", mr:"व्हेंडर, मोड, स्टेटस ने सर्च करा..."},
 
+    // ── BRICK TYPE MASTER ─────────────────────────────────────
+    "nav.brickTypeMaster":      { en: "🧱 Brick Type Master",      mr: "🧱 विटांचा प्रकार मास्टर" },
+    "brickType.addBrickType":   { en: "Add Brick Type",            mr: "विटांचा प्रकार जोडा" },
+    "brickType.editBrickType":  { en: "Edit Brick Type",           mr: "विटांचा प्रकार संपादित करा" },
+    "brickType.addBtn":         { en: "＋ Add Brick Type",          mr: "＋ विटांचा प्रकार जोडा" },
+    "brickType.updateBrickType":{ en: "💾 Update Brick Type",      mr: "💾 विटांचा प्रकार अपडेट करा" },
+    "brickType.brickTypeName":  { en: "Brick Type Name *",         mr: "विटांच्या प्रकाराचे नाव *" },
+    "brickType.brickTypeList":  { en: "Brick Type List",           mr: "विटांच्या प्रकाराची यादी" },
+    "brickType.brickTypeCol":   { en: "Brick Type Name",           mr: "विटांच्या प्रकाराचे नाव" },
+    "brickType.deleteTitle":    { en: "⚠️ Delete Brick Type?",     mr: "⚠️ विटांचा प्रकार हटवायचा?" },
+    "brickType.noSearch":       { en: "No brick types match your search.", mr: "आपल्या शोधाशी जुळणारे विटांचे प्रकार नाहीत." },
+    "brickType.brickTypes":     { en: "brick types",               mr: "विटांचे प्रकार" },
+
     // ── VENDOR PENDING PAYMENT REPORT ───────────────────────
     "vpendrpt.title":           { en: "VENDOR PENDING PAYMENT REPORT",                  mr: "विक्रेता प्रलंबित देयक अहवाल" },
     "vpendrpt.subtitle":        { en: "Track outstanding and partially paid vendor balances", mr: "थकीत आणि अंशतः भरलेल्या विक्रेता शिल्लकांचा मागोवा घ्या" },
@@ -683,7 +697,7 @@ function changeLanguage(lang) {
  */
 document.addEventListener('DOMContentLoaded', function () {
     // Version bump — clears stale localStorage cache when translations change
-    const I18N_VERSION = '4';
+    const I18N_VERSION = '7';
     if (localStorage.getItem('brickErpLangVer') !== I18N_VERSION) {
         localStorage.removeItem('brickErpLang');
         localStorage.setItem('brickErpLangVer', I18N_VERSION);
