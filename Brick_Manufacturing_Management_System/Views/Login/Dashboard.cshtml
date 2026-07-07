@@ -369,24 +369,15 @@
         <div class="sc-lbl" data-i18n="dash.AdvanceDeduction">Advance Deduction</div>
         <a class="sc-link" href="/AdvanceDeduction/Index" data-i18n="dash.review">Review →</a>
     </div>
-    <div class="sc c2">
-        <div class="sc-icon">🧱</div>
-        <div class="sc-val">@ViewBag.Breadbricks</div>
-        <div class="sc-lbl" data-i18n="dash.Breadbricks">Bread bricks</div>
-        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
-    </div>
-    <div class="sc c2">
-        <div class="sc-icon">🧱</div>
-        <div class="sc-val">@ViewBag.Solidbricks</div>
-        <div class="sc-lbl" data-i18n="dash.Solidbricks">Solid bricks</div>
-        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
-    </div>
-    <div class="sc c2">
-        <div class="sc-icon">🧱</div>
-        <div class="sc-val">@ViewBag.Brokenbricks</div>
-        <div class="sc-lbl" data-i18n="dash.Brokenbricks">Broken bricks</div>
-        <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
-    </div>
+    @foreach (var bt in (IEnumerable<dynamic>)ViewBag.BrickTypeStats)
+    {
+        <div class="sc c2">
+            <div class="sc-icon">🧱</div>
+            <div class="sc-val">@(((int)bt.TotalSold).ToString("N0"))</div>
+            <div class="sc-lbl">@bt.BrickTypeName</div>
+            <a class="sc-link" href="/BrickSales/Index" data-i18n="dash.review">Review →</a>
+        </div>
+    }
 </div>
 
 <!-- ROW 1: Recent Sales + Recent Purchases -->

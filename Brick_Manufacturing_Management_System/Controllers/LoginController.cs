@@ -87,27 +87,26 @@ namespace Brick_Manufacturing_Management_System.Controllers
 				.Where(s => s.SalesDate >= firstOfMonth && s.SalesDate <= today)
 				.CountAsync();
 			ViewBag.LabourLedgerCount = await ctx.LabourMasters.CountAsync();
-			var breadBrickId = await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Bread Brick" || b.BrickTypeName == "ब्रेड विट")
-				.Select(b => (int?)b.BrickTypeId)
-				.FirstOrDefaultAsync();
-			ViewBag.Breadbricks = await ctx.BrickSales
-				.Where(s => s.BrickTypeId == breadBrickId)
-				.SumAsync(s => (int?)s.Quantity) ?? 0;
-			var solidBrickId = await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Solid Brick" || b.BrickTypeName == "ठोकळा विट")
-				.Select(b => (int?)b.BrickTypeId)
-				.FirstOrDefaultAsync();
-			ViewBag.Solidbricks = await ctx.BrickSales
-				.Where(s => s.BrickTypeId == solidBrickId)
-				.SumAsync(s => (int?)s.Quantity) ?? 0;
-			var Brokenbricksid = await ctx.BrickTypes
-				.Where(b => b.BrickTypeName == "Broken bricks" || b.BrickTypeName == "तुकडा विट")
-				.Select(b => (int?)b.BrickTypeId)
-				.FirstOrDefaultAsync();
-			ViewBag.Brokenbricks = await ctx.BrickSales
-				.Where(s => s.BrickTypeId == Brokenbricksid)
-				.SumAsync(s => (int?)s.Quantity) ?? 0;
+			// ── DYNAMIC BRICK TYPE CARDS ─────────────────────────────────
+			var allBrickTypes = await ctx.BrickTypes
+				.Where(b => b.Status == true)
+				.OrderBy(b => b.BrickTypeId)
+				.ToListAsync();
+
+			var brickSaleTotals = await ctx.BrickSales
+				.Where(s => s.BrickTypeId != null)
+				.GroupBy(s => s.BrickTypeId)
+				.Select(g => new { BrickTypeId = g.Key, TotalQty = g.Sum(s => s.Quantity ?? 0) })
+				.ToListAsync();
+
+			var saleLookup = brickSaleTotals.ToDictionary(x => x.BrickTypeId!.Value, x => x.TotalQty);
+
+			ViewBag.BrickTypeStats = allBrickTypes.Select(b => new
+			{
+				b.BrickTypeId,
+				b.BrickTypeName,
+				TotalSold = saleLookup.ContainsKey(b.BrickTypeId) ? saleLookup[b.BrickTypeId] : 0
+			}).ToList();
 
 			// Pending Payments — replicate sp_GetPendingCustomerPayments logic
 			var salesByCustomer = await ctx.BrickSales
