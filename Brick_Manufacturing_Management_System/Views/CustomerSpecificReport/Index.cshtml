@@ -451,7 +451,8 @@
             }
 
             /* Gross footer row */
-            .ptbl tfoot td {
+            .ptbl tfoot { display: table-row-group !important; }
+                .ptbl tfoot td {
                 padding: 10px 13px;
                 border-top: 2px solid rgba(224,123,57,.4);
                 font-weight: 700;
@@ -568,6 +569,8 @@
                 margin-bottom: 10px;
                 display: block;
             }
+
+        .rpt-footer-once { display: none; }
 
         #noSearch {
             display: none;
@@ -868,6 +871,7 @@
                     background: transparent !important;
                 }
 
+                .ptbl tfoot { display: table-row-group !important; }
                 .ptbl tfoot td {
                     background: rgba(224,123,57,.06) !important;
                     border-top: 2px solid rgba(224,123,57,.4) !important;
@@ -1298,3 +1302,4 @@
         }
     </script>
 }
+

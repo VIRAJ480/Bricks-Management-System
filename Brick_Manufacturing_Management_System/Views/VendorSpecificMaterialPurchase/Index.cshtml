@@ -654,6 +654,10 @@
                 color: var(--accent);
             }
 
+        .rpt-footer-once {
+            display: none;
+        }
+
         @@media print {
             * {
                 -webkit-print-color-adjust: exact;
@@ -819,6 +823,21 @@
 
             .ptbl tfoot td.gross-lbl,
             .ptbl tfoot td.gross-val {
+                color: #c96a28 !important;
+            }
+
+            .rpt-footer-once {
+                display: block !important;
+            }
+
+            .rpt-footer-once .ptbl tbody td {
+                background: rgba(224,123,57,.06) !important;
+                border-top: 2px solid rgba(224,123,57,.4) !important;
+                padding: 6px 6px !important;
+            }
+
+            .rpt-footer-once .ptbl tbody td.gross-lbl,
+            .rpt-footer-once .ptbl tbody td.gross-val {
                 color: #c96a28 !important;
             }
 
@@ -1052,12 +1071,23 @@
                         </tr>
                     }
                 </tbody>
-                <tfoot>
+                <tfoot style="display:none;">
                     <tr>
                         <td colspan="6" class="gross-lbl" data-i18n="matrpt.grossLbl">GROSS TOTAL</td>
                         <td class="gross-val">₹ @Model.GrossTotal.ToString("N2")</td>
                     </tr>
                 </tfoot>
+            </table>
+        </div>
+
+        <div class="rpt-footer-once">
+            <table class="ptbl">
+                <tbody>
+                    <tr>
+                        <td colspan="6" class="gross-lbl" data-i18n="matrpt.grossLbl">GROSS TOTAL</td>
+                        <td class="gross-val">₹ @Model.GrossTotal.ToString("N2")</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
 
