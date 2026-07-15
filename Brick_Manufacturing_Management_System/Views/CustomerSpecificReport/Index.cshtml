@@ -747,6 +747,15 @@
                 letter-spacing: 1px;
             }
 
+            #printHeader div {
+                font-family: 'Nunito', sans-serif !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                color: #555555 !important;
+                margin-top: 3px !important;
+                letter-spacing: 0 !important;
+            }
+
             #printCustomer {
                 display: block !important;
                 text-align: center;
@@ -1010,6 +1019,9 @@
         <span data-i18n="brand.name">Jyotirling</span> <span data-i18n="brand.sub">Bricks Suppliers</span>
         &nbsp;&mdash;&nbsp;
         <span data-i18n="csrpt.title">Customer Specific Report</span>
+        <div style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;color:#555;margin-top:4px;">
+            📞 Amit Mane &nbsp;|&nbsp; 9028706195
+        </div>
     </div>
     <div id="printCustomer" style="display:none;">
         @if (!string.IsNullOrEmpty(Model.CustomerName))

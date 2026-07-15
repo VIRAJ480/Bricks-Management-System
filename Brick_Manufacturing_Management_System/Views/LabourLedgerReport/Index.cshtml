@@ -197,6 +197,25 @@
                 transform: scale(.98);
             }
 
+        .btn-reset {
+            width: 100%;
+            padding: 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-sec);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Nunito', sans-serif;
+            border: 1px solid var(--border);
+            transition: all .2s;
+        }
+
+            .btn-reset:hover {
+                border-color: var(--accent);
+                color: var(--accent);
+            }
+
         /* ══ RIGHT: REPORT CARD ══ */
         .report-card {
             background: var(--bg-card);
@@ -642,6 +661,10 @@
                     🔍 Show Report
                 </button>
 
+                <button type="button" class="btn-reset" onclick="resetFilter()" data-i18n="common.reset">
+                    ↺ Reset
+                </button>
+
             </div>
         </form>
     </div>
@@ -765,28 +788,28 @@
                 </div>
 
                 <!-- 🟢 SALARY SECTION -->
-                <div class="section-block">
-                    <div class="sec-hdr salary">
+                @* <div class="section-block"> *@
+                   @*  <div class="sec-hdr salary">
                         <div class="sec-hdr-dot green"></div>
                         <span data-i18n="ledger.salSection">SALARY SECTION</span>
-                    </div>
-                    <div class="ledger-rows">
+                    </div> *@
+                    @* <div class="ledger-rows"> *@
 
-                        <div class="lr">
+                        @* <div class="lr">
                             <div class="lr-label">
                                 <span class="lr-icon">🛠️</span> <span data-i18n="ledger.salaryEarned">Salary Earned</span>
                             </div>
                             <div class="lr-value val-green">₹@r.SalaryEarned.ToString("N2")</div>
-                        </div>
+                        </div> *@
 
-                        <div class="lr">
+                      @*   <div class="lr">
                             <div class="lr-label">
                                 <span class="lr-icon">📉</span> <span data-i18n="ledger.expense">Expense</span>
                             </div>
                             <div class="lr-value val-red">₹@r.TotalExpense.ToString("N2")</div>
-                        </div>
+                        </div> *@
 
-                        <div class="lr divider">
+                       @*  <div class="lr divider">
                             <div class="lr-label">
                                 <span class="lr-icon">🟰</span> <span data-i18n="ledger.finalSalary">Final Salary</span>
                             </div>
@@ -794,16 +817,16 @@
                                 ₹@r.FinalSalary.ToString("N2")
                             </div>
                         </div>
-
-                        <div class="lr divider">
+ *@
+                       @*  <div class="lr divider">
                             <div class="lr-label">
                                 <span class="lr-icon">✅</span> <span data-i18n="ledger.paidAmount">Paid Amount</span>
                             </div>
                             <div class="lr-value val-green">₹@r.PaidAmount.ToString("N2")</div>
-                        </div>
+                        </div> *@
 
-                    </div>
-                </div>
+                    @* </div> *@
+               @*  </div> *@
 
             </div>
         
@@ -832,5 +855,8 @@
                 });
             });
         })();
+        function resetFilter() {
+            window.location.href = '/LabourLedgerReport/Index';
+        }
     </script>
 }
