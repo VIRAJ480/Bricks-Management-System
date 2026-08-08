@@ -718,13 +718,13 @@
                 border-bottom: 1px solid #dddddd !important;
             }
 
-            .tc-hdr h3 {
-                color: #111111 !important;
-            }
+                .tc-hdr h3 {
+                    color: #111111 !important;
+                }
 
-            .tc-hdr p {
-                color: #555555 !important;
-            }
+                .tc-hdr p {
+                    color: #555555 !important;
+                }
 
             .tc-hdr-icon {
                 background: rgba(224,123,57,.15) !important;
@@ -746,18 +746,18 @@
                 color: #333333 !important;
             }
 
-            .rchip strong {
-                color: #111111 !important;
-            }
+                .rchip strong {
+                    color: #111111 !important;
+                }
 
-            .rchip.gross-chip {
-                background: rgba(224,123,57,.08) !important;
-                border-color: rgba(224,123,57,.4) !important;
-            }
+                .rchip.gross-chip {
+                    background: rgba(224,123,57,.08) !important;
+                    border-color: rgba(224,123,57,.4) !important;
+                }
 
-            .rchip.gross-chip strong {
-                color: #c96a28 !important;
-            }
+                    .rchip.gross-chip strong {
+                        color: #c96a28 !important;
+                    }
 
             /* Fix table wrapper — no clipping in print */
             .tbl-wrap {
@@ -772,41 +772,51 @@
                 table-layout: fixed !important;
             }
 
-            .ptbl thead th {
-                background: #f5f5f5 !important;
-                color: #555555 !important;
-                border-bottom: 1px solid #dddddd !important;
-                white-space: normal !important;
-                font-size: 9px !important;
-                padding: 6px 6px !important;
-            }
+                .ptbl thead th {
+                    background: #f5f5f5 !important;
+                    color: #555555 !important;
+                    border-bottom: 1px solid #dddddd !important;
+                    white-space: normal !important;
+                    font-size: 9px !important;
+                    padding: 6px 6px !important;
+                }
 
-            .ptbl tbody td {
-                color: #111111 !important;
-                border-bottom: 1px solid #eeeeee !important;
-                padding: 6px 6px !important;
-                word-break: break-word !important;
-            }
+                .ptbl tbody td {
+                    color: #111111 !important;
+                    border-bottom: 1px solid #eeeeee !important;
+                    padding: 6px 6px !important;
+                    word-break: break-word !important;
+                }
 
-            /* Show ALL rows regardless of pagination */
-            .ptbl tbody tr.hidden-row {
-                display: table-row !important;
-            }
+                /* Show ALL rows regardless of pagination */
+                .ptbl tbody tr.hidden-row {
+                    display: table-row !important;
+                }
 
-            .ptbl tbody tr:hover td {
-                background: transparent !important;
-            }
+                .ptbl tbody tr:hover td {
+                    background: transparent !important;
+                }
+             
+                .ptbl tfoot {
+                    display: table-row-group !important;
+                }
+                    /* Keep the Gross Total row itself from being split across
+                       a page break */
+                    .ptbl tfoot tr {
+                        break-inside: avoid !important;
+                        page-break-inside: avoid !important;
+                    }
 
-            .ptbl tfoot td {
-                background: rgba(224,123,57,.06) !important;
-                border-top: 2px solid rgba(224,123,57,.4) !important;
-                padding: 6px 6px !important;
-            }
+                    .ptbl tfoot td {
+                        background: rgba(224,123,57,.06) !important;
+                        border-top: 2px solid rgba(224,123,57,.4) !important;
+                        padding: 6px 6px !important;
+                    }
 
-            .ptbl tfoot td.gross-lbl,
-            .ptbl tfoot td.gross-val {
-                color: #c96a28 !important;
-            }
+                        .ptbl tfoot td.gross-lbl,
+                        .ptbl tfoot td.gross-val {
+                            color: #c96a28 !important;
+                        }
 
             /* Fix pills */
             .amt-pill {
